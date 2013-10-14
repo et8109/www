@@ -20,9 +20,10 @@ events
 voice
 
 todo:
-normalize db
 start on testing - alerts, items, db
 git
+move chat to db
+combat started
 
 add fail actions to helper functions
 on opening page: character list(some hand drawn pics), story introduction
@@ -71,7 +72,7 @@ remove \r\n from all input text
 <link rel="stylesheet" type="text/css" href="TextCombat.css" />
 <script src="TextCombat.js"></script>
 <!--//////////////////////////////////remove testing///////////////////////////////////////////////////-->
-<script src="testing.js"></script>
+<!--<script src="testing.js"></script>-->
 <audio id="anvil">
     <source src="sounds/anvil.wav" type="audio/wav"/>
     Your browser doesn't support wav sound
@@ -90,7 +91,7 @@ remove \r\n from all input text
         <span id="logout"><a href="logout.php">log out</a></span>
         <span id="hubName" onclick="displayMyDesc()"><?php echo $_SESSION['playerName']; ?></span>
         <span id="id"><?php echo $_SESSION['playerID']; ?></span>
-        <span id="alert" onclick="openAlerts()">0 alerts</span>
+        <span id="alert" onclick="openAlerts()">alerts</span>
         
         <div id="extra">
             <textArea id="textArea"></textArea><br/>

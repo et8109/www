@@ -24,8 +24,8 @@ var numItems;
     request.onreadystatechange = function(){
 	if (this.readyState==4 && this.status==200) {
             var response = this.responseText.split("<>");
-	    var playerName = response[0];
-            var numItems = parseInt(response[1]);
+	    playerName = response[0];
+            numItems = parseInt(response[1]);
             var adminLevel = parseInt(response[2]);
             switch(adminLevel){
                 case(1):
@@ -46,7 +46,7 @@ var numItems;
 /**
      *sets the timer to update chat
      */
-updater: setInterval("updateChat()", 5000);
+updater: setInterval("updateChat()", 3000);
 /**
  *The possible inputs from the text area at the bottom of the page
  */
@@ -310,6 +310,7 @@ function addDesc(type, id) {
                 case('playerInfo'):
                     addText("<span class='name' onclick='addDesc("+types.PLAYER+","+id+")'>"+response[0]+"</span>");
                     addText(response[1]);
+                    addText("<span class='fight' onclick='attack("+id+")'>~Attack~</span>");
                 break;
             
                 case('scenes'):
@@ -698,4 +699,20 @@ function toggleMute(){
         muted = true;
         document.getElementById("alertMainMute").innerHTML = "Unmute";
     }
+}
+
+////////////////////////////////////////////////////
+////////////////////////////////////////////////////
+////////////////////////////////////////////////////
+////////////////////////////////////////////////////
+
+/**
+ *instanciates two (or more) people in combat
+ *info which both clients need:
+ *combat stats from items
+ *combat descision tree
+ */
+function attack(enemyID){
+    addText("[your skill level], [enemy skill level], you [lunge with your [weapon]]");
+    addText("[enemyname] is hit for [this much damage]");
 }

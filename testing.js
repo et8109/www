@@ -151,6 +151,9 @@ window.onload = function(){
         
     //replaceKeywords, replaceCraftQuality
     //addAlert, removeAlert
+    
+    //db add alert, remove alert
+    
     //openAlerts, closeAlerts
     //getInputText
     document.getElementById("input").value="inputted";
@@ -163,6 +166,7 @@ window.onload = function(){
     //closeTextArea
     //textAreaSumbit
     //startCraft
+    //everything combat related
     //addCraftName
     //addCraftDescription
     //endCrafting

@@ -100,6 +100,14 @@ switch($function){
         echo $row['craftSkill'];
         break;
     
+    case('getCombatInfo'):
+        session_start();
+        //get my info
+        $row = query();
+        //get enemy info
+        //concatenate
+        break;
+    
     case('setUp'):
         session_start();
         //player name
@@ -116,15 +124,6 @@ switch($function){
         $row = query("select adminLevel from playerinfo where ID=".prepVar($_SESSION['playerID']));
         $toReturn .= "<>".$row['adminLevel'];
         
-        //number of items
-        /*$row = query("select items from playerinfo where ID=".prepVar($_SESSION['playerID']));
-        $itemIDs = $row["items"];
-        $numItems=0;
-        while($itemIDs>100){
-            $itemIDs = $itemIDs/100;
-            $numItems++;
-        }
-        $toReturn .= "<>".$numItems;*/
         //current alerts
         $result = queryMulti("select alertID from playeralerts where playerID=".prepVar($_SESSION['playerID']));
         while($row = mysqli_fetch_array($result)){

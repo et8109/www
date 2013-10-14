@@ -70,6 +70,11 @@ border: solid 1px brown;
     color: black;
     cursor: auto;
 }
+/*the button clicked to attack people*/
+.fight{
+    cursor: pointer;
+    color: #a40000;
+}
 
 /*player name in the hub*/
 #hubName{
