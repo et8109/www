@@ -1,0 +1,132 @@
+/*
+ *main
+ * textBox
+ * input, logout, name, id
+ * extra
+ */
+
+body{
+background-color:#A89423;
+overflow: hidden;
+}
+
+#main{
+/*margin-left: auto;
+margin-right: auto;
+width:600px;*/
+border: solid 1px brown;
+}
+.textBox{
+    display: inline-block;
+    width: 50%;
+    opacity: 1;
+    white-space: pre-wrap;      /* CSS3 */   
+    white-space: -moz-pre-wrap; /* Firefox */    
+    white-space: -pre-wrap;     /* Opera <7 */   
+    white-space: -o-pre-wrap;   /* Opera 7 */    
+    word-wrap: break-word;      /* IE */
+    height: 100%;
+}
+#textBox2{
+    position: absolute;
+    left: 50%;
+}
+#hub{
+    position: relative;
+    top: -40px;
+}
+
+.name{ /*names in chat*/
+    font-weight: bold;
+    color: black;
+    cursor: pointer;
+}
+.item{ /*item names in chat*/
+    color: #7A012A;
+    cursor: pointer;
+}
+.path{ /*location names in chat*/
+    color: #7A012A;
+    cursor: pointer;
+}
+.sceneName{ /*current location name in chat*/
+    text-decoration: underline;
+}
+.action{ /*interacting in chat*/
+    text-decoration: overline;
+    color: #7A012A;
+    cursor: pointer;
+}
+.keyword{
+    color: blue;
+    cursor: pointer;
+}
+/*The done and cancel buttons in the extra menu*/
+.textAreaButton{
+    cursor: pointer;
+    margin-left: 20px;
+}
+.inactive{ /*location names, no longer visitable*/
+    color: black;
+    cursor: auto;
+}
+
+/*player name in the hub*/
+#hubName{
+    cursor: pointer;
+}
+#hubName:hover{
+    text-decoration: underline;
+}
+#extra{
+    display: none;
+    margin-top: 10px;
+}
+#textArea{
+    margin-left: auto;
+    margin-right: auto;
+}
+#alert{
+color:black;
+cursor: pointer;
+}
+#alert:hover{
+text-decoration: underline;
+}
+#alertMain{
+background-color: grey;
+position:absolute;
+left:50%;
+top:100px;
+margin-left:-200px;
+visibility:hidden;
+width:400px;
+height:400px;
+border:solid 3px brown;
+z-index:3;
+font-size:20px;
+color:gold;
+#alertMainInside{
+    
+}
+}
+#alertMainClose{
+position:absolute;
+bottom:5px;
+right:5px;
+color:brown;
+cursor:pointer;
+}
+#alertMainClose:hover{
+text-decoration:underline;
+}
+#alertMainMute{
+position:absolute;
+bottom:5px;
+right:80px;
+color:black;
+cursor:pointer;  
+}
+#alertMainMute:hover{
+text-decoration:underline;
+}

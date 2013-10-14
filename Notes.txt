@@ -1,0 +1,5 @@
+admin levels: 2 digits
+	0: nothing
+	1: edit scenes, items, and players.
+alert types: 3 digits
+	100: a new item was gotten, please update description
