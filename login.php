@@ -2,7 +2,7 @@
 <?php
 $username = "";
 $password = "";
-
+include 'phpHelperFunctions.php';
 if ($_SERVER['REQUEST_METHOD'] == 'POST'){
 	$username = $_POST['username'];
 	$password = $_POST['password'];
@@ -28,6 +28,8 @@ if($result){
     $_SESSION['playerName'] = $row['Name'];
     $_SESSION['lastChatTime'] = date_timestamp_get(new DateTime());
     $_SESSION['currentScene'] = $row['Scene'];
+    printDebug($row['Scene']."ypyp");
+    printDebug($_SESSION['currentScene']);
     mysqli_free_result($result);
     header("Location: index.php");
     exit;
