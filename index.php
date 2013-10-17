@@ -23,8 +23,12 @@ todo:
 start on testing - alerts, items, db
 git
 move chat to db
-combat started
-
+combat started-
+    make sure they are in the same scene.
+    
+look at login and logout again
+seperate text files for each scene
+    add  "name moved" to scene text
 add fail actions to helper functions
 on opening page: character list(some hand drawn pics), story introduction
 login redirects to index if already logged in
