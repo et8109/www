@@ -28,6 +28,7 @@ combat started-
     
 look at login and logout again
 seperate text files for each scene
+    !###!#!#!# new scene creation prevents speaking until leave and come back
     add  "name moved" to scene text
 add fail actions to helper functions
 on opening page: character list(some hand drawn pics), story introduction
