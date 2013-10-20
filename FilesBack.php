@@ -1,7 +1,7 @@
 <?php
 
 session_start();
-$fileName = $_SESSION['currentScene']."Chat.txt";
+$fileName = "chats/".$_SESSION['currentScene']."Chat.txt";
 
 //create new chat if none exists
 if(!file_exists($fileName)){
