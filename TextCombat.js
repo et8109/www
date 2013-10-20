@@ -195,7 +195,8 @@ var Crafter ={
  */
 var muted = false;
 /**
- *the types of public actions added to the chat text
+ *the types of public actions added to the chat text.
+ *duplicated in helper function
  */
 var actionTypes ={
     WALKING : 0,
@@ -283,6 +284,10 @@ function updateChat(){
                             case(actionTypes.ATTACK):
                                 var info = response[i+2].split("<>");//1:name, 2:id
                                 addText("<span class='name' onclick='addDesc("+types.PLAYER+","+response[i]+")'>"+response[i+1]+"</span> attacked <span class='name' onclick='addDesc("+types.PLAYER+","+info[2]+")'>"+info[1]+"</span>");
+                                break;
+                            case(actionTypes.WALKING):
+                                var info = response[i+2].split("<>");//1:name, 2:id
+                                addText("<span class='name' onclick='addDesc("+types.PLAYER+","+response[i]+")'>"+response[i+1]+"</span> walks to the <span class='sceneName'>"+info[1]+"</span>");
                                 break;
                         }
                     }
@@ -404,21 +409,6 @@ function speak(inputText){
     request.send();
 }
 
-/**
- *adds an action to the chat text
- */
-function speakAction(type, targetName, targetID){
-    var text = "<"+type+"> ";
-    switch(type){
-        case(actionTypes.WALKING):
-            addText("still need to implement");
-            break;
-        case(actionTypes.ATTACK):
-            text += "<>"+targetName+"<>"+targetID;
-            break;
-    }
-    speak(text);
-}
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////
@@ -477,15 +467,11 @@ function checkNewDescription(){
 
 /**
 * Move scene, then print new scene description.
-* End crafting.
+* End crafting by closing text area.
+* Also updates currentChatTime and adds a walking message ot chat
 */
 function walk(newSceneId) {
-    request = new XMLHttpRequest();
-    request.open("GET", "FilesBack.php?function=updateChatTime", true);
-    request.send();
-    
 deactivateActiveLinks();
-
 request = new XMLHttpRequest();
 request.onreadystatechange = function(){
         if (this.readyState==4 && this.status==200) {
@@ -777,14 +763,9 @@ function addAttackTarget() {
     request = new XMLHttpRequest();
     request.onreadystatechange = function(){
         if (this.readyState==4 && this.status==200) {
-            if (this.responseText != "") {
-                speakAction(actionTypes.ATTACK, name, this.responseText);
-            }
-            else{
-                addText(name+" is not nearby..");
-            }
+            addText(this.responseText);
         }
     }
-    request.open("GET", "TextCombat.php?function=getPlayerIDFromScene&Name="+getInputText(), true);
+    request.open("GET", "TextCombat.php?function=attack&Name="+getInputText(), true);
     request.send();
 }

@@ -1,7 +1,7 @@
 <?php
 
 session_start();
-$fileName = "chats/".$_SESSION['currentScene']."Chat.txt";
+include 'phpHelperFunctions.php';
 
 //create new chat if none exists
 if(!file_exists($fileName)){
@@ -23,15 +23,7 @@ $function = $_GET['function'];
 switch($function){
     //make an array from the current chat, and rewrite from second line, adding most recent one
     case('speak'):
-        $time=date_timestamp_get(new DateTime());
-        $lines = array();
-        $lines = file($GLOBALS['fileName']);
-        $chatFile = fopen($GLOBALS['fileName'], "w");
-        for($i=4; $i<40; $i++){
-            fwrite($chatFile,$lines[$i]);
-        }
-        fwrite($chatFile,"\r\n".$time."\r\n".$_SESSION['playerID']."\r\n".$_SESSION['playerName']."\r\n".$_GET['inputText']);
-        fclose($chatFile);
+        addChatText($_GET['inputText']);
         break;
     
     //finds the last line not yet seen, and begins to echo from there
@@ -56,11 +48,7 @@ switch($function){
     
     //when entering a new scene
     case ('updateChatTime'):
-        $lines = array();
-        $lines = file($GLOBALS['fileName']);
-        if(intval($lines[36]) > $_SESSION['lastChatTime']){
-            $_SESSION['lastChatTime'] = intval($lines[36]);
-        }
+        updateChatTime();
         break;
 }
 ?>

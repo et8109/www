@@ -1,1 +1,23 @@
-newSpeak
+<0>Blacksmith<>102
+done move Scenes
+<0>Town Square<>101
+done move Scenes
+about to speak
+about to speak
+about to speak
+about to speak
+about to speak
+about to speak
+about to speak
+about to speak
+done speaking
+about to speak
+done speaking
+about to speak
+done speaking
+about to speak
+done speaking
+about to speak
+done speaking
+done move Scenes
+done move Scenes

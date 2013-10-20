@@ -24,8 +24,10 @@ start on testing - alerts, items, db
 git
 move chat to db
 
+add flushing to the server to speed up the response
+one server request per function!
 websockets
-cancelling things needs to be understandable, all logic above, or something
+cancelling things needs to be understandable, all logic above, or something: crafting, combat
 get rid of fight class span
 look at login and logout again
 seperate text files for each scene

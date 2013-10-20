@@ -1,5 +1,6 @@
 <?php
 
+session_start();
 include 'phpHelperFunctions.php';
 
 //set connection
@@ -9,7 +10,6 @@ switch($function){
     
     case('getDesc'):
         if($_GET['table'] == "scenes" && $_GET['ID'] == -1){
-            session_start();
             $row = query("select Name, Description from ".$_GET['table']." where ID=".prepVar($_SESSION['currentScene']));
         }
         else
@@ -19,13 +19,11 @@ switch($function){
         break;
     
     case('getPlayerDescription'):
-            session_start();
             $row = query("select Description from playerinfo where ID=".prepVar($_SESSION['playerID']));
             echo $row["Description"];
         break;
     
     case('updateDescription'):
-            session_start();
             $newDescription = $_GET['Description'];
             query("Update playerinfo set Description=".prepVar($newDescription)." where ID=".prepVar($_SESSION['playerID']));
             removeAlert(alerts::newItem);
@@ -33,7 +31,6 @@ switch($function){
    
     //echos a list of item ids and names, right now, all items
     case('getVisibleItems'):
-        session_start();
         $multiQuery = "select ID, Name from items where ID=";
         //find item ids
         $result = queryMulti("select itemID from playeritems where playerID=".prepVar($_SESSION['playerID']));
@@ -58,17 +55,18 @@ switch($function){
     
     case('getSceneInfo'):
         //find current scene based on id from db
-        session_start();
         $row = query("select Name, Description from scenes where ID=".prepVar($_SESSION['currentScene']));
         //echo scene name and description
         echo $row['Name'] ."<>". $row['Description'];
         break;
     
     case('moveScenes'):
-        session_start();
         //recieve id or name of scene, update this players location in cookie and db
         $_SESSION['currentScene'] = $_GET['newScene'];
         query("Update playerinfo set Scene=".prepVar($_GET['newScene'])." where ID=".prepVar($_SESSION['playerID']));
+        $row = query("select Name from scenes where ID=".$_GET['newScene']);
+        speakAction(actionTypes::WALKING, $row['Name'], $_GET['newScene']);
+        updateChatTime();
         break;
 
         /**
@@ -78,7 +76,6 @@ switch($function){
          *adds an alert for the player
          */
     case('craftItem'):
-        session_start();
         //add the item into db
         $Description = $_GET['Description'];
         $lastID = lastIDquery("insert into items (Name, Description) values (".prepVar($_GET['Name']).",".prepVar($Description).")");
@@ -95,28 +92,29 @@ switch($function){
         break;
     
     case('getCraftInfo'):
-        session_start();
         $row = query("SELECT `craftSkill` FROM `playerinfo` WHERE ID = ".prepVar($_SESSION['playerID']));
         echo $row['craftSkill'];
         break;
     
-    case('getCombatInfo'):
-        session_start();
-        //get my info
-        $row = query();
-        //get enemy info
-        //concatenate
+    case('attack'):
+        //see if player is there
+        $row = query("SELECT ID FROM playerinfo WHERE Scene =".prepVar($_SESSION['currentScene'])." AND Name = ".prepVar($_GET['Name']));
+        if($row['ID']){
+            speakAction(actionTypes::ATTACK, $_GET['Name'], $row['ID']);
+            //no need to echo, it's in chat
+        }
+        else{
+            echo $_GET['Name']." is not nearby..";
+        }
         break;
     
     //gets the id of any player from the same scene. scene is indexed in mysql
     case('getPlayerIDFromScene'):
-        session_start();
         $row = query("SELECT ID FROM playerinfo WHERE Scene =".prepVar($_SESSION['currentScene'])." AND Name = ".prepVar($_GET['Name']));
         echo $row['ID'];
         break;
     
     case('setUp'):
-        session_start();
         //player name
         $toReturn = $_SESSION['playerName'];
         //number of items
@@ -141,7 +139,7 @@ switch($function){
         break;
 }
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~helper functions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~alert functions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 final class alerts{
