@@ -23,9 +23,10 @@ todo:
 start on testing - alerts, items, db
 git
 move chat to db
-combat started-
-    make sure they are in the same scene.
-    
+
+websockets
+cancelling things needs to be understandable, all logic above, or something
+get rid of fight class span
 look at login and logout again
 seperate text files for each scene
     !###!#!#!# new scene creation prevents speaking until leave and come back

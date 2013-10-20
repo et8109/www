@@ -108,6 +108,13 @@ switch($function){
         //concatenate
         break;
     
+    //gets the id of any player from the same scene. scene is indexed in mysql
+    case('getPlayerIDFromScene'):
+        session_start();
+        $row = query("SELECT ID FROM playerinfo WHERE Scene =".prepVar($_SESSION['currentScene'])." AND Name = ".prepVar($_GET['Name']));
+        echo $row['ID'];
+        break;
+    
     case('setUp'):
         session_start();
         //player name

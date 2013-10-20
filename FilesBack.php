@@ -45,10 +45,22 @@ switch($function){
         }
         //new lines
         while($i<=36 && isset($lines[$i])){
+            //printDebug("new line: ");
             echo $lines[++$i]." ".$lines[++$i]." ".$lines[++$i];
             $i++;
         }
-        $_SESSION['lastChatTime']= intval($lines[36]);
+        if(intval($lines[36]) > $_SESSION['lastChatTime']){
+            $_SESSION['lastChatTime'] = intval($lines[36]);
+        }
+        break;
+    
+    //when entering a new scene
+    case ('updateChatTime'):
+        $lines = array();
+        $lines = file($GLOBALS['fileName']);
+        if(intval($lines[36]) > $_SESSION['lastChatTime']){
+            $_SESSION['lastChatTime'] = intval($lines[36]);
+        }
         break;
 }
 ?>

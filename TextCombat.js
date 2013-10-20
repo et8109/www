@@ -60,6 +60,7 @@ var textAreaInputs = {
 var textLineInputs = {
     NOTHING : 0,
     ITEM_NAME : 1,
+    TARGET_NAME : 2
 };
 var waitingForTextArea = textAreaInputs.NOTHING;
 var waitingForTextLine = textLineInputs.NOTHING;
@@ -189,8 +190,17 @@ var Crafter ={
     itemName : "",
     craftSkill: 0
 }
-
+/**
+ *if the sound is muted or not
+ */
 var muted = false;
+/**
+ *the types of public actions added to the chat text
+ */
+var actionTypes ={
+    WALKING : 0,
+    ATTACK : 1
+}
 /////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
@@ -205,13 +215,24 @@ function textTyped(e){
         return;
     }
     var inputText = getInputText();
+    //<>check
+    if (inputText.indexOf("<") != -1 || inputText.indexOf(">") != -1) {
+        addText("Please don't use < or > ..");
+        return;
+    }
     //command check
-    if(inputText.indexOf("/") == 0){
+    else if(inputText.indexOf("/") == 0){
+        closeTextArea();
+        
         //cancel waiting stuff?
         switch (inputText) {
             case("/look"):
                 deactivateActiveLinks();
                 addDesc(types.SCENE, -1);
+                break;
+            case("/attack"):
+                waitingForTextLine = textLineInputs.TARGET_NAME;
+                addText("who would you like to attack?");
                 break;
             default:
                 addText(inputText+" ..unknown command");
@@ -225,6 +246,9 @@ function textTyped(e){
             case(textLineInputs.ITEM_NAME):
                 addCraftName();
             break;
+            case(textLineInputs.TARGET_NAME):
+                addAttackTarget();
+                break;
         }
     }
     
@@ -233,9 +257,7 @@ function textTyped(e){
         if (inputText == "") {
             return;
         }
-        request = new XMLHttpRequest();
-        request.open("GET", "FilesBack.php?function=speak&inputText="+inputText, true);
-        request.send();
+        speak(inputText);
     }
     
     //always: clear input
@@ -254,8 +276,21 @@ function updateChat(){
 	    response = response.split("\r\n");
 	    if (response.length>1) {
 		for(var i=0; i<response.length; i+=3){
+                    //if an action, not a chat
+                    if (response[i+2].indexOf("<") == 1) {
+                        var type = parseInt(response[i+2].charAt(2));
+                        switch(type){
+                            case(actionTypes.ATTACK):
+                                var info = response[i+2].split("<>");//1:name, 2:id
+                                addText("<span class='name' onclick='addDesc("+types.PLAYER+","+response[i]+")'>"+response[i+1]+"</span> attacked <span class='name' onclick='addDesc("+types.PLAYER+","+info[2]+")'>"+info[1]+"</span>");
+                                break;
+                        }
+                    }
+                    else{
+                    //if a chat
 		    addText("<span class='name' onclick='addDesc("+types.PLAYER+","+response[i]+")'>"+response[i+1]+"</span>: "+response[i+2]);
-		}
+                    }
+                }
 	    }
 	}
     }
@@ -309,7 +344,7 @@ function addDesc(type, id) {
                 case('playerInfo'):
                     addText("<span class='name' onclick='addDesc("+types.PLAYER+","+id+")'>"+response[0]+"</span>");
                     addText(response[1]);
-                    addText("<span class='fight' onclick='attack("+id+")'>~Attack~</span>");
+                    /*addText("<span class='fight' onclick='attack("+id+")'>~Attack~</span>");*/
                 break;
             
                 case('scenes'):
@@ -360,6 +395,30 @@ function deactivateActiveLinks(){
     }
 }
     
+/**
+ *adds to the chat file
+ */
+function speak(inputText){
+    request = new XMLHttpRequest();
+    request.open("GET", "FilesBack.php?function=speak&inputText="+inputText, true);  
+    request.send();
+}
+
+/**
+ *adds an action to the chat text
+ */
+function speakAction(type, targetName, targetID){
+    var text = "<"+type+"> ";
+    switch(type){
+        case(actionTypes.WALKING):
+            addText("still need to implement");
+            break;
+        case(actionTypes.ATTACK):
+            text += "<>"+targetName+"<>"+targetID;
+            break;
+    }
+    speak(text);
+}
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////
@@ -421,7 +480,12 @@ function checkNewDescription(){
 * End crafting.
 */
 function walk(newSceneId) {
+    request = new XMLHttpRequest();
+    request.open("GET", "FilesBack.php?function=updateChatTime", true);
+    request.send();
+    
 deactivateActiveLinks();
+
 request = new XMLHttpRequest();
 request.onreadystatechange = function(){
         if (this.readyState==4 && this.status==200) {
@@ -704,14 +768,23 @@ function toggleMute(){
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////
-
 /**
- *instanciates two (or more) people in combat
- *info which both clients need:
- *combat stats from items
- *combat descision tree
- */
-function attack(enemyID){
-    addText("[your skill level], [enemy skill level], you [lunge with your [weapon]]");
-    addText("[enemyname] is hit for [this much damage]");
+*find who the player want to attack, after /attack
+*/
+function addAttackTarget() {
+    waitingForTextLine = textLineInputs.NOTHING;
+    var name = getInputText();
+    request = new XMLHttpRequest();
+    request.onreadystatechange = function(){
+        if (this.readyState==4 && this.status==200) {
+            if (this.responseText != "") {
+                speakAction(actionTypes.ATTACK, name, this.responseText);
+            }
+            else{
+                addText(name+" is not nearby..");
+            }
+        }
+    }
+    request.open("GET", "TextCombat.php?function=getPlayerIDFromScene&Name="+getInputText(), true);
+    request.send();
 }

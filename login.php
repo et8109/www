@@ -49,12 +49,14 @@ function smart_quote($value){
 
 <html>
     <head>
-        <link rel="stylesheet" type="text/css" href="TextCombat.css" />
+        <link rel="stylesheet" type="text/css" href="login.css" />
     </head>
     <body>
         <FORM NAME ="form1" METHOD ="POST" ACTION ="login.php">
-Username: <INPUT TYPE = 'TEXT' Name ='username'  value="<?PHP print $username;?>" maxlength=20>
-Password: <INPUT TYPE = 'TEXT' Name ='password'  value="<?PHP print $password;?>" maxlength=20><br/>
+I am </br>
+<INPUT TYPE = 'TEXT' Name ='username'  value="<?PHP print $username;?>" maxlength=20></br>
+Password: </br>
+<INPUT TYPE = 'TEXT' Name ='password'  value="<?PHP print $password;?>" maxlength=20><br/>
 <INPUT TYPE = "Submit" Name = "Submit1"  VALUE = "Login">
     <a href="register.php">Need to register?</a>
         </FORM>
