@@ -278,6 +278,7 @@ function updateChat(){
 	    response = response.split("\r\n");
 	    if (response.length>1) {
 		for(var i=0; i<response.length; i+=3){
+                    alert("-"+response[i+2]+"-");
                     //if an action, not a chat
                     if (response[i+2].indexOf("<") == 1) {
                         var type = parseInt(response[i+2].charAt(2));
@@ -592,12 +593,16 @@ function addCraftDescription(){
 *find who the player want to attack, after /attack
 */
 function attack() {
+    alert(getInputText().indexOf("<br>"));
+    waitingForTextLine = textAreaInputs.NOTHING;
     cancelWaits();
     var name = getInputText();
     request = new XMLHttpRequest();
     request.onreadystatechange = function(){
         if (this.readyState==4 && this.status==200) {
-            addText(this.responseText);
+            if ("" != this.responseText) {
+                addText(this.responseText);
+            }
         }
     }
     request.open("GET", "TextCombat.php?function=attack&Name="+getInputText(), true);

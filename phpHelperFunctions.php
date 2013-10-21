@@ -121,30 +121,4 @@ final class actionTypes {
     const ATTACK = 1;
 }
 
-/**
- *gets a list of the visible items of the player.
- *seperated by <>
- */
-function getVisibleItems(){
-    $multiQuery = "select ID, Name from items where ID=";
-    //find item ids
-    $result = queryMulti("select itemID from playeritems where playerID=".prepVar($_SESSION['playerID']));
-    //add first itemID
-    if($row = mysqli_fetch_array($result)){
-        $multiQuery .= prepVar($row['itemID']);
-    }
-    //for each itemID found
-    while($row = mysqli_fetch_array($result)){
-        $multiQuery .=" or ".prepVar($row['itemID']);
-    }
-    mysqli_free_result($result);
-    //find item names
-    $result = queryMulti($multiQuery);
-    $response = "";
-    while($row = mysqli_fetch_array($result)){
-        $response.= $row["Name"]."<>".$row["ID"]."<>";
-    }
-    return $response;
-    mysqli_free_result($result);
-}
 ?>

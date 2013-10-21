@@ -44,14 +44,12 @@ switch($function){
         }
         mysqli_free_result($result);
         //find item names
-        printDebug($multiQuery);
         $result = queryMulti($multiQuery);
         $response = "";
         while($row2 = mysqli_fetch_array($result)){
             $response.= $row2["Name"]."<>".$row2["ID"]."<>";
         }
         echo $response;
-        printDebug($response);
         mysqli_free_result($result);
         break;
     

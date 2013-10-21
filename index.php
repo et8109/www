@@ -24,10 +24,8 @@ start on testing - alerts, items, db
 git
 move chat to db
 
-check/set description uses 2 db requests
 addAlert is unclear with the numbers
 check/set new description in unclear
-
 no idea if message on moving works or not
 move help text to a text file
 add flushing to the server to speed up the response
