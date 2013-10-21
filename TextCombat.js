@@ -371,8 +371,8 @@ function addDescKeyword(type, id, wordNum){
 *Sets the player's new description after checking for inventory items, no < or >.
 *Do not call directly! call check description first!
 */
-function setNewDescription() {
-    /*//edit description so items stand out
+function setNewDescription(newDescription, itemList) {
+    //edit description so items stand out
     closeTextArea();
     //new item, cange description alert
     removeAlert(100);
@@ -383,7 +383,7 @@ function setNewDescription() {
     //add description to database
     request = new XMLHttpRequest();
     request.open("GET", "TextCombat.php?function=updateDescription&Description="+newDescription, true);
-    request.send();*/
+    request.send();
 }
 /**
  *Check to make sure everything needed is in the player description.
@@ -401,6 +401,7 @@ function checkNewDescription(){
     request.onreadystatechange = function(){
         if (this.readyState==4 && this.status==200) {
             response = this.responseText;
+            alert(response);
             response = response.split("<>");
             //make sure the description contains all the items
             for (var i=0; i<response.length-1; i+=2) {
@@ -775,11 +776,14 @@ function cancelWaits() {
             Crafter.itemName = "";
             Crafter.craftSkill = 0;
             break;
-        case(textLineInputs.ITEM_NAME):
-            addText("you decide not to make anything");
-            break;
         //personal description related
         case(textAreaInputs.PERSONAL_DESCRIPTION):
+            break;
+    }
+    switch(waitingForTextLine){
+        //crafting related
+        case(textLineInputs.ITEM_NAME):
+            addText("you decide not to make anything");
             break;
         //just combat so far
         case(textLineInputs.TARGET_NAME):
@@ -795,4 +799,4 @@ function cancelWaits() {
 function isWaiting() {
     return(waitingForTextArea != textAreaInputs.NOTHING || waitingForTextLine != textLineInputs.NOTHING);
 }
-sdsadfssdfd
+
