@@ -76,6 +76,8 @@ switch($function){
          *adds an alert for the player
          */
     case('craftItem'):
+        $itemList = array();
+        $itemList = explode("<>",getVisibleItems());
         //add the item into db
         $Description = $_GET['Description'];
         $lastID = lastIDquery("insert into items (Name, Description) values (".prepVar($_GET['Name']).",".prepVar($Description).")");
