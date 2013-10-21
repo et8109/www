@@ -40,16 +40,18 @@ switch($function){
         }
         //for each itemID found
         while($row = mysqli_fetch_array($result)){
-            $multiQuery .=" or ".prepVar($row['itemID']);
+            $multiQuery .=" or ID=".prepVar($row['itemID']);
         }
         mysqli_free_result($result);
         //find item names
+        printDebug($multiQuery);
         $result = queryMulti($multiQuery);
         $response = "";
-        while($row = mysqli_fetch_array($result)){
-            $response.= $row["Name"]."<>".$row["ID"]."<>";
+        while($row2 = mysqli_fetch_array($result)){
+            $response.= $row2["Name"]."<>".$row2["ID"]."<>";
         }
         echo $response;
+        printDebug($response);
         mysqli_free_result($result);
         break;
     
