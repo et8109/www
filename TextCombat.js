@@ -3,28 +3,17 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //Globals
-/**
- *Name of the player logged in
- */
-var playerName;
-/**
- *Remember the amount of items being carried.
- *Store more in an array, with info?
- */
-var numItems;
+
 /**Set up
  * Sets up the page:
- * sets playerName to the player's name
- * sets numItems to the number of items the player has
  */
 (function(){
+    //totally changed
     //remember the player's name
     request = new XMLHttpRequest();
     request.onreadystatechange = function(){
 	if (this.readyState==4 && this.status==200) {
             var response = this.responseText.split("<>");
-	    playerName = response[0];
-            numItems = parseInt(response[1]);
             var adminLevel = parseInt(response[2]);
             switch(adminLevel){
                 case(1):
@@ -76,51 +65,7 @@ var types = {
     ITEM: 0,
     PLAYER: 1,
     SCENE: 2,
-    KEYWORD: {
-        materials: 3,
-        craftQualities: 4
-    }
-}
-/**
- *The descriptions for things which are not player-made.
- *place the longest words, which include others, first.
- */
-var keywords = {
-    materials: {
-        0: {
-            words: ["wooden","wood", "bark"],
-            text: "Not very strong, it is usually used for the handles of things. The useful ends of object should have a stronger material.",
-            getLinkText: function(wordNum){
-                return "<span class='keyword' onclick='addDescKeyword("+types.KEYWORD.materials+", 0, "+wordNum+")'>"+this.words[wordNum]+"</span>";
-            },
-            
-        },
-        1: {
-            words: ["metallic", "metal", "iron", "bronze"],
-            text: "A strong material, but it must be mined and then smelted into a practical shape.",
-            getLinkText: function(wordNum){
-               return "<span class='keyword' onclick='addDescKeyword("+types.KEYWORD.materials+", 1, "+wordNum+")' >"+this.words[wordNum]+"</span>";
-            }
-        }
-    },
-    craftQualities: {
-        //crafting level 0:
-        0: {
-            words: ["plain", "simple"],
-            text: "It does what it's supposed to.",
-            getLinkText: function(wordNum){
-                return "<span class='keyword' onclick='addDescKeyword("+types.KEYWORD.craftQualities+", 0, "+wordNum+")'>"+this.words[wordNum]+"</span>";
-            }
-        },
-        //crafting level 1:
-        1: {
-            words: ["excellent", "beautiful", "exquisite"],
-            text: "Very fancy. Whoever made this is a skilled crafstman",
-            getLinkText: function(wordNum){
-                return "<span class='keyword' onclick='addDescKeyword("+types.KEYWORD.craftQualities+", 1, "+wordNum+")'>"+this.words[wordNum]+"</span>";
-            }
-        }
-    }
+    KEYWORD: 3
 }
 
 var currentLine=0; //17 is max, arbitrary
@@ -180,13 +125,7 @@ function removeAlert(alertType) {
         }
     }
 }
-/**
- *Holds all the crafting stuff
- */
-var Crafter ={
-    itemName : "",
-    craftSkill: 0
-}
+
 /**
  *if the sound is muted or not
  */
@@ -199,6 +138,11 @@ var actionTypes ={
     WALKING : 0,
     ATTACK : 1
 }
+
+/**
+ *holds the name of the item to be crafted
+ */
+var itemName;
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
@@ -278,7 +222,6 @@ function updateChat(){
 	    response = response.split("\r\n");
 	    if (response.length>1) {
 		for(var i=0; i<response.length; i+=3){
-                    alert("-"+response[i+2]+"-");
                     //if an action, not a chat
                     if (response[i+2].indexOf("<") == 1) {
                         var type = parseInt(response[i+2].charAt(2));
@@ -307,6 +250,7 @@ function updateChat(){
 
 /**
  *prints the description into the text box.
+ *id is actually word for descriptions
  */
 function addDesc(type, id) {
     var table;
@@ -320,6 +264,9 @@ function addDesc(type, id) {
             break;
         case(types.SCENE):
             table="scenes";
+            break;
+        case(types.KEYWORD):
+            table="keywordwords";
             break;
         default:
             addText("type "+type+" not found");
@@ -346,43 +293,44 @@ function addDesc(type, id) {
                     addText("<span class='item' onclick='addDesc("+types.ITEM+","+id+")'>"+response[0]+"</span>");
                     addText(response[1]);
                 break;
+                case('keywordwords'):
+                    addText("<span class='keyword' onclick='addDesc("+types.KEYWORD+","+id+")'>"+response[0]+"</span>");
+                    addText(response[1]);
+                    break;
             }
         }
     }
     request.open("GET", "TextCombat.php?function=getDesc&table="+table+"&ID="+id, true);
     request.send();
     }
-/**
- *prints the description into the text box
- */
-function addDescKeyword(type, id, wordNum){
-    switch (type) {
-        case(types.KEYWORD.materials):
-            addText(keywords.materials[id].getLinkText(wordNum));
-            addText(keywords.materials[id].text);
-            break;
-        case(types.KEYWORD.craftQualities):
-            addText(keywords.craftQualities[id].getLinkText(wordNum));
-            addText(keywords.craftQualities[id].text);
-            break;
-    }
-}
-    
+  
 /**
 *Sets the player's new description after checking for inventory items, no < or >.
 *Do not call directly! call check description first!
 */
-function setNewDescription(newDescription, itemList) {
-    //edit description so items stand out
-    closeTextArea();
-    //new item, cange description alert
-    removeAlert(100);
-    waitingForTextArea=textAreaInputs.NOTHING;
-    for (var i=0; i<itemList.length-1; i+=2) {
-        newDescription=newDescription.replace(itemList[i],"<span class='item' onclick='addDesc("+types.ITEM+","+itemList[i+1]+")' >"+itemList[i]+"</span>");
+function setNewDescription() {
+    var newDescription = getTextAreaText();
+    //would be null if < or > was in area
+    if (null == newDescription) {
+        return;
     }
-    //add description to database
     request = new XMLHttpRequest();
+    request.onreadystatechange = function(){
+        if (this.readyState==4 && this.status==200) {
+            response = this.responseText;
+            //if success
+            if (response == "") {
+                closeTextArea();
+                //new item, cange description alert
+                removeAlert(100);
+                waitingForTextArea=textAreaInputs.NOTHING;
+            }
+            //if something was wrong
+            else{
+                setTextAreaMessage(response);
+            }
+        }
+    }
     request.open("GET", "TextCombat.php?function=updateDescription&Description="+newDescription, true);
     request.send();
 }
@@ -390,35 +338,6 @@ function setNewDescription(newDescription, itemList) {
  *Check to make sure everything needed is in the player description.
  *Calls set new description if success
  */
-function checkNewDescription(){
-    var newDescription = getTextAreaText();
-    //would be null is < or > was in area
-    if (null == newDescription) {
-        return;
-    }
-    setTextAreaMessage("");
-    //get the list of item names
-    request = new XMLHttpRequest();
-    request.onreadystatechange = function(){
-        if (this.readyState==4 && this.status==200) {
-            response = this.responseText;
-            alert(response);
-            response = response.split("<>");
-            //make sure the description contains all the items
-            for (var i=0; i<response.length-1; i+=2) {
-                if(newDescription.indexOf(response[i]) == -1){
-                    //if the item is not in the description
-                    setTextAreaMessage("please use all your visible items in your description. "+response[i]+" was not found.");
-                    return;
-                }
-            }
-            //if the description is ok. response is the item list
-            setNewDescription(newDescription, response);
-        }
-    }
-    request.open("GET", "TextCombat.php?function=getVisibleItems", true);
-    request.send();
-}
 
 /**
 * Move scene, then print new scene description.
@@ -439,52 +358,6 @@ request.send();
 cancelWaits();
 closeTextArea();
 }
-
-/**
- *replaces all instances of the keyword subtype with it's linktext.
- *returns null if nothing was found
- */
-function replaceKeywords(keywordSubtype, description){
-    var found = false;
-    for(k in keywordSubtype){
-        for(w in keywordSubtype[k].words){
-            var word = keywordSubtype[k].words[w];
-            if (description.indexOf(word) > -1) {
-                description = description.replace(word, keywordSubtype[k].getLinkText(w));
-                found = true;
-                break;
-            }
-        }
-    }
-    if (!found) {
-        return null;
-    }
-    else{
-        return description;
-    }
-}
-/**
- *replaces exactly 1 quality tag.
- *returns null on fail
- */
-function replaceCraftQuality(description, craftSkill) {
-    var i=0;
-    for(q in keywords.craftQualities){
-        if (i>craftSkill) {
-            return description;
-        }
-        for(w in keywords.craftQualities[q].words){
-            var word = keywords.craftQualities[q].words[w];
-            if (description.indexOf(word) > -1) {
-                description = description.replace(word, keywords.craftQualities[q].getLinkText(w));
-                return description;
-            }
-        }
-        i++;
-    }
-    return null;
-}
-
 /**
     *open text area and display player description.
     *wait for a new description input
@@ -510,12 +383,6 @@ function displayMyDesc() {
  *asks for item name.
  */
 function startCraft(){
-//make sure they only have 9 or less items
-if (numItems > 9) {
-    addText("It seems your can't carry any more items..");
-    cancelWaits();
-    return;
-}
 //if waiting for something.
 if (isWaiting()) {
     addText("You're already focused on something else. Finish with that, then you can craft something");
@@ -528,72 +395,69 @@ waitingForTextLine = textLineInputs.ITEM_NAME;
  *When an item name is given, tells the player to give a description
  */
 function addCraftName(){
-    Crafter.itemName = getInputText();
-    var itemName = Crafter.itemName;
+    itemName = getInputText();
     openTextArea(itemName+"'s description");
     //has a name, need a description
     request = new XMLHttpRequest();
     request.onreadystatechange = function(){
         if (this.readyState==4 && this.status==200) {
-            Crafter.craftSkill = parseInt(this.responseText);
-            addText("Your craftSkill is "+this.responseText + ". enter the "+itemName+"'s description below. Your tags are: tags not done yet");
+            waitingForTextLine = textLineInputs.NOTHING;
             cancelWaits();
+            addText("Your craftSkill is "+this.responseText+ ". enter the "+itemName+"'s description below. Your tags are: tags not done yet");
             waitingForTextArea = textAreaInputs.ITEM_DESCRIPTION;
         }
     }
     request.open("GET", "TextCombat.php?function=getCraftInfo", true);
     request.send();
-    //sound
-    playSound("anvil");
 }
 /**
  *When and items description is given, and a name was already chosen
  */
 function addCraftDescription(){
-    var itemName = Crafter.itemName;
     if (itemName == "") {
         addText("[Something wierd happened. Woops! Please let me know what you did. Thanks.]");
         cancelWaits();
         return;
     }
-    itemDescription = getTextAreaText();
+    var itemDescription = getTextAreaText();
     //would be null if < or > in area
     if (null == itemDescription) {
         return;
     }
-    itemDescription = replaceKeywords(keywords.materials, itemDescription);
-    //null if no materials used
-    if (null == itemDescription) {
-        setTextAreaMessage("please use at least one material in your description");
-        return;
-    }
-    //make sure a quality was used
-    var lastDesc = itemDescription;
-    itemDescription = replaceCraftQuality(itemDescription, Crafter.craftSkill);
-    //null if no quality was used
-    if (null == itemDescription) {
-        setTextAreaMessage("please include a quality equal or lower than your craft skill");
-        return;
-    }
     //input into database
-    numItems++;
-    addText("You make a "+itemName);
     request = new XMLHttpRequest();
+    request.onreadystatechange = function(){
+        if (this.readyState==4 && this.status==200) {
+            alert(this.responseText);
+            //on success
+            if(this.responseText == ""){
+                addText("You make a "+itemName);
+                closeTextArea();
+                waitingForTextArea = textAreaInputs.NOTHING;
+                cancelWaits();
+                //new item in inventory alert
+                //also in db
+                addAlert(100);
+                //sound
+                playSound("anvil");
+                itemName = "";
+            }
+            //something was wrong
+            else{
+                addText(this.responseText);
+            }
+        }
+        
+    }
     request.open("GET", "TextCombat.php?function=craftItem&Name="+itemName+"&Description="+itemDescription, true);
     request.send();
-    closeTextArea();
-    waitingForTextArea = textAreaInputs.NOTHING;
-    cancelWaits();
-    //new item in inventory alert
-    //also in db
-    addAlert(100);
+    alert("send craft requst");
 }
 
 /**
 *find who the player want to attack, after /attack
 */
 function attack() {
-    alert(getInputText().indexOf("<br>"));
     waitingForTextLine = textAreaInputs.NOTHING;
     cancelWaits();
     var name = getInputText();
@@ -718,7 +582,7 @@ function getTextAreaText(){
 function textAreaSumbit() {
     switch (waitingForTextArea) {
         case(textAreaInputs.PERSONAL_DESCRIPTION):
-            checkNewDescription();
+            setNewDescription();
             break;
         case(textAreaInputs.ITEM_DESCRIPTION):
             addCraftDescription();
@@ -778,8 +642,8 @@ function cancelWaits() {
         //Crafting related
         case(textAreaInputs.ITEM_DESCRIPTION):
             addText("you decide not to make the "+Crafter.itemName);
-            Crafter.itemName = "";
-            Crafter.craftSkill = 0;
+            //removed Crafter.itemName = "";
+            //removed Crafter.craftSkill = 0;
             break;
         //personal description related
         case(textAreaInputs.PERSONAL_DESCRIPTION):

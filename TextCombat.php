@@ -11,11 +11,17 @@ switch($function){
     case('getDesc'):
         if($_GET['table'] == "scenes" && $_GET['ID'] == -1){
             $row = query("select Name, Description from ".$_GET['table']." where ID=".prepVar($_SESSION['currentScene']));
+            echo $row["Name"]."<>".$row["Description"];
         }
-        else
+        else if($_GET['table'] == "keywordwords"){
+            $row2 = query("select ID from ".$_GET['table']." where Word=".prepVar($_GET['ID']));
+            $row = query("select Description from keywords where ID=".$row2['ID']);
+            echo $_GET['ID']."<>".$row["Description"];
+        }
+        else{
             $row = query("select Name, Description from ".$_GET['table']." where ID=".prepVar($_GET['ID']));
-            
-        echo $row["Name"]."<>".$row["Description"];
+            echo $row["Name"]."<>".$row["Description"];
+        }
         break;
     
     case('getPlayerDescription'):
@@ -24,33 +30,38 @@ switch($function){
         break;
     
     case('updateDescription'):
-            $newDescription = $_GET['Description'];
+        $newDescription = $_GET['Description'];
+            $multiQuery = "select ID, Name from items where ID=";
+            //find item ids
+            $result = queryMulti("select itemID from playeritems where playerID=".prepVar($_SESSION['playerID']));
+            //add first itemID
+            if($row = mysqli_fetch_array($result)){
+                $multiQuery .= prepVar($row['itemID']);
+            }
+            //for each itemID found
+            while($row = mysqli_fetch_array($result)){
+                $multiQuery .=" or ID=".prepVar($row['itemID']);
+            }
+            mysqli_free_result($result);
+            //find item names
+            $result = queryMulti($multiQuery);
+            if(!is_bool($result)){
+                while($row2 = mysqli_fetch_array($result)){
+                    //if an item is not found
+                    if(strpos($newDescription, $row2['Name']) == false){
+                        echo "Please use all your visible items in your description.".$row2['Name']."was not found.";
+                        mysqli_free_result($result);
+                        return;
+                    }
+                    //the item was found
+                    else{
+                        $newDescription = str_replace($row2['Name'], "<span class='item' onclick='addDesc(0,".$row2['ID'].")'>".$row2['Name']."</span>", $newDescription);
+                    }
+                }
+                mysqli_free_result($result);
+            }
             query("Update playerinfo set Description=".prepVar($newDescription)." where ID=".prepVar($_SESSION['playerID']));
             removeAlert(alerts::newItem);
-        break;
-   
-    //echos a list of item ids and names, right now, all items
-    case('getVisibleItems'):
-        $multiQuery = "select ID, Name from items where ID=";
-        //find item ids
-        $result = queryMulti("select itemID from playeritems where playerID=".prepVar($_SESSION['playerID']));
-        //add first itemID
-        if($row = mysqli_fetch_array($result)){
-            $multiQuery .= prepVar($row['itemID']);
-        }
-        //for each itemID found
-        while($row = mysqli_fetch_array($result)){
-            $multiQuery .=" or ID=".prepVar($row['itemID']);
-        }
-        mysqli_free_result($result);
-        //find item names
-        $result = queryMulti($multiQuery);
-        $response = "";
-        while($row2 = mysqli_fetch_array($result)){
-            $response.= $row2["Name"]."<>".$row2["ID"]."<>";
-        }
-        echo $response;
-        mysqli_free_result($result);
         break;
     
     case('getSceneInfo'):
@@ -76,12 +87,37 @@ switch($function){
          *adds an alert for the player
          */
     case('craftItem'):
+        $requiredKeywordTypes = array();
+        //1:material, 2:quality
+        $requiredKeywordTypes[1] = false;
+        $requiredKeywordTypes[2] = false;
+        //replace all keywords
+        $descArray = explode(" ",$_GET['Description']);
+        $descArrayLength = count($descArray);
+        //for each word in the desc, find a keyword to match it
+        for($i=0; $i<$descArrayLength; $i++){
+            $word = $descArray[$i];
+            $row = query("select ID,Type from keywordwords where Word=".prepVar($word));
+            //if there is a keyword
+            if(isset($row['ID'])){
+                printDebug($word);
+                $descArray[$i] = "<span class='keyword' onclick='addDesc(3,".$word.")'>".prepVar($word)."</span>";
+                $requiredKeywordTypes[$row['Type']] = true;
+            }
+        }
+        //make sure all required keyword types were replaced
+        $rktlength = count($requiredKeywordTypes);
+        printDebug($rktlength);
+        for($i=0; $i<3; $i++){ //the amount of types, or something, as the max for i
+            if(isset($requiredKeywordTypes[$i]) && $requiredKeywordTypes[$i] == false){
+                echo "keyword of type ".$i." was not found";
+                return;
+            }
+        }
         //add the item into db
-        $Description = $_GET['Description'];
+        $Description = implode(" ",$descArray);
         $lastID = lastIDquery("insert into items (Name, Description) values (".prepVar($_GET['Name']).",".prepVar($Description).")");
         query("insert into playeritems (playerID, itemID) values (".prepVar($_SESSION['playerID']).",".prepVar($lastID).")");
-        //put the item's id that you just inserted into this player's item list - removed
-        //query("Update playerinfo set items=(IFNULL(items, 0)*1000) + ".prepVar($lastID)." where ID=".prepVar($_SESSION['playerID']));
         //add new item to the end of player's description
         $row = query("select Description from playerinfo where ID=".prepVar($_SESSION['playerID']));
         $playerDescription = $row['Description'];
@@ -151,7 +187,6 @@ final class alerts{
  *Does not add it to their page,this list is only checked during setup
  */
 function addAlert($alertNum){
-    session_start();
     query("insert into playeralerts (alertID, playerID) values (".$alertNum.",".prepVar($_SESSION['playerID']).")");
 }
 
@@ -160,7 +195,6 @@ function addAlert($alertNum){
  *removes the alert from the databse
  */
 function removeAlert($alertNum){
-    session_start();
     query("delete from playeralerts where playerID=".prepVar($_SESSION['playerID'])." and alertID=".$alertNum);
 }
 

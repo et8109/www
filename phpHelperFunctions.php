@@ -30,6 +30,9 @@ function getConnection(){
  */
 function query($sql){
     $result = mysqli_query($GLOBALS['con'], $sql);
+    if(is_bool($result)){
+        return;
+    }
     $row = mysqli_fetch_array($result);
     mysqli_free_result($result);
     return $row;
@@ -121,4 +124,10 @@ final class actionTypes {
     const ATTACK = 1;
 }
 
+/**
+ *returns the span text for the given object
+ */
+function getSpanText($type, $id, $name){
+    
+}
 ?>

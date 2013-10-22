@@ -23,7 +23,31 @@ todo:
 start on testing - alerts, items, db
 git
 move chat to db
+___
+-1/2-moving constant to db
+---
+sql function to get span text/replace
+send types to js from php
+    crafting needs type info on fail
+change sql responses to errors, also send to js in setup
+---
+sql db backups
+---
+edit produces a log of changes
+---
+**Option for front-end loading, they pick what they want to speed up
+---
 
+crafting doesn't check crafting skill when looking for craft qualities.
+whitespace problems when looking for keywards, happend in crafting
+find a way to see sql errors
+textAreaSubmit is spelled wrong
+sql required keyword types should be on the lower end to reduce the lendth of the array when crafting items
+php count() is not automatic, and loops through each time. avoid.
+make a string builder
+don't accept wirdt stuf fin inputs, like empystring/blank
+object sizes and weights
+when walking into a scene, show things that happened a bit before.
 addAlert is unclear with the numbers
 check/set new description in unclear
 no idea if message on moving works or not
@@ -31,17 +55,14 @@ move help text to a text file
 add flushing to the server to speed up the response
 one server request per function!
 websockets
-cancelling things needs to be understandable, all logic above, or something: crafting, combat
-get rid of fight class span
 look at login and logout again
-seperate text files for each scene
     !###!#!#!# new scene creation prevents speaking until leave and come back
-    add  "name moved" to scene text
+    add  "name moved here" to scene text
 add fail actions to helper functions
 on opening page: character list(some hand drawn pics), story introduction
 login redirects to index if already logged in
 add final to final variables
-prepVar causes craft item to append an item name with wingle quotes
+prepVar causes craft item to append an item name with single quotes
 make sure removing an alerts actually removes it, not extends it by null
 add alert check to setup function. set alert and numAlerts
 there is a maximum amount of alerts
