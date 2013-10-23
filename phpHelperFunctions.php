@@ -123,10 +123,10 @@ function speakAction($type, $targetName, $targetID){
     $text = "<".$type.">";
     switch($type){
         case(actionTypes::WALKING):
-            $text .= "<>".$targetName."<>".$targetID;
+            $text .= "<>".$targetID."<>".getSpanText(spanTypes::PLAYER,$_SESSION['playerID'],$_SESSION['playerName'])." walked to ".getSpanText(spanTypes::SCENE,$targetID,$targetName);
             break;
         case(actionTypes::ATTACK):
-            $text .= "<>".$targetName."<>".$targetID;
+            $text .= "<>".$targetID."<>".getSpanText(spanTypes::PLAYER,$_SESSION['playerID'],$_SESSION['playerName'])." attacked ".getSpanText(spanTypes::PLAYER,$targetID,$targetName);
             break;
     }
     addChatText($text);

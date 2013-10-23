@@ -30,7 +30,7 @@ ___
 send types to js from php
     crafting needs type info on fail
 change sql responses to errors, also send to js in setup
-php replaces spans, not js
+-done-php replaces spans, not js
 ---
 sql db backups
 ---
@@ -39,6 +39,7 @@ edit produces a log of changes
 **Option for front-end loading, they pick what they want to speed up
 ---
 
+updateChat() still replaces spans in the js
 getSpanText() deos not prepvar
 crafting doesn't check crafting skill when looking for craft qualities.
 whitespace problems when looking for keywards, happend in crafting

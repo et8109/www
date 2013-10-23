@@ -227,12 +227,14 @@ function updateChat(){
                         var type = parseInt(response[i+2].charAt(2));
                         switch(type){
                             case(actionTypes.ATTACK):
-                                var info = response[i+2].split("<>");//1:name, 2:id
-                                addText("<span class='name' onclick='addDesc("+types.PLAYER+","+response[i]+")'>"+response[i+1]+"</span> attacked <span class='name' onclick='addDesc("+types.PLAYER+","+info[2]+")'>"+info[1]+"</span>");
+                                //let the player know somehow that they were attacked, attak sound
+                                var info = response[i+2].split("<>");//1:id, 2:text
+                                addText(info[2]);
                                 break;
                             case(actionTypes.WALKING):
+                                //footsteps sound
                                 var info = response[i+2].split("<>");//1:name, 2:id
-                                addText("<span class='name' onclick='addDesc("+types.PLAYER+","+response[i]+")'>"+response[i+1]+"</span> walks to the <span class='sceneName'>"+info[1]+"</span>");
+                                addText(info[2]);
                                 break;
                         }
                     }
