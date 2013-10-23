@@ -99,6 +99,23 @@ function updateChatTime(){
         $_SESSION['lastChatTime'] = intval($lines[36]);
     }
 }
+
+/**
+ *adds an alert to the player's alert list.
+ *Does not add it to their page,this list is only checked during setup
+ */
+function addAlert($alertNum){
+    query("insert into playeralerts (alertID, playerID) values (".$alertNum.",".prepVar($_SESSION['playerID']).")");
+}
+
+
+/**
+ *removes the alert from the databse
+ */
+function removeAlert($alertNum){
+    query("delete from playeralerts where playerID=".prepVar($_SESSION['playerID'])." and alertID=".$alertNum);
+}
+
 /**
  *adds an action to the current chat
  */
@@ -116,18 +133,23 @@ function speakAction($type, $targetName, $targetID){
 }
 
 /**
- *the possible actions that are visible in chat.
- *duplicated in js
- */
-final class actionTypes {
-    const WALKING = 0;
-    const ATTACK = 1;
-}
-
-/**
- *returns the span text for the given object
+ *returns the span text for the given object.
+ *Note: id for keywords is the actual word, not number
  */
 function getSpanText($type, $id, $name){
-    
+    switch($type){
+        case(spanTypes::ITEM):
+            return "<span class='item' onclick='addDesc(".spanTypes::ITEM.",".$id.")'>".$name."</span>";
+            break;
+        case(spanTypes::KEYWORD):
+            return "<span class='keyword' onclick='addDesc(".spanTypes::KEYWORD.",&apos;".$name."&apos;)'>".$name."</span>";
+            break;
+        case(spanTypes::PLAYER):
+            return "<span class='name' onclick='addDesc(".spanTypes::PLAYER.",".$id.")'>".$name."</span>";
+            break;
+        case(spanTypes::SCENE):
+            return "<span class='sceneName' onclick='addDesc(".spanTypes::SCENE.",".$id.")'>".$name."</span>";
+            break;
+    }
 }
 ?>

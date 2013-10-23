@@ -24,12 +24,13 @@ start on testing - alerts, items, db
 git
 move chat to db
 ___
--1/2-moving constant to db
+-done-moving constant to db
 ---
-sql function to get span text/replace
+-done-sql function to get span text/replace
 send types to js from php
     crafting needs type info on fail
 change sql responses to errors, also send to js in setup
+php replaces spans, not js
 ---
 sql db backups
 ---
@@ -38,6 +39,7 @@ edit produces a log of changes
 **Option for front-end loading, they pick what they want to speed up
 ---
 
+getSpanText() deos not prepvar
 crafting doesn't check crafting skill when looking for craft qualities.
 whitespace problems when looking for keywards, happend in crafting
 find a way to see sql errors
@@ -66,7 +68,7 @@ prepVar causes craft item to append an item name with single quotes
 make sure removing an alerts actually removes it, not extends it by null
 add alert check to setup function. set alert and numAlerts
 there is a maximum amount of alerts
-sometimes an item is not added tot he item list?? -> HAPPENS WHEN TINYTEXT IN PLAYER DESCRIPTION RUNS OUT??
+**sometimes an item is not added tot he item list?? -> HAPPENS WHEN TINYTEXT IN PLAYER DESCRIPTION RUNS OUT??
 make sure all variables have var
 only have things on client-side which will not impact anyone else
 find both wood and wooden in descriptions, ect.

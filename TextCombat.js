@@ -253,54 +253,15 @@ function updateChat(){
  *id is actually word for descriptions
  */
 function addDesc(type, id) {
-    var table;
-    //find the table the description is in
-    switch(type){
-        case(types.ITEM):
-            table="items";
-            break;
-        case(types.PLAYER):
-            table="playerInfo";
-            break;
-        case(types.SCENE):
-            table="scenes";
-            break;
-        case(types.KEYWORD):
-            table="keywordwords";
-            break;
-        default:
-            addText("type "+type+" not found");
-            return;
-    }
-    
     request = new XMLHttpRequest();
     request.onreadystatechange = function(){
         if (this.readyState==4 && this.status==200) {
             response = this.responseText.split("<>");
-            switch (table) {
-                case('playerInfo'):
-                    addText("<span class='name' onclick='addDesc("+types.PLAYER+","+id+")'>"+response[0]+"</span>");
-                    addText(response[1]);
-                    /*addText("<span class='fight' onclick='attack("+id+")'>~Attack~</span>");*/
-                break;
-            
-                case('scenes'):
-                    addText("<span class='sceneName'>"+response[0]+"</span>");
-                    addText(response[1]);
-                break;
-            
-                case('items'):
-                    addText("<span class='item' onclick='addDesc("+types.ITEM+","+id+")'>"+response[0]+"</span>");
-                    addText(response[1]);
-                break;
-                case('keywordwords'):
-                    addText("<span class='keyword' onclick='addDesc("+types.KEYWORD+","+id+")'>"+response[0]+"</span>");
-                    addText(response[1]);
-                    break;
-            }
+            addText(response[0]);
+            addText(response[1]);
         }
     }
-    request.open("GET", "TextCombat.php?function=getDesc&table="+table+"&ID="+id, true);
+    request.open("GET", "TextCombat.php?function=getDesc&type="+type+"&ID="+id, true);
     request.send();
     }
   
@@ -334,10 +295,7 @@ function setNewDescription() {
     request.open("GET", "TextCombat.php?function=updateDescription&Description="+newDescription, true);
     request.send();
 }
-/**
- *Check to make sure everything needed is in the player description.
- *Calls set new description if success
- */
+
 
 /**
 * Move scene, then print new scene description.

@@ -9,18 +9,30 @@ $function = $_GET['function'];
 switch($function){
     
     case('getDesc'):
-        if($_GET['table'] == "scenes" && $_GET['ID'] == -1){
-            $row = query("select Name, Description from ".$_GET['table']." where ID=".prepVar($_SESSION['currentScene']));
-            echo $row["Name"]."<>".$row["Description"];
-        }
-        else if($_GET['table'] == "keywordwords"){
-            $row2 = query("select ID from ".$_GET['table']." where Word=".prepVar($_GET['ID']));
-            $row = query("select Description from keywords where ID=".$row2['ID']);
-            echo $_GET['ID']."<>".$row["Description"];
-        }
-        else{
-            $row = query("select Name, Description from ".$_GET['table']." where ID=".prepVar($_GET['ID']));
-            echo $row["Name"]."<>".$row["Description"];
+        switch($_GET['type']){
+            case(spanTypes::ITEM):
+                $row = query("select Name, Description from items where ID=".prepVar($_GET['ID']));
+                echo getSpanText(spanTypes::ITEM,$_GET['ID'],$row["Name"])."<>".$row["Description"];
+                break;
+            case(spanTypes::KEYWORD):
+                $row2 = query("select ID from keywordwords where Word=".prepVar($_GET['ID']));
+                $row = query("select Description from keywords where ID=".$row2['ID']);
+                echo getSpanText(spanTypes::KEYWORD,$_GET['ID'],$_GET['ID'])."<>".$row["Description"];
+                break;
+            case(spanTypes::PLAYER):
+                $row = query("select Name, Description from playerinfo where ID=".prepVar($_GET['ID']));
+                echo getSpanText(spanTypes::PLAYER,$_GET['ID'],$row["Name"])."<>".$row["Description"];
+                break;
+            case(spanTypes::SCENE):
+                if($_GET['ID'] == -1){
+                    $row = query("select Name, Description from scenes where ID=".prepVar($_SESSION['currentScene']));
+                    echo getSpanText(spanTypes::SCENE,$_GET['ID'],$row["Name"])."<>".$row["Description"];
+                }
+                else{
+                    $row = query("select Name, Description from scenes where ID=".prepVar($_GET['ID']));
+                    echo getSpanText(spanTypes::SCENE,$_GET['ID'],$row["Name"])."<>".$row["Description"];
+                }
+                break;
         }
         break;
     
@@ -55,13 +67,13 @@ switch($function){
                     }
                     //the item was found
                     else{
-                        $newDescription = str_replace($row2['Name'], "<span class='item' onclick='addDesc(0,".$row2['ID'].")'>".$row2['Name']."</span>", $newDescription);
+                        $newDescription = str_replace($row2['Name'], getSpanText(spanTypes::ITEM,$row2['ID'],$row2['Name']), $newDescription);
                     }
                 }
                 mysqli_free_result($result);
             }
             query("Update playerinfo set Description=".prepVar($newDescription)." where ID=".prepVar($_SESSION['playerID']));
-            removeAlert(alerts::newItem);
+            removeAlert(alertTypes::newItem);
         break;
     
     case('getSceneInfo'):
@@ -100,14 +112,12 @@ switch($function){
             $row = query("select ID,Type from keywordwords where Word=".prepVar($word));
             //if there is a keyword
             if(isset($row['ID'])){
-                printDebug($word);
-                $descArray[$i] = "<span class='keyword' onclick='addDesc(3,".$word.")'>".prepVar($word)."</span>";
+                $descArray[$i] = getSpanText(spanTypes::KEYWORD,$word,$word);
                 $requiredKeywordTypes[$row['Type']] = true;
             }
         }
         //make sure all required keyword types were replaced
         $rktlength = count($requiredKeywordTypes);
-        printDebug($rktlength);
         for($i=0; $i<3; $i++){ //the amount of types, or something, as the max for i
             if(isset($requiredKeywordTypes[$i]) && $requiredKeywordTypes[$i] == false){
                 echo "keyword of type ".$i." was not found";
@@ -121,10 +131,10 @@ switch($function){
         //add new item to the end of player's description
         $row = query("select Description from playerinfo where ID=".prepVar($_SESSION['playerID']));
         $playerDescription = $row['Description'];
-        $playerDescription .="<span class='item' onclick='addDesc(0,".prepVar($lastID).")'>".prepVar($_GET['Name'])."</span>";
+        $playerDescription .= getSpanText(spanTypes::ITEM,$lastID,$_GET['Name']);
         query("Update playerinfo set Description=".prepVar($playerDescription)." where ID=".prepVar($_SESSION['playerID']));
         //add alert
-        addAlert(alerts::newItem);
+        addAlert(alertTypes::newItem);
         break;
     
     case('getCraftInfo'):
@@ -177,25 +187,32 @@ switch($function){
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~alert functions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
-final class alerts{
+/**
+ *types of alerts that can show up in the alert box
+ */
+final class alertTypes{
     //the number is it's id in db
     const newItem = 100;
 }
-/**
- *adds an alert to the player's alert list.
- *Does not add it to their page,this list is only checked during setup
- */
-function addAlert($alertNum){
-    query("insert into playeralerts (alertID, playerID) values (".$alertNum.",".prepVar($_SESSION['playerID']).")");
-}
-
 
 /**
- *removes the alert from the databse
+ *the possible actions that are visible in chat.
+ *duplicated in js
  */
-function removeAlert($alertNum){
-    query("delete from playeralerts where playerID=".prepVar($_SESSION['playerID'])." and alertID=".$alertNum);
+final class actionTypes {
+    const WALKING = 0;
+    const ATTACK = 1;
 }
+
+/**
+ *The types of spans that you can click for a description
+ */
+final class spanTypes {
+    const ITEM = 0;
+    const PLAYER = 1;
+    const SCENE = 2;
+    const KEYWORD = 3;
+}
+
 
 ?>
