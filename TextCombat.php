@@ -160,28 +160,38 @@ switch($function){
         echo $row['ID'];
         break;
     
-    case('setUp'):
-        //player name
-        $toReturn = $_SESSION['playerName'];
-        //number of items
-        $numItems = 0;
-        $result = queryMulti("select itemID from playeritems where playerID=".prepVar($_SESSION['playerID']));
-        while($row = mysqli_fetch_array($result)){
-            $numItems++;
-        }
-        mysqli_free_result($result);
-        $toReturn .= "<>".$numItems;
-        //admin level
-        $row = query("select adminLevel from playerinfo where ID=".prepVar($_SESSION['playerID']));
-        $toReturn .= "<>".$row['adminLevel'];
-        
-        //current alerts
+    case('getAlertMessages'):
+        //get all alert ids
         $result = queryMulti("select alertID from playeralerts where playerID=".prepVar($_SESSION['playerID']));
         while($row = mysqli_fetch_array($result)){
-            $toReturn .= "<>".$row['alertID'];
+            //get alert message and append
+            $row2 = query("select Description from alerts where ID=".prepVar($row['alertID']));
+            echo "</br>".$row2['Description'];
         }
         mysqli_free_result($result);
+        break;
+    
+    case('setUp'):
+        $toReturn = "";
+        $row = query("select adminLevel from playerinfo where ID=".prepVar($_SESSION['playerID']));
+        $toReturn .= "<>".$row['adminLevel'];
         echo $toReturn;
+        return;
+    
+    case('frontLoadAlerts'):
+        //send alert types
+        $result = queryMulti("select ID, Description from alerts");
+        while($row = mysqli_fetch_array($result)){
+            echo "<>".$row['ID']."<>".$row['Description'];
+        }
+        mysqli_free_result($result);
+        echo "<<>>";
+        //send player alerts
+        $result = queryMulti("select alertID from playeralerts where playerID=".prepVar($_SESSION['playerID']));
+        while($row = mysqli_fetch_array($result)){
+            echo "<>".$row['alertID'];
+        }
+        mysqli_free_result($result);
         break;
 }
 

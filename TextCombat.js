@@ -4,32 +4,51 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //Globals
 
-/**Set up
- * Sets up the page:
+/**
+ *Set up, needed
  */
 (function(){
-    //totally changed
-    //remember the player's name
-    request = new XMLHttpRequest();
-    request.onreadystatechange = function(){
-	if (this.readyState==4 && this.status==200) {
-            var response = this.responseText.split("<>");
-            var adminLevel = parseInt(response[2]);
-            switch(adminLevel){
-                case(1):
-                    document.getElementById("hub").innerHTML+="</br><a href='edit.php'>edit</a>";
-                    break;
-            }
-            for(var i=3; i<response.length; i++){
-                addAlert(response[i]);
-            }
-            //allow input
-            document.getElementById("input").disabled=false;
-	}
+request = new XMLHttpRequest();
+request.onreadystatechange = function(){
+    if (this.readyState==4 && this.status==200) {
+        var response = this.responseText.split("<>");
+        var adminLevel = parseInt(response[1]);
+        switch(adminLevel){
+            case(1):
+                document.getElementById("hub").innerHTML+="</br><a href='edit.php'>edit</a>";
+                break;
+        }
+        //allow input
+        document.getElementById("input").disabled=false;
     }
-    request.open("GET", "TextCombat.php?function=setUp", true);
-    request.send();
+}
+request.open("GET", "TextCombat.php?function=setUp", true);
+request.send();
 }());
+var alertText =[];
+var frontLoadAlertText = true;
+if (frontLoadAlertText) {
+(function(){
+request = new XMLHttpRequest();
+request.onreadystatechange = function(){
+    if (this.readyState==4 && this.status==200) {
+        var response = this.responseText.split("<<>>");
+        //ids and thier text
+        var alertTextsAndIDs = response[0].split("<>");
+        for(var i=1; i<alertTextsAndIDs.length; i+=2){;
+            alertText[parseInt(alertTextsAndIDs[i])] = alertTextsAndIDs[i+1];
+        }
+        //the player's alerts
+        var playerAlerts = response[1].split("<>");
+        for(var i=1; i<playerAlerts.length; i++){
+            addAlert(playerAlerts[i]);
+        }
+    }
+}
+request.open("GET", "TextCombat.php?function=frontLoadAlerts", true);
+request.send();
+}());
+}
 
 /**
      *sets the timer to update chat
@@ -61,7 +80,7 @@ var waitingForTextLine = textLineInputs.NOTHING;
  referenced in sql when crafting items
  not player made means no db lookup required
  */
-var types = {
+var spanTypes = {
     ITEM: 0,
     PLAYER: 1,
     SCENE: 2,
@@ -85,11 +104,12 @@ var numAlerts = 0;
  *stored in db as numbers, so must be finable by number
  */
 var alertTypes ={
-    100: "Your new item has been added to your description. You should edit it soon."
+    NEW_ITEM : 1
 }
 /**
  *adds an alert to the list.
  *input is the number, not the alertType subvar
+ *does nothing is alerts were not front loaded
  */
 function addAlert(alertType) {
     for(alertNum in alerts){
@@ -171,7 +191,7 @@ function textTyped(e){
         switch (inputText) {
             case("/look"):
                 deactivateActiveLinks();
-                addDesc(types.SCENE, -1);
+                addDesc(spanTypes.SCENE, -1);
                 break;
             case("/attack"):
                 waitingForTextLine = textLineInputs.TARGET_NAME;
@@ -240,7 +260,7 @@ function updateChat(){
                     }
                     else{
                     //if a chat
-		    addText("<span class='name' onclick='addDesc("+types.PLAYER+","+response[i]+")'>"+response[i+1]+"</span>: "+response[i+2]);
+		    addText("<span class='name' onclick='addDesc("+spanTypes.PLAYER+","+response[i]+")'>"+response[i+1]+"</span>: "+response[i+2]);
                     }
                 }
 	    }
@@ -285,7 +305,7 @@ function setNewDescription() {
             if (response == "") {
                 closeTextArea();
                 //new item, cange description alert
-                removeAlert(100);
+                removeAlert(alertTypes.NEW_ITEM);
                 waitingForTextArea=textAreaInputs.NOTHING;
             }
             //if something was wrong
@@ -310,7 +330,7 @@ request = new XMLHttpRequest();
 request.onreadystatechange = function(){
         if (this.readyState==4 && this.status==200) {
             //-1 means current scene
-            addDesc(types.SCENE, newSceneId);
+            addDesc(spanTypes.SCENE, newSceneId);
         }
 }
 request.open("GET", "TextCombat.php?function=moveScenes&newScene="+newSceneId, true);
@@ -397,7 +417,7 @@ function addCraftDescription(){
                 cancelWaits();
                 //new item in inventory alert
                 //also in db
-                addAlert(100);
+                addAlert(alertTypes.NEW_ITEM);
                 //sound
                 playSound("anvil");
                 itemName = "";
@@ -488,10 +508,23 @@ function speak(inputText){
  *called by span on page
  */
 function openAlerts(){
-    document.getElementById("alertMainInside").innerHTML = "";
-    document.getElementById("alertMain").style.visibility="visible";
-    for(var i=0; i<numAlerts; i++){
-        document.getElementById("alertMainInside").innerHTML +="</br>"+alertTypes[alerts[i]];
+    if (frontLoadAlertText) {
+        document.getElementById("alertMainInside").innerHTML = "";
+        for(var i=0; i<numAlerts; i++){
+            document.getElementById("alertMainInside").innerHTML +="</br>"+alertText[alerts[i]];
+        }
+        document.getElementById("alertMain").style.visibility="visible";
+    }
+    else{
+        request = new XMLHttpRequest();
+        request.onreadystatechange = function(){
+            if (this.readyState==4 && this.status==200) {
+                document.getElementById("alertMainInside").innerHTML = this.responseText;
+                document.getElementById("alertMain").style.visibility="visible";
+            }
+        }
+        request.open("GET", "TextCombat.php?function=getAlertMessages", true);
+        request.send();
     }
 }
 /**

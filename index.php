@@ -27,7 +27,7 @@ ___
 -done-moving constant to db
 ---
 -done-sql function to get span text/replace
-send types to js from php
+-can't-send types to js from php
     crafting needs type info on fail
 change sql responses to errors, also send to js in setup
 -done-php replaces spans, not js
@@ -36,9 +36,10 @@ sql db backups
 ---
 edit produces a log of changes
 ---
-**Option for front-end loading, they pick what they want to speed up
+-in progress-**Option for front-end loading, they pick what they want to speed up
 ---
 
+echo a bunch of stuff instead of appending to a string first
 updateChat() still replaces spans in the js
 getSpanText() deos not prepvar
 crafting doesn't check crafting skill when looking for craft qualities.

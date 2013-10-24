@@ -1,31 +1,29 @@
-<0>Blacksmith<>102
-done move Scenes
-<0>Town Square<>101
-done move Scenes
-about to speak
-about to speak
-about to speak
-about to speak
-about to speak
-about to speak
-about to speak
-about to speak
-done speaking
-about to speak
-done speaking
-about to speak
-done speaking
-about to speak
-done speaking
-about to speak
-done speaking
-done move Scenes
-done move Scenes
-158
-159
-select ID, Name from items where ID=154 or 159
-select ID, Name from items where ID=154 or 159
-select ID, Name from items where ID=154 or 159
-Sword<>100<>shield<>101<>testsql<>111<>asdf<>112<>sdfds<>113<>ytyt<>114<>Giant blob!<>115<>xgf<>116<>ef<>117<>sdf<>118<>sfd<>119<>fifthThing<>120<>sadf<>121<>sdfs<>122<>df<>123<>dsg<>124<>efdgfd<>125<>null<>126<>null<>127<>null<>128<>sdfge<>129<>a sword<>130<>stick<>131<>dfgds<>132<>new1<>133<>itemNumTwo<>134<>things<>135<>sdfds<>136<>three<>137<>four<>138<>stinds<>139<>sevener<>140<>tester<>141<>testerDos<>142<>testertres<>143<>goodTester<>144<>pudding<>145<>barks<>146<>board<>147<>bath<>148<>things<>149<>wefre<>150<>thingds<>151<>wefew<>152<>ewfew<>153<>anItem<>154<>tester5<>155<>testet6<>156<>tester 7..<>157<>tester8<>158<>tester9<>159<>
-select ID, Name from items where ID=154 or ID=159
-anItem<>154<>tester9<>159<>
+2
+2
+2
+2
+wood
+2
+wood
+simple
+2
+simple
+metal
+2
+simple
+wooden
+2
+simple
+2
+simple
+2
+simple
+2
+simple
+2
+simple
+metallic
+2
+simple
+metallic
+2
