@@ -37,6 +37,7 @@ sql db backups
 edit produces a log of changes
 ---
 -in progress-**Option for front-end loading, they pick what they want to speed up
+tell the user how large the frontloading will be in ram.
 ---
 
 echo a bunch of stuff instead of appending to a string first

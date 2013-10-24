@@ -186,10 +186,18 @@ switch($function){
         }
         mysqli_free_result($result);
         echo "<<>>";
-        //send player alerts
+        //send player alerts //move to defautl setup
         $result = queryMulti("select alertID from playeralerts where playerID=".prepVar($_SESSION['playerID']));
         while($row = mysqli_fetch_array($result)){
             echo "<>".$row['alertID'];
+        }
+        mysqli_free_result($result);
+        break;
+    
+    case('frontLoadScenes'):
+        $result = queryMulti("select ID, Name, Description from alerts");
+        while($row = mysqli_fetch_array($result)){
+            echo "<>".$row['ID']."<>".getSpanText(spanTypes::SCENE,$row['ID'],$row['Name'])."<>".$row['Description'];
         }
         mysqli_free_result($result);
         break;

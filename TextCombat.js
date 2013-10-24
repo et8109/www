@@ -22,32 +22,51 @@ request.onreadystatechange = function(){
         document.getElementById("input").disabled=false;
     }
 }
-request.open("GET", "TextCombat.php?function=setUp", true);
+request.open("GET", "TextCombat.php?function=setUp", false);
 request.send();
 }());
 var alertText =[];
-var frontLoadAlertText = true;
+var frontLoadAlertText = false;
 if (frontLoadAlertText) {
 (function(){
-request = new XMLHttpRequest();
-request.onreadystatechange = function(){
-    if (this.readyState==4 && this.status==200) {
-        var response = this.responseText.split("<<>>");
-        //ids and thier text
-        var alertTextsAndIDs = response[0].split("<>");
-        for(var i=1; i<alertTextsAndIDs.length; i+=2){;
-            alertText[parseInt(alertTextsAndIDs[i])] = alertTextsAndIDs[i+1];
-        }
-        //the player's alerts
-        var playerAlerts = response[1].split("<>");
-        for(var i=1; i<playerAlerts.length; i++){
-            addAlert(playerAlerts[i]);
+    request = new XMLHttpRequest();
+    request.onreadystatechange = function(){
+        if (this.readyState==4 && this.status==200) {
+            var response = this.responseText.split("<<>>");
+            //ids and thier text
+            var alertTextsAndIDs = response[0].split("<>");
+            for(var i=1; i<alertTextsAndIDs.length; i+=2){;
+                alertText[parseInt(alertTextsAndIDs[i])] = alertTextsAndIDs[i+1];
+            }
+            //the player's alerts
+            var playerAlerts = response[1].split("<>");
+            for(var i=1; i<playerAlerts.length; i++){
+                addAlert(playerAlerts[i]);
+            }
         }
     }
+    request.open("GET", "TextCombat.php?function=frontLoadAlerts", false);
+    request.send();
+    }());
 }
-request.open("GET", "TextCombat.php?function=frontLoadAlerts", true);
-request.send();
-}());
+//[id][0:name, 1:description]
+var sceneText =[[]];
+var frontLoadSceneText = false;
+if (frontLoadSceneText) {
+    (function(){
+    request = new XMLHttpRequest();
+    request.onreadystatechange = function(){
+        if (this.readyState==4 && this.status==200) {
+            var sceneTextsAndIDs = this.responseText.split("<>");
+            for(var i=1; i<sceneTextsAndIDs.length; i+=3){;
+                sceneText[parseInt(sceneTextsAndIDs[i])][0] = sceneTextsAndIDs[i+1];
+                sceneText[parseInt(sceneTextsAndIDs[i])][1] = sceneTextsAndIDs[i+2];
+            }
+        }
+    }
+    request.open("GET", "TextCombat.php?function=frontLoadScenes", false);
+    request.send();
+    }());
 }
 
 /**
@@ -275,6 +294,14 @@ function updateChat(){
  *id is actually word for descriptions
  */
 function addDesc(type, id) {
+    switch (type) {
+        case(spanTypes.SCENE):
+            if (frontLoadSceneText) {
+                addText( sceneText[id][0] );
+                addText( sceneText[id][1] );
+            }
+            break;
+    }
     request = new XMLHttpRequest();
     request.onreadystatechange = function(){
         if (this.readyState==4 && this.status==200) {
