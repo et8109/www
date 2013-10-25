@@ -18,14 +18,15 @@ request.onreadystatechange = function(){
                 document.getElementById("hub").innerHTML+="</br><a href='edit.php'>edit</a>";
                 break;
         }
+        currentScene = parseInt(response[2]);
         //allow input
         document.getElementById("input").disabled=false;
     }
 }
-request.open("GET", "TextCombat.php?function=setUp", false);
+request.open("GET", "TextCombat.php?function=setUp", true);
 request.send();
 }());
-var alertText =[];
+var alertText ={};
 var frontLoadAlertText = false;
 if (frontLoadAlertText) {
 (function(){
@@ -45,13 +46,14 @@ if (frontLoadAlertText) {
             }
         }
     }
-    request.open("GET", "TextCombat.php?function=frontLoadAlerts", false);
+    request.open("GET", "TextCombat.php?function=frontLoadAlerts", true);
     request.send();
     }());
 }
+
 //[id][0:name, 1:description]
-var sceneText =[[]];
-var frontLoadSceneText = false;
+var sceneText={};
+var frontLoadSceneText = true;
 if (frontLoadSceneText) {
     (function(){
     request = new XMLHttpRequest();
@@ -59,12 +61,32 @@ if (frontLoadSceneText) {
         if (this.readyState==4 && this.status==200) {
             var sceneTextsAndIDs = this.responseText.split("<>");
             for(var i=1; i<sceneTextsAndIDs.length; i+=3){;
-                sceneText[parseInt(sceneTextsAndIDs[i])][0] = sceneTextsAndIDs[i+1];
-                sceneText[parseInt(sceneTextsAndIDs[i])][1] = sceneTextsAndIDs[i+2];
+            sceneText[parseInt(sceneTextsAndIDs[i])] = [sceneTextsAndIDs[i+1],sceneTextsAndIDs[i+2]]
             }
         }
     }
     request.open("GET", "TextCombat.php?function=frontLoadScenes", false);
+    request.send();
+    }());
+}
+
+//[word][0: span text 1: desc] //keyword type not needed
+var keywordText={};
+var frontLoadKeywords = true;
+if (frontLoadKeywords) {
+    (function(){
+    request = new XMLHttpRequest();
+    request.onreadystatechange = function(){
+        if (this.readyState==4 && this.status==200) {
+            var keywordTextAndDesc = this.responseText.split("<>");
+            for(var i=1; i<keywordTextAndDesc.length; i+=3){;
+            keywordText[keywordTextAndDesc[i]] = [keywordTextAndDesc[i+1], keywordTextAndDesc[i+2]];
+                //keywordText[keywordTextAndDesc[i]][0] = keywordTextAndDesc[i+1];
+                //keywordText[keywordTextAndDesc[i]][1] = keywordTextAndDesc[i+2];
+            }
+        }
+    }
+    request.open("GET", "TextCombat.php?function=frontLoadKeywords", false);
     request.send();
     }());
 }
@@ -96,8 +118,7 @@ var waitingForTextLine = textLineInputs.NOTHING;
  Each should have:
  id
  description
- referenced in sql when crafting items
- not player made means no db lookup required
+ **repeated in sql
  */
 var spanTypes = {
     ITEM: 0,
@@ -182,6 +203,11 @@ var actionTypes ={
  *holds the name of the item to be crafted
  */
 var itemName;
+/**
+ *saves the current scene id. used for addDesc of currentScene
+ */
+var currentScene;
+
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
@@ -210,7 +236,7 @@ function textTyped(e){
         switch (inputText) {
             case("/look"):
                 deactivateActiveLinks();
-                addDesc(spanTypes.SCENE, -1);
+                addDesc(spanTypes.SCENE, currentScene);
                 break;
             case("/attack"):
                 waitingForTextLine = textLineInputs.TARGET_NAME;
@@ -299,6 +325,14 @@ function addDesc(type, id) {
             if (frontLoadSceneText) {
                 addText( sceneText[id][0] );
                 addText( sceneText[id][1] );
+                return;
+            }
+            break;
+        case(spanTypes.KEYWORD):
+            if (frontLoadKeywords) {
+                addText( keywordText[id][0] );
+                addText( keywordText[id][1] );
+                return;
             }
             break;
     }
@@ -435,7 +469,6 @@ function addCraftDescription(){
     request = new XMLHttpRequest();
     request.onreadystatechange = function(){
         if (this.readyState==4 && this.status==200) {
-            alert(this.responseText);
             //on success
             if(this.responseText == ""){
                 addText("You make a "+itemName);
@@ -478,6 +511,38 @@ function attack() {
     }
     request.open("GET", "TextCombat.php?function=attack&Name="+getInputText(), true);
     request.send();
+}
+
+/**
+ *opens the alert box.
+ *called by span on page
+ */
+function openAlerts(){
+    if (frontLoadAlertText) {
+        document.getElementById("alertMainInside").innerHTML = "";
+        for(var i=0; i<numAlerts; i++){
+            document.getElementById("alertMainInside").innerHTML +="</br>"+alertText[alerts[i]];
+        }
+        document.getElementById("alertMain").style.visibility="visible";
+    }
+    else{
+        request = new XMLHttpRequest();
+        request.onreadystatechange = function(){
+            if (this.readyState==4 && this.status==200) {
+                document.getElementById("alertMainInside").innerHTML = this.responseText;
+                document.getElementById("alertMain").style.visibility="visible";
+            }
+        }
+        request.open("GET", "TextCombat.php?function=getAlertMessages", true);
+        request.send();
+    }
+}
+/**
+ *closes the alert box.
+ *called by the close button on the page
+ */
+function closeAlerts(){
+document.getElementById("alertMain").style.visibility="hidden";
 }
 
 ////////////////////////////////////////////////////
@@ -528,38 +593,6 @@ function speak(inputText){
     request = new XMLHttpRequest();
     request.open("GET", "FilesBack.php?function=speak&inputText="+inputText, true);  
     request.send();
-}
-
-/**
- *opens the alert box.
- *called by span on page
- */
-function openAlerts(){
-    if (frontLoadAlertText) {
-        document.getElementById("alertMainInside").innerHTML = "";
-        for(var i=0; i<numAlerts; i++){
-            document.getElementById("alertMainInside").innerHTML +="</br>"+alertText[alerts[i]];
-        }
-        document.getElementById("alertMain").style.visibility="visible";
-    }
-    else{
-        request = new XMLHttpRequest();
-        request.onreadystatechange = function(){
-            if (this.readyState==4 && this.status==200) {
-                document.getElementById("alertMainInside").innerHTML = this.responseText;
-                document.getElementById("alertMain").style.visibility="visible";
-            }
-        }
-        request.open("GET", "TextCombat.php?function=getAlertMessages", true);
-        request.send();
-    }
-}
-/**
- *closes the alert box.
- *called by the close button on the page
- */
-function closeAlerts(){
-document.getElementById("alertMain").style.visibility="hidden";
 }
 
 /**

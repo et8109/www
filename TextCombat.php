@@ -24,14 +24,8 @@ switch($function){
                 echo getSpanText(spanTypes::PLAYER,$_GET['ID'],$row["Name"])."<>".$row["Description"];
                 break;
             case(spanTypes::SCENE):
-                if($_GET['ID'] == -1){
-                    $row = query("select Name, Description from scenes where ID=".prepVar($_SESSION['currentScene']));
-                    echo getSpanText(spanTypes::SCENE,$_GET['ID'],$row["Name"])."<>".$row["Description"];
-                }
-                else{
-                    $row = query("select Name, Description from scenes where ID=".prepVar($_GET['ID']));
-                    echo getSpanText(spanTypes::SCENE,$_GET['ID'],$row["Name"])."<>".$row["Description"];
-                }
+                $row = query("select Name, Description from scenes where ID=".prepVar($_GET['ID']));
+                echo getSpanText(spanTypes::SCENE,$_GET['ID'],$row["Name"])."<>".$row["Description"];
                 break;
         }
         break;
@@ -173,9 +167,9 @@ switch($function){
     
     case('setUp'):
         $toReturn = "";
-        $row = query("select adminLevel from playerinfo where ID=".prepVar($_SESSION['playerID']));
-        $toReturn .= "<>".$row['adminLevel'];
-        echo $toReturn;
+        $row = query("select adminLevel,Scene from playerinfo where ID=".prepVar($_SESSION['playerID']));
+        echo "<>".$row['adminLevel'];
+        echo "<>".$row['Scene'];
         return;
     
     case('frontLoadAlerts'):
@@ -195,9 +189,19 @@ switch($function){
         break;
     
     case('frontLoadScenes'):
-        $result = queryMulti("select ID, Name, Description from alerts");
+        $result = queryMulti("select ID, Name, Description from scenes");
         while($row = mysqli_fetch_array($result)){
             echo "<>".$row['ID']."<>".getSpanText(spanTypes::SCENE,$row['ID'],$row['Name'])."<>".$row['Description'];
+        }
+        mysqli_free_result($result);
+        break;
+    
+    case('frontLoadKeywords'):
+        //keyword words to description. //type not needed
+        $result = queryMulti("select Word, ID from keywordwords");
+        while($row = mysqli_fetch_array($result)){
+            $row2 = query("select Description from keywords where ID=".$row['ID']);
+            echo "<>".$row['Word']."<>".getSpanText(spanTypes::KEYWORD,$row['ID'],$row['Word'])."<>".$row2['Description'];
         }
         mysqli_free_result($result);
         break;
