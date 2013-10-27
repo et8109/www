@@ -36,11 +36,12 @@ sql db backups
 ---
 edit produces a log of changes
 ---
--done-**Option for front-end loading, they pick what they want to speed up
-tell the user how large the frontloading will be in ram.
+-3/4-**Option for front-end loading, they pick what they want to speed up
+    save and get front load preferences from db
+    only set alerts in db on page close
+-1/4-tell the user how large the frontloading will be in ram.
 ---
 
-only set alerts in db on page close
 remove active links is still messed up
 does js .length take linear time?
 echo a bunch of stuff instead of appending to a string first
@@ -132,7 +133,7 @@ remove \r\n from all input text
         <span id="logout"><a href="logout.php">log out</a></span>
         <span id="hubName" onclick="displayMyDesc()"><?php echo $_SESSION['playerName']; ?></span>
         <span id="id"><?php echo $_SESSION['playerID']; ?></span>
-        <span id="alert" onclick="openAlerts()">alerts</span>
+        <span id="alert" onclick="openMenu()">alerts</span>
         
         <div id="extra">
             <textArea id="textArea"></textArea><br/>
@@ -142,13 +143,12 @@ remove \r\n from all input text
         </div>
         </div>
         <!-- The notifications popup -->
-        <div id="alertMain">
-        Alerts:
-        <div id="alertMainInside">
-            hihi
+        <div id="menuMain">
+        <div id="menuMainInside">
         </div>
-        <span id="alertMainClose" onclick="closeAlerts()">Close</span>
-        <span id="alertMainMute" onclick="toggleMute()">Mute</span>
+        <span id="menuMainClose" onclick="closeMenu()">Close</span>
+        <span id="menuMainMute" onclick="toggleMute()">Mute</span>
+        <div class="menuButton" id="optionsMenuButton" onclick="openOptions()">o</div>
         </div>
 </body>
 </html>

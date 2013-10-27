@@ -70,6 +70,14 @@ border: solid 1px brown;
     color: black;
     cursor: auto;
 }
+.menuButton{ /*the buttons on the side of the alert menu*/
+    width: 30px;
+    height:30px;
+    background-color: brown;
+    position: relative;
+    left:400px;
+    cursor: pointer;
+}
 
 /*player name in the hub*/
 #hubName{
@@ -93,7 +101,7 @@ cursor: pointer;
 #alert:hover{
 text-decoration: underline;
 }
-#alertMain{
+#menuMain{
 background-color: grey;
 position:absolute;
 left:50%;
@@ -106,27 +114,30 @@ border:solid 3px brown;
 z-index:3;
 font-size:20px;
 color:gold;
-#alertMainInside{
+#menuMainInside{
     
 }
 }
-#alertMainClose{
+#menuMainClose{
 position:absolute;
 bottom:5px;
 right:5px;
 color:brown;
 cursor:pointer;
 }
-#alertMainClose:hover{
+#menuMainClose:hover{
 text-decoration:underline;
 }
-#alertMainMute{
+#menuMainMute{
 position:absolute;
 bottom:5px;
 right:80px;
 color:black;
 cursor:pointer;  
 }
-#alertMainMute:hover{
+#menuMainMute:hover{
 text-decoration:underline;
+}
+#optionsMenuButton{
+    
 }

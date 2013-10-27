@@ -27,7 +27,7 @@ request.open("GET", "TextCombat.php?function=setUp", true);
 request.send();
 }());
 var alertText ={};
-var frontLoadAlertText = false;
+var frontLoadAlertText = true;
 if (frontLoadAlertText) {
 (function(){
     request = new XMLHttpRequest();
@@ -37,7 +37,6 @@ if (frontLoadAlertText) {
             //ids and thier text
             var alertTextsAndIDs = response[0].split("<>");
             for(var i=1; i<alertTextsAndIDs.length; i+=2){;
-                alert(alertTextsAndIDs[i]);
                 alertText[parseInt(alertTextsAndIDs[i])] = alertTextsAndIDs[i+1];
             }
             //the player's alerts
@@ -453,7 +452,6 @@ function addCraftDescription(){
     }
     request.open("GET", "TextCombat.php?function=craftItem&Name="+itemName+"&Description="+itemDescription, true);
     request.send();
-    alert("send craft requst");
 }
 
 /**
@@ -475,27 +473,27 @@ function attack() {
     request.send();
 }
 
+function openMenu(){
+    openAlerts();
+    document.getElementById("menuMain").style.visibility="visible";
+}
 /**
- *opens the alert box.
- *called by span on page
+ *shows alerts in menu box
  */
 function openAlerts(){
     document.getElementById("alert").style.color="black";
+    document.getElementById("menuMainInside").innerHTML = "";
+    document.getElementById("menuMainInside").innerHTML += "Alerts:";
     if (frontLoadAlertText) {
-        alert("fl at");
-        document.getElementById("alertMainInside").innerHTML = "";
         for(alertNum in alerts){
-            document.getElementById("alertMainInside").innerHTML +="</br>"+alertText[alertNum];
+            document.getElementById("menuMainInside").innerHTML +="</br>"+alertText[alertNum];
         }
-        document.getElementById("alertMain").style.visibility="visible";
     }
     else{
-        alert("not fl at");
         request = new XMLHttpRequest();
         request.onreadystatechange = function(){
             if (this.readyState==4 && this.status==200) {
-                document.getElementById("alertMainInside").innerHTML = this.responseText;
-                document.getElementById("alertMain").style.visibility="visible";
+                document.getElementById("menuMainInside").innerHTML += this.responseText;
             }
         }
         request.open("GET", "TextCombat.php?function=getAlertMessages", true);
@@ -507,10 +505,41 @@ function openAlerts(){
  *called by the close button on the page
  *sets the alert button to be black
  */
-function closeAlerts(){
-document.getElementById("alertMain").style.visibility="hidden";
+function closeMenu(){
+document.getElementById("menuMain").style.visibility="hidden";
 }
-
+/**
+ *displays the options in the alert box
+ */
+function openOptions(){
+    var menuInside = document.getElementById("menuMainInside");
+    menuInside.innerHTML = "";
+    menuInside.innerHTML += "Options:";
+    //front load alert text
+    if (frontLoadAlertText) {
+        menuInside.innerHTML +="</br><input type='checkbox' onclick='toggleFrontLoadAlertText()' checked='checked'>";
+    }
+    else{
+        menuInside.innerHTML +="</br><input type='checkbox' onclick='toggleFrontLoadAlertText()'>";
+    }
+    menuInside.innerHTML +="Front load alert text. About 2 lines.</input>";
+    //front load scene text
+    if (frontLoadSceneText) {
+        menuInside.innerHTML +="</br><input type='checkbox' onclick='toggleFrontLoadSceneText()' checked='checked'>";
+    }
+    else{
+        menuInside.innerHTML +="</br><input type='checkbox' onclick='toggleFrontLoadSceneText()'>";
+    }
+    menuInside.innerHTML +="Front load scene text. About 3 lines.</input>";
+    //front load keywords
+    if (frontLoadKeywords) {
+        menuInside.innerHTML +="</br><input type='checkbox' onclick='toggleFrontLoadKeywords()' checked='checked'>";
+    }
+    else{
+        menuInside.innerHTML +="</br><input type='checkbox' onclick='toggleFrontLoadKeywords()'>";
+    }
+    menuInside.innerHTML +="Front load keyword text. About 6 lines.</input>";
+}
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////
@@ -643,11 +672,11 @@ function closeTextArea() {
 function toggleMute(){
     if (muted) {
         muted = false;
-        document.getElementById("alertMainMute").innerHTML = "Mute";
+        document.getElementById("menuMainMute").innerHTML = "Mute";
     }
     else{
         muted = true;
-        document.getElementById("alertMainMute").innerHTML = "Unmute";
+        document.getElementById("menuMainMute").innerHTML = "Unmute";
     }
 }
 /**
@@ -707,4 +736,25 @@ function cancelWaits() {
 function isWaiting() {
     return(waitingForTextArea != textAreaInputs.NOTHING || waitingForTextLine != textLineInputs.NOTHING);
 }
+
+/**
+ *switches whether the alert text is front loaded or not
+ */
+function toggleFrontLoadAlertText() {
+    frontLoadAlertText=!frontLoadAlertText;
+}
+/**
+ *switches whether the scene text is front loaded or not
+ */
+function toggleFrontLoadSceneText(){
+    frontLoadSceneText=!frontLoadSceneText;
+}
+/**
+ *switches whether the keyword text is front loaded or not
+ */
+function toggleFrontLoadKeywords(){
+    frontLoadKeywords=!frontLoadKeywords;
+}
+
+
 
