@@ -36,10 +36,11 @@ sql db backups
 ---
 edit produces a log of changes
 ---
--1/2-**Option for front-end loading, they pick what they want to speed up
+-done-**Option for front-end loading, they pick what they want to speed up
 tell the user how large the frontloading will be in ram.
 ---
 
+only set alerts in db on page close
 remove active links is still messed up
 does js .length take linear time?
 echo a bunch of stuff instead of appending to a string first

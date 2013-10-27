@@ -37,6 +37,7 @@ if (frontLoadAlertText) {
             //ids and thier text
             var alertTextsAndIDs = response[0].split("<>");
             for(var i=1; i<alertTextsAndIDs.length; i+=2){;
+                alert(alertTextsAndIDs[i]);
                 alertText[parseInt(alertTextsAndIDs[i])] = alertTextsAndIDs[i+1];
             }
             //the player's alerts
@@ -53,7 +54,7 @@ if (frontLoadAlertText) {
 
 //[id][0:name, 1:description]
 var sceneText={};
-var frontLoadSceneText = true;
+var frontLoadSceneText = false;
 if (frontLoadSceneText) {
     (function(){
     request = new XMLHttpRequest();
@@ -72,7 +73,7 @@ if (frontLoadSceneText) {
 
 //[word][0: span text 1: desc] //keyword type not needed
 var keywordText={};
-var frontLoadKeywords = true;
+var frontLoadKeywords = false;
 if (frontLoadKeywords) {
     (function(){
     request = new XMLHttpRequest();
@@ -134,56 +135,13 @@ var OfftextBox="textBox2";
 /**
  *current active alerts
  */
-var alerts =[];
-/**
- *number of current alerts
- */
-var numAlerts = 0;
+var alerts ={};
 /**
  *all the possible alerts.
  *stored in db as numbers, so must be finable by number
  */
 var alertTypes ={
     NEW_ITEM : 1
-}
-/**
- *adds an alert to the list.
- *input is the number, not the alertType subvar
- *does nothing is alerts were not front loaded
- */
-function addAlert(alertType) {
-    for(alertNum in alerts){
-        if (alerts[alertNum] == alertType) {
-            return;
-        }
-    }
-    alerts[numAlerts] = alertType;
-    numAlerts++;
-    document.getElementById("alert").innerHTML = numAlerts+" alerts";
-    //if the first alert, make button visible.
-    if (numAlerts == 1) {
-        document.getElementById("alert").style.color="gold";
-    }
-}
-/**
-*removes the given alert from the alerts list.
-*does not remove from the database
-*/
-function removeAlert(alertType) {
-    for(var i=0; i<alerts.length; i++){
-        if (alerts[i] == alertType) {
-            numAlerts--;
-            document.getElementById("alert").innerHTML = numAlerts+" alerts";
-            if (numAlerts == 0) {
-                document.getElementById("alert").style.color="black";
-            }
-            while(i+1<alerts.length){
-                alerts[i] = alerts[i+1];
-            }
-            alerts[alerts.length-1] = null;
-            return;
-        }
-    }
 }
 
 /**
@@ -387,11 +345,15 @@ function setNewDescription() {
 */
 function walk(newSceneId) {
 deactivateActiveLinks();
+if (frontLoadSceneText) {
+    addDesc(spanTypes.SCENE, newSceneId);
+}
 request = new XMLHttpRequest();
 request.onreadystatechange = function(){
         if (this.readyState==4 && this.status==200) {
-            //-1 means current scene
-            addDesc(spanTypes.SCENE, newSceneId);
+            if (!frontLoadSceneText) {
+                addDesc(spanTypes.SCENE, newSceneId);
+            }
         }
 }
 request.open("GET", "TextCombat.php?function=moveScenes&newScene="+newSceneId, true);
@@ -518,14 +480,17 @@ function attack() {
  *called by span on page
  */
 function openAlerts(){
+    document.getElementById("alert").style.color="black";
     if (frontLoadAlertText) {
+        alert("fl at");
         document.getElementById("alertMainInside").innerHTML = "";
-        for(var i=0; i<numAlerts; i++){
-            document.getElementById("alertMainInside").innerHTML +="</br>"+alertText[alerts[i]];
+        for(alertNum in alerts){
+            document.getElementById("alertMainInside").innerHTML +="</br>"+alertText[alertNum];
         }
         document.getElementById("alertMain").style.visibility="visible";
     }
     else{
+        alert("not fl at");
         request = new XMLHttpRequest();
         request.onreadystatechange = function(){
             if (this.readyState==4 && this.status==200) {
@@ -540,6 +505,7 @@ function openAlerts(){
 /**
  *closes the alert box.
  *called by the close button on the page
+ *sets the alert button to be black
  */
 function closeAlerts(){
 document.getElementById("alertMain").style.visibility="hidden";
@@ -550,6 +516,26 @@ document.getElementById("alertMain").style.visibility="hidden";
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////
 //small methods
+
+/**
+ *adds an alert to the list.
+ *doe snot add to the db
+ */
+function addAlert(alertType) {
+    if (alerts[alertType]) {
+        return;
+    }
+    alerts[alertType] = true;
+    document.getElementById("alert").style.color="gold";
+}
+/**
+*removes the given alert from the alerts list.
+*does not remove from the database
+*/
+function removeAlert(alertType) {
+    delete alerts[alertType];
+}
+
 /**
 *Adds a line of text to the screen. Also controls the opacity and left/right columns
 */

@@ -214,7 +214,7 @@ switch($function){
  */
 final class alertTypes{
     //the number is it's id in db
-    const newItem = 100;
+    const newItem = 1;
 }
 
 /**
