@@ -114,7 +114,7 @@ switch($function){
         $rktlength = count($requiredKeywordTypes);
         for($i=0; $i<3; $i++){ //the amount of types, or something, as the max for i
             if(isset($requiredKeywordTypes[$i]) && $requiredKeywordTypes[$i] == false){
-                echo "keyword of type ".$i." was not found";
+                echo "type ".$i." keyword was not found";
                 return;
             }
         }
@@ -136,6 +136,9 @@ switch($function){
         echo $row['craftSkill'];
         break;
     
+    case('putItemIn'):
+        break;
+    
     case('attack'):
         //see if player is there
         $row = query("SELECT ID FROM playerinfo WHERE Scene =".prepVar($_SESSION['currentScene'])." AND Name = ".prepVar($_GET['Name']));
@@ -154,6 +157,18 @@ switch($function){
         echo $row['ID'];
         break;
     
+    case('setFrontLoadAlerts'):
+        query("update playerinfo set frontLoadAlerts=".$_GET['load']." where ID=".prepVar($_SESSION['playerID']));
+        break;
+    
+    case('setFrontLoadScenes'):
+        query("update playerinfo set frontLoadScenes=".$_GET['load']." where ID=".prepVar($_SESSION['playerID']));
+        break;
+    
+    case('setFrontLoadKeywords'):
+        query("update playerinfo set frontLoadKeywords=".$_GET['load']." where ID=".prepVar($_SESSION['playerID']));
+        break;
+    
     case('getAlertMessages'):
         //get all alert ids
         $result = queryMulti("select alertID from playeralerts where playerID=".prepVar($_SESSION['playerID']));
@@ -167,9 +182,12 @@ switch($function){
     
     case('setUp'):
         $toReturn = "";
-        $row = query("select adminLevel,Scene from playerinfo where ID=".prepVar($_SESSION['playerID']));
+        $row = query("select adminLevel,Scene,frontLoadAlerts,frontLoadScenes,frontLoadKeywords from playerinfo where ID=".prepVar($_SESSION['playerID']));
         echo "<>".$row['adminLevel'];
         echo "<>".$row['Scene'];
+        echo "<>".$row['frontLoadAlerts'];
+        echo "<>".$row['frontLoadScenes'];
+        echo "<>".$row['frontLoadKeywords'];
         return;
     
     case('frontLoadAlerts'):
@@ -180,7 +198,7 @@ switch($function){
         }
         mysqli_free_result($result);
         echo "<<>>";
-        //send player alerts //move to defautl setup
+        //send player alerts
         $result = queryMulti("select alertID from playeralerts where playerID=".prepVar($_SESSION['playerID']));
         while($row = mysqli_fetch_array($result)){
             echo "<>".$row['alertID'];
@@ -235,6 +253,5 @@ final class spanTypes {
     const SCENE = 2;
     const KEYWORD = 3;
 }
-
 
 ?>

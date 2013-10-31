@@ -20,28 +20,22 @@ events
 voice
 
 todo:
-start on testing - alerts, items, db
-git
+start on testing - alerts, items, db, ect.
 move chat to db
-___
--done-moving constant to db
----
--done-sql function to get span text/replace
--can't because of enum-send types to js from php
-    crafting needs type info on fail
-change sql responses to errors, also send to js in setup
--done-php replaces spans, not js
 ---
 sql db backups
 ---
 edit produces a log of changes
 ---
--3/4-**Option for front-end loading, they pick what they want to speed up
-    save and get front load preferences from db
-    only set alerts in db on page close
--1/4-tell the user how large the frontloading will be in ram.
+container items, bag so far
 ---
+a popup that asks if each keyword should be enabled or ignored
 
+get textAreaInput cleans, but getInput does not
+change sql responses to errors, also send to js in setup
+crafting needs type info on fail
+put all types into one big enum?
+cache stuff?
 remove active links is still messed up
 does js .length take linear time?
 echo a bunch of stuff instead of appending to a string first
@@ -112,7 +106,6 @@ remove \r\n from all input text
         }
         ?>
 <link rel="stylesheet" type="text/css" href="TextCombat.css" />
-<script src="TextCombat.js"></script>
 <!--//////////////////////////////////remove testing///////////////////////////////////////////////////-->
 <!--<script src="testing.js"></script>-->
 <audio id="anvil">
@@ -138,17 +131,19 @@ remove \r\n from all input text
         <div id="extra">
             <textArea id="textArea"></textArea><br/>
             <span class="textAreaButton" onclick="textAreaSumbit()">Done</span>
-            <span class="textAreaButton" onclick="closeTextArea()">Cancel</span><br/>
+            <span class="textAreaButton" onclick="closeTextArea(), cancelWaits()">Cancel</span><br/>
             <span id="descriptionError"></span>
         </div>
         </div>
         <!-- The notifications popup -->
         <div id="menuMain">
+        <div class="menuButton" id="alertsMenuButton" onclick="openAlerts()">a</div>
+        <div class="menuButton" id="optionsMenuButton" onclick="openOptions()">o</div>
         <div id="menuMainInside">
         </div>
         <span id="menuMainClose" onclick="closeMenu()">Close</span>
         <span id="menuMainMute" onclick="toggleMute()">Mute</span>
-        <div class="menuButton" id="optionsMenuButton" onclick="openOptions()">o</div>
         </div>
 </body>
+<script src="TextCombat.js"></script>
 </html>

@@ -4,6 +4,9 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //Globals
 
+var frontLoadAlertText;
+var frontLoadSceneText;
+var frontLoadKeywords;
 /**
  *Set up, needed
  */
@@ -19,15 +22,17 @@ request.onreadystatechange = function(){
                 break;
         }
         currentScene = parseInt(response[2]);
+        frontLoadAlertText = parseInt(response[3]);
+        frontLoadSceneText = parseInt(response[4]);
+        frontLoadKeywords = parseInt(response[5]);
         //allow input
         document.getElementById("input").disabled=false;
     }
 }
-request.open("GET", "TextCombat.php?function=setUp", true);
+request.open("GET", "TextCombat.php?function=setUp", false);
 request.send();
 }());
 var alertText ={};
-var frontLoadAlertText = true;
 if (frontLoadAlertText) {
 (function(){
     request = new XMLHttpRequest();
@@ -53,7 +58,6 @@ if (frontLoadAlertText) {
 
 //[id][0:name, 1:description]
 var sceneText={};
-var frontLoadSceneText = false;
 if (frontLoadSceneText) {
     (function(){
     request = new XMLHttpRequest();
@@ -72,7 +76,6 @@ if (frontLoadSceneText) {
 
 //[word][0: span text 1: desc] //keyword type not needed
 var keywordText={};
-var frontLoadKeywords = false;
 if (frontLoadKeywords) {
     (function(){
     request = new XMLHttpRequest();
@@ -201,6 +204,13 @@ function textTyped(e){
                 break;
             case("/help"):
                 addHelpText();
+                break;
+            case("/put"):
+                if (inputText.indexOf(" in ") == -1) {
+                    addText("please use /put [item] in [container item]");
+                }
+                var items = inputText.replace("/put","").split("in");
+                //check if second item is a container, new method
                 break;
             default:
                 addText(inputText+" ..unknown command");
@@ -482,17 +492,18 @@ function openMenu(){
  */
 function openAlerts(){
     document.getElementById("alert").style.color="black";
-    document.getElementById("menuMainInside").innerHTML = "";
-    document.getElementById("menuMainInside").innerHTML += "Alerts:";
     if (frontLoadAlertText) {
+        document.getElementById("menuMainInside").innerHTML = "Alerts:";
         for(alertNum in alerts){
             document.getElementById("menuMainInside").innerHTML +="</br>"+alertText[alertNum];
         }
     }
     else{
+        document.getElementById("menuMainInside").innerHTML = "Loading..";
         request = new XMLHttpRequest();
         request.onreadystatechange = function(){
             if (this.readyState==4 && this.status==200) {
+                document.getElementById("menuMainInside").innerHTML = "Alerts:";
                 document.getElementById("menuMainInside").innerHTML += this.responseText;
             }
         }
@@ -539,6 +550,16 @@ function openOptions(){
         menuInside.innerHTML +="</br><input type='checkbox' onclick='toggleFrontLoadKeywords()'>";
     }
     menuInside.innerHTML +="Front load keyword text. About 6 lines.</input>";
+}
+
+function putItemIn(itemName, containerName) {
+    request = new XMLHttpRequest();
+    request.onreadystatechange = function(){
+        if (this.readyState==4 && this.status==200) {
+        }
+    }
+    request.open("GET", "TextCombat.php?function=putItemIn&Name="+getInputText(), true);
+    request.send();
 }
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////
@@ -706,12 +727,12 @@ function addHelpText(args) {
  *cancels waiting stuff
  */
 function cancelWaits() {
+    alert("cancelling");
     switch(waitingForTextArea){
         //Crafting related
         case(textAreaInputs.ITEM_DESCRIPTION):
-            addText("you decide not to make the "+Crafter.itemName);
-            //removed Crafter.itemName = "";
-            //removed Crafter.craftSkill = 0;
+            addText("you decide not to make the "+itemName);
+            itemName="";
             break;
         //personal description related
         case(textAreaInputs.PERSONAL_DESCRIPTION):
@@ -739,21 +760,54 @@ function isWaiting() {
 
 /**
  *switches whether the alert text is front loaded or not
+ *also tells db
  */
 function toggleFrontLoadAlertText() {
     frontLoadAlertText=!frontLoadAlertText;
+    var frontLoad;
+    if (frontLoadAlertText) {
+        frontLoad = 1;
+    }
+    else{
+        frontLoad = 0;
+    }
+    request = new XMLHttpRequest();
+    request.open("GET", "TextCombat.php?function=setFrontLoadAlerts&load="+frontLoad, true);
+    request.send();
 }
 /**
  *switches whether the scene text is front loaded or not
+ *also tells db
  */
 function toggleFrontLoadSceneText(){
     frontLoadSceneText=!frontLoadSceneText;
+    var frontLoad;
+    if (frontLoadSceneText) {
+        frontLoad = 1;
+    }
+    else{
+        frontLoad = 0;
+    }
+    request = new XMLHttpRequest();
+    request.open("GET", "TextCombat.php?function=setFrontLoadScenes&load="+frontLoad, true);
+    request.send();
 }
 /**
  *switches whether the keyword text is front loaded or not
+ *also tells db
  */
 function toggleFrontLoadKeywords(){
     frontLoadKeywords=!frontLoadKeywords;
+    var frontLoad;
+    if (frontLoadKeywords) {
+        frontLoad = 1;
+    }
+    else{
+        frontLoad = 0;
+    }
+    request = new XMLHttpRequest();
+    request.open("GET", "TextCombat.php?function=setFrontLoadKeywords&load="+frontLoad, true);
+    request.send();
 }
 
 

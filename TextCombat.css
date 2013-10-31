@@ -74,7 +74,7 @@ border: solid 1px brown;
     width: 30px;
     height:30px;
     background-color: brown;
-    position: relative;
+    position: absolute;
     left:400px;
     cursor: pointer;
 }
@@ -138,6 +138,9 @@ cursor:pointer;
 #menuMainMute:hover{
 text-decoration:underline;
 }
-#optionsMenuButton{
+#alertsMenuButton{
     
+}
+#optionsMenuButton{
+    top:35px;
 }
