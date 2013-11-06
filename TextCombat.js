@@ -193,7 +193,7 @@ function textTyped(e){
         closeTextArea();
         cancelWaits();
         //cancel waiting stuff?
-        switch (inputText) {
+        switch (inputText.split(" ")[0]) {
             case("/look"):
                 deactivateActiveLinks();
                 addDesc(spanTypes.SCENE, currentScene);
@@ -209,8 +209,8 @@ function textTyped(e){
                 if (inputText.indexOf(" in ") == -1) {
                     addText("please use /put [item] in [container item]");
                 }
-                var items = inputText.replace("/put","").split("in");
-                //check if second item is a container, new method
+                var items = inputText.replace("/put","").split(" in ");
+                putItemIn(items[0], items[1]);
                 break;
             default:
                 addText(inputText+" ..unknown command");
@@ -558,7 +558,7 @@ function putItemIn(itemName, containerName) {
         if (this.readyState==4 && this.status==200) {
         }
     }
-    request.open("GET", "TextCombat.php?function=putItemIn&Name="+getInputText(), true);
+    request.open("GET", "TextCombat.php?function=putItemIn&itemName="+itemName+"&containerName="+containerName, true);
     request.send();
 }
 ////////////////////////////////////////////////////

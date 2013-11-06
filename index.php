@@ -31,6 +31,11 @@ container items, bag so far
 ---
 a popup that asks if each keyword should be enabled or ignored
 
+
+scrolls/library? A way for players to write thier own lore -> admin hierarchy
+    sroll: two types of people, knights and squires. together it is a powerful relationship, but k/k or s/s are easily friends.
+    scroll: each month is a cyle of sin (pennance, regret, deciciveness, inaction, ect.)
+darkness/night time has a light setting, where the screen gets darker unless there is a candle/lamp
 get textAreaInput cleans, but getInput does not
 change sql responses to errors, also send to js in setup
 crafting needs type info on fail

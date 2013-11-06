@@ -137,6 +137,31 @@ switch($function){
         break;
     
     case('putItemIn'):
+        session_start();
+        //make sure items exist
+        $twoNamesQuery = "";
+        $result = queryMulti("select itemID from playeritems where playerID = ".prepVar($_SESSION['playerID']));
+            if(!is_bool($result)){
+                $row = mysqli_fetch_array($result);
+                $twoNamesQuery = "select Name from items where ID=".$row['itemID'];
+                while($row = mysqli_fetch_array($result)){
+                    $twoNamesQuery .= "or ".$row['itemID'];
+                }
+                $twoNamesQuery .= " and Name=".prepVar($_GET['itemName'])." or ".prepVar($_GET['containerName']);
+                mysqli_free_result($result);
+            }
+            else{
+                echo "you don't have any items.";
+                mysqli_free_result($result);
+                return;
+            }
+            $result = queryMulti($twoNamesQuery);
+            //result should be a length of 2
+            
+        //make sure second item is a container
+        //make sure first item can be put into the second
+        //make sure second item is not full
+        //put in
         break;
     
     case('attack'):
