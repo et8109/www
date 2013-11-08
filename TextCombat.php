@@ -37,7 +37,7 @@ switch($function){
     
     case('updateDescription'):
         $newDescription = $_GET['Description'];
-            $multiQuery = "select ID, Name from items where ID=";
+            $multiQuery = "select ID, Name from items where insideOf=0 and ID=";
             //find item ids
             $result = queryMulti("select itemID from playeritems where playerID=".prepVar($_SESSION['playerID']));
             //add first itemID
@@ -93,10 +93,7 @@ switch($function){
          *adds an alert for the player
          */
     case('craftItem'):
-        $requiredKeywordTypes = array();
-        //1:material, 2:quality
-        $requiredKeywordTypes[1] = false;
-        $requiredKeywordTypes[2] = false;
+        $keywordTypes = array();
         //replace all keywords
         $descArray = explode(" ",$_GET['Description']);
         $descArrayLength = count($descArray);
@@ -107,17 +104,19 @@ switch($function){
             //if there is a keyword
             if(isset($row['ID'])){
                 $descArray[$i] = getSpanText(spanTypes::KEYWORD,$word,$word);
-                $requiredKeywordTypes[$row['Type']] = true;
+                $keywordTypes[$row['Type']] = true;
             }
         }
         //make sure all required keyword types were replaced
-        $rktlength = count($requiredKeywordTypes);
-        for($i=0; $i<3; $i++){ //the amount of types, or something, as the max for i
-            if(isset($requiredKeywordTypes[$i]) && $requiredKeywordTypes[$i] == false){
-                echo "type ".$i." keyword was not found";
+        //1:material 2:quality
+        $requiredKeywordTypes = [1,2];
+        for($type in $keywordTypes){
+            if($keywordTypes[$type] != true){
+                echo "type ".$type." keyword was not found";
                 return;
             }
         }
+
         //add the item into db
         $Description = implode(" ",$descArray);
         $lastID = lastIDquery("insert into items (Name, Description) values (".prepVar($_GET['Name']).",".prepVar($Description).")");
@@ -127,6 +126,12 @@ switch($function){
         $playerDescription = $row['Description'];
         $playerDescription .= getSpanText(spanTypes::ITEM,$lastID,$_GET['Name']);
         query("Update playerinfo set Description=".prepVar($playerDescription)." where ID=".prepVar($_SESSION['playerID']));
+        //give the item a size
+        query("Update items set size=4 where ID=".$lastID);
+        //if item is a caontainer, give it room
+        if(isset($keywordTypes['0']) && $keywordTypes['0'] == true){
+            query("Update items set room=9 where ID=".$lastID);
+        }
         //add alert
         addAlert(alertTypes::newItem);
         break;
@@ -137,17 +142,21 @@ switch($function){
         break;
     
     case('putItemIn'):
-        session_start();
-        //make sure items exist
-        $twoNamesQuery = "";
+        $itemName = prepVar($_GET['itemName']);
+        $containerName = prepVar($_GET['containerName']);
+        //all they player's items
         $result = queryMulti("select itemID from playeritems where playerID = ".prepVar($_SESSION['playerID']));
             if(!is_bool($result)){
                 $row = mysqli_fetch_array($result);
-                $twoNamesQuery = "select Name from items where ID=".$row['itemID'];
+                $itemQuery = "select Name,size,ID,insideOf from items where ID=".$row['itemID'];
+                $containerQuery = "select Name,room,ID from items where ID=".$row['itemID'];
                 while($row = mysqli_fetch_array($result)){
-                    $twoNamesQuery .= "or ".$row['itemID'];
+                    $itemQuery .= "or ".$row['itemID'];
+                    $containerQuery .= "or ".$row['itemID'];
+                    
                 }
-                $twoNamesQuery .= " and Name=".prepVar($_GET['itemName'])." or ".prepVar($_GET['containerName']);
+                $itemQuery .= " and Name=".prepVar($itemName);
+                $containerQuery .= " and Name=".prepVar($containerName);
                 mysqli_free_result($result);
             }
             else{
@@ -155,13 +164,40 @@ switch($function){
                 mysqli_free_result($result);
                 return;
             }
-            $result = queryMulti($twoNamesQuery);
-            //result should be a length of 2
             
+        //make sure both items were found
+        $itemRow = query($itemQuery);
+        $containerRow = query($itemQuery);
+        //make sure item was found
+        if(!isset($itemRow['ID'])){
+            echo "the ".$itemName." was not found";
+            return;
+        }
+        //make sure container was found
+        if(!isset($containerRow['ID'])){
+            echo "the ".$containerName." was not found";
+            return;
+        }
         //make sure second item is a container
+        if($containerRow['room'] == 0){
+            echo "either ".$containerName." is full, or it can not hold any items";
+            return;
+        }
+        //make sure the first item is not is something else
+        if($itemRow['insideOf'] != 0){
+            echo $itemName." is inside of something else. Remove it first.";
+            return;
+        }
         //make sure first item can be put into the second
-        //make sure second item is not full
+        if($containerRow['room'] < $itemRow['size']){
+            echo "there is not enough room for ".$itemName." [".$itemRow['size']."] in ".$containerName." [".$containerRow['room']." left]";
+            return;
+        }
         //put in
+        query("update items set insideOf=".$containerRow['ID']." where ID=".$itemRow['ID']);
+        query("update items set room=".$containerRow['room']-$itemRow['size']);
+        //add alert
+        addAlert(alertTypes::hiddenItem);
         break;
     
     case('attack'):
@@ -258,6 +294,7 @@ switch($function){
 final class alertTypes{
     //the number is it's id in db
     const newItem = 1;
+    const hiddenItem = 2;
 }
 
 /**

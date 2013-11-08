@@ -143,7 +143,8 @@ var alerts ={};
  *stored in db as numbers, so must be finable by number
  */
 var alertTypes ={
-    NEW_ITEM : 1
+    NEW_ITEM : 1,
+    HIDDEN_ITEM : 2
 }
 
 /**
@@ -556,11 +557,19 @@ function putItemIn(itemName, containerName) {
     request = new XMLHttpRequest();
     request.onreadystatechange = function(){
         if (this.readyState==4 && this.status==200) {
+            if (this.responseText != "") {
+                addText(this.responseText);
+            }
+            else{ //success
+                //add alert
+                addAlert(alertTypes.HIDDEN_ITEM);
+            }
         }
     }
     request.open("GET", "TextCombat.php?function=putItemIn&itemName="+itemName+"&containerName="+containerName, true);
     request.send();
 }
+
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////

@@ -27,11 +27,11 @@ sql db backups
 ---
 edit produces a log of changes
 ---
-container items, bag so far
----
 a popup that asks if each keyword should be enabled or ignored
 
-
+more container words than bag
+items need variable sizes, right now, all are 4
+variable room/sizes for caontainer items
 scrolls/library? A way for players to write thier own lore -> admin hierarchy
     sroll: two types of people, knights and squires. together it is a powerful relationship, but k/k or s/s are easily friends.
     scroll: each month is a cyle of sin (pennance, regret, deciciveness, inaction, ect.)
