@@ -110,7 +110,7 @@ switch($function){
         //make sure all required keyword types were replaced
         //1:material 2:quality
         $requiredKeywordTypes = [1,2];
-        for($type in $keywordTypes){
+        foreach($keywordTypes as $type){
             if($keywordTypes[$type] != true){
                 echo "type ".$type." keyword was not found";
                 return;

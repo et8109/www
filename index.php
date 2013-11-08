@@ -22,7 +22,6 @@ voice
 todo:
 start on testing - alerts, items, db, ect.
 move chat to db
----
 sql db backups
 ---
 edit produces a log of changes

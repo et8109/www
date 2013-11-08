@@ -304,6 +304,7 @@ function addDesc(type, id) {
             }
             break;
     }
+    alert("desc");
     request = new XMLHttpRequest();
     request.onreadystatechange = function(){
         if (this.readyState==4 && this.status==200) {
@@ -736,7 +737,6 @@ function addHelpText(args) {
  *cancels waiting stuff
  */
 function cancelWaits() {
-    alert("cancelling");
     switch(waitingForTextArea){
         //Crafting related
         case(textAreaInputs.ITEM_DESCRIPTION):
