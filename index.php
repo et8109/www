@@ -23,12 +23,13 @@ sql db backups
 ---
 a popup that asks if each keyword should be enabled or ignored
 ********************************************
-creating items add the item to itemKeywords
+[done]creating items add the item to itemKeywords
 scenes have keywords
+    requiredSceneKeywords final class in php
+        walk
 scenePlayers db table with players in each scene
     revamp attack
     add list of players to look
-requiredSceneKeywords final class in php
 ####Attacking will be the addition of player combat-related skills with player's combat-related item keywords
     player skills be be player desc keywords
 ********************************************

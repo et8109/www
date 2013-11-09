@@ -93,6 +93,10 @@ switch($function){
          *adds an alert for the player
          */
     case('craftItem'):
+        /**
+         *a 2d array.
+         *[keyword type][0:true if in desc. 1: keywordID]
+         */
         $keywordTypes = array();
         //replace all keywords
         $descArray = explode(" ",$_GET['Description']);
@@ -104,12 +108,12 @@ switch($function){
             //if there is a keyword
             if(isset($row['ID'])){
                 $descArray[$i] = getSpanText(spanTypes::KEYWORD,$word,$word);
-                $keywordTypes[$row['Type']] = true;
+                $keywordTypes[$row['Type']] = array(true, $row['ID']);
             }
         }
         //make sure all required keyword types were replaced
         foreach(requiredKeywordTypes as $type){
-            if($keywordTypes[$type] != true){
+            if($keywordTypes[$type][0] != true){
                 echo "type ".$type." keyword was not found";
                 return;
             }
@@ -126,12 +130,14 @@ switch($function){
         query("Update playerinfo set Description=".prepVar($playerDescription)." where ID=".prepVar($_SESSION['playerID']));
         //give the item a size
         query("Update items set size=4 where ID=".$lastID);
-        //if item is a caontainer, give it room
-        if(isset($keywordTypes['0']) && $keywordTypes['0'] == true){
+        //if item is a container, give it room
+        if(isset($keywordTypes[0]) && $keywordTypes[0][0] == true){
             query("Update items set room=9 where ID=".$lastID);
         }
         //add the item to itemKeywords with it's keywords
-        
+        foreach ($keywordTypes as $type){
+            query("insert into itemKeywords (itemID, keywordID, type) values (".$lastID.",".$keywordTypes[$type][1].",".$type.")");
+        }
         //add alert
         addAlert(alertTypes::newItem);
         break;
