@@ -10,24 +10,50 @@ logging in and logging out
 stored in $_SESSION: ['playerID'] ['playerName'] ['lastChatTime'] ['currentScene']
 
 big things:
-make testing suite
 change autoincrement value in db when done testing
 PHP PDO!
-crafting/buying items
+buying items
 combat
 backgrounds
 events
 voice
 
 todo:
-start on testing - alerts, items, db, ect.
-move chat to db
 sql db backups
 ---
-edit produces a log of changes
----
 a popup that asks if each keyword should be enabled or ignored
+********************************************
+creating items add the item to itemKeywords
+scenes have keywords
+scenePlayers db table with players in each scene
+    revamp attack
+    add list of players to look
+requiredSceneKeywords final class in php
+####Attacking will be the addition of player combat-related skills with player's combat-related item keywords
+    player skills be be player desc keywords
+********************************************
 
+think about item sizes/weights and bags again
+
+look for repeated code
+
+make a pub
+
+make a library
+
+look over later list
+
+debug
+
+alpha begins!
+
+********************************************
+later:
+********************************************
+testing
+edit produces a log of changes
+move chat to db?
+weather/light and darknes/time
 more container words than bag
 items need variable sizes, right now, all are 4
 variable room/sizes for caontainer items

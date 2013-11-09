@@ -108,15 +108,13 @@ switch($function){
             }
         }
         //make sure all required keyword types were replaced
-        //1:material 2:quality
-        $requiredKeywordTypes = [1,2];
-        foreach($keywordTypes as $type){
+        foreach(requiredKeywordTypes as $type){
             if($keywordTypes[$type] != true){
                 echo "type ".$type." keyword was not found";
                 return;
             }
         }
-
+        
         //add the item into db
         $Description = implode(" ",$descArray);
         $lastID = lastIDquery("insert into items (Name, Description) values (".prepVar($_GET['Name']).",".prepVar($Description).")");
@@ -132,6 +130,8 @@ switch($function){
         if(isset($keywordTypes['0']) && $keywordTypes['0'] == true){
             query("Update items set room=9 where ID=".$lastID);
         }
+        //add the item to itemKeywords with it's keywords
+        
         //add alert
         addAlert(alertTypes::newItem);
         break;
@@ -316,4 +316,10 @@ final class spanTypes {
     const KEYWORD = 3;
 }
 
+/**
+ *the keyword types required in all items
+ *1: material
+ *2:quality
+ */
+final class requiredKeywordTypes = [1,2];
 ?>
