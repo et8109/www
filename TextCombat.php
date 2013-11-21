@@ -78,12 +78,17 @@ switch($function){
         break;
     
     case('moveScenes'):
+        //remove player from last scene list
+        query("delete from sceneplayers where sceneID=".prepVar($_SESSION['currentScene'])." and playerID=".prepVar($_SESSION['playerID']));
         //recieve id or name of scene, update this players location in cookie and db
         $_SESSION['currentScene'] = $_GET['newScene'];
         query("Update playerinfo set Scene=".prepVar($_GET['newScene'])." where ID=".prepVar($_SESSION['playerID']));
         $row = query("select Name from scenes where ID=".$_GET['newScene']);
         speakAction(actionTypes::WALKING, $row['Name'], $_GET['newScene']);
         updateChatTime();
+        //add player to new scene list
+        query("insert into sceneplayers (sceneID,playerID) values(".prepVar($_SESSION['currentScene']).",".prepVar($_SESSION['playerID']).")");
+
         break;
 
         /**
@@ -112,7 +117,7 @@ switch($function){
             }
         }
         //make sure all required keyword types were replaced
-        foreach(requiredKeywordTypes as $type){
+        foreach(requiredItemKeywordTypes as $type){
             if($keywordTypes[$type][0] != true){
                 echo "type ".$type." keyword was not found";
                 return;
@@ -150,7 +155,7 @@ switch($function){
     case('putItemIn'):
         $itemName = prepVar($_GET['itemName']);
         $containerName = prepVar($_GET['containerName']);
-        //all they player's items
+        //all the player's items
         $result = queryMulti("select itemID from playeritems where playerID = ".prepVar($_SESSION['playerID']));
             if(!is_bool($result)){
                 $row = mysqli_fetch_array($result);
@@ -255,6 +260,9 @@ switch($function){
         echo "<>".$row['frontLoadAlerts'];
         echo "<>".$row['frontLoadScenes'];
         echo "<>".$row['frontLoadKeywords'];
+        //add player to scene list
+        query("insert into sceneplayers (sceneID,playerID) values(".prepVar($_SESSION['currentScene']).",".prepVar($_SESSION['playerID']).")");
+
         return;
     
     case('frontLoadAlerts'):
@@ -327,5 +335,11 @@ final class spanTypes {
  *1: material
  *2:quality
  */
-final class requiredKeywordTypes = [1,2];
+final class requiredItemKeywordTypes = [1,2];
+
+/**
+ *final class requiredSceneKeywordTypes = []; not used
+ * 3: crafting station
+ */
+
 ?>
