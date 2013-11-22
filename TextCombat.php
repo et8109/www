@@ -87,7 +87,7 @@ switch($function){
         speakAction(actionTypes::WALKING, $row['Name'], $_GET['newScene']);
         updateChatTime();
         //add player to new scene list
-        query("insert into sceneplayers (sceneID,playerID) values(".prepVar($_SESSION['currentScene']).",".prepVar($_SESSION['playerID']).")");
+        query("insert into sceneplayers (sceneID,playerID,playerName) values(".prepVar($_SESSION['currentScene']).",".prepVar($_SESSION['playerID']).",".prepVar($_SESSION['playerName']).")");
 
         break;
 
@@ -211,11 +211,11 @@ switch($function){
         addAlert(alertTypes::hiddenItem);
         break;
     
-    case('attack'):
+    case('attack'):        
         //see if player is there
-        $row = query("SELECT ID FROM playerinfo WHERE Scene =".prepVar($_SESSION['currentScene'])." AND Name = ".prepVar($_GET['Name']));
-        if($row['ID']){
-            speakAction(actionTypes::ATTACK, $_GET['Name'], $row['ID']);
+        $row = query("SELECT playerID FROM sceneplayers WHERE SceneID =".prepVar($_SESSION['currentScene'])." AND playerName = ".prepVar($_GET['Name']));
+        if($row['playerID']){
+            speakAction(actionTypes::ATTACK, $_GET['Name'], $row['playerID']);
             //no need to echo, it's in chat
         }
         else{
@@ -261,7 +261,7 @@ switch($function){
         echo "<>".$row['frontLoadScenes'];
         echo "<>".$row['frontLoadKeywords'];
         //add player to scene list
-        query("insert into sceneplayers (sceneID,playerID) values(".prepVar($_SESSION['currentScene']).",".prepVar($_SESSION['playerID']).")");
+        query("insert into sceneplayers (sceneID,playerID,playerName) values(".prepVar($_SESSION['currentScene']).",".prepVar($_SESSION['playerID']).",".prepVar($_SESSION['playerName']).")");
 
         return;
     
@@ -335,7 +335,10 @@ final class spanTypes {
  *1: material
  *2:quality
  */
-final class requiredItemKeywordTypes = [1,2];
+final class requiredItemKeywordTypes {
+    const material = 1;
+    const quality = 2;
+}
 
 /**
  *final class requiredSceneKeywordTypes = []; not used

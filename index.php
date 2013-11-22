@@ -25,14 +25,11 @@ a popup that asks if each keyword should be enabled or ignored
 ********************************************
 [done]creating items add the item to itemKeywords
 [done]scenes have keywords
-    requiredSceneKeywords final class in php
-        walk is not one, but is required
-        on scene creation or modification, check keywords
+    on scene creation or modification, check keywords
 [done]scenePlayers db table with players in each scene
     [done]revamp walk
     [done]add player to list on login
-    revamp attack
-    add list of players to look
+    [done]revamp attack
 ####Attacking will be the addition of player combat-related skills with player's combat-related item keywords
     player skills be be player desc keywords
 a logout function, player is removed from sceneplayers
@@ -57,6 +54,8 @@ alpha begins!
 ********************************************
 later:
 ********************************************
+add options for each command, custom commands
+    add list of players to look
 landmark scenes(essentially seach by scene keyword)
 testing
 edit produces a log of changes
