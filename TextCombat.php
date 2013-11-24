@@ -315,10 +315,10 @@ final class requiredItemKeywordTypes {
 /**
  * keyword ID => increase in combat skill
  */
-$combatItemKeywords = array{
+$combatItemKeywords = array(
     2 => 2,
     4 => 1
-}
+);
 
 
 ?>

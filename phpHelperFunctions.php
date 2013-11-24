@@ -177,7 +177,7 @@ function getCombatLevel($playerID){
     else{
         //get keywords from items
         $itemRow = mysqli_fetch_array($rowItemIds);
-        $multiQuery = "select keywordID from itemKeywords where itemID=".prepVar($itemRow['ID'])
+        $multiQuery = "select keywordID from itemKeywords where itemID=".prepVar($itemRow['ID']);
         while($itemRow = mysqli_fetch_array($rowItemIds)){
             $multiQuery .= "or ".prepVar($itemRow['ID']);
         }
