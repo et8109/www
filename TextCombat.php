@@ -36,21 +36,9 @@ switch($function){
         break;
     
     case('updateDescription'):
-        $newDescription = $_GET['Description'];
-            $multiQuery = "select ID, Name from items where insideOf=0 and ID=";
-            //find item ids
-            $result = queryMulti("select itemID from playeritems where playerID=".prepVar($_SESSION['playerID']));
-            //add first itemID
-            if($row = mysqli_fetch_array($result)){
-                $multiQuery .= prepVar($row['itemID']);
-            }
-            //for each itemID found
-            while($row = mysqli_fetch_array($result)){
-                $multiQuery .=" or ID=".prepVar($row['itemID']);
-            }
-            mysqli_free_result($result);
+            $newDescription = $_GET['Description'];
             //find item names
-            $result = queryMulti($multiQuery);
+            $result = queryMulti("select Name from items where playerID=".prepVar($_SESSION['playerID'])." and insideOf=0");
             if(!is_bool($result)){
                 while($row2 = mysqli_fetch_array($result)){
                     //if an item is not found
@@ -64,8 +52,9 @@ switch($function){
                         $newDescription = str_replace($row2['Name'], getSpanText(spanTypes::ITEM,$row2['ID'],$row2['Name']), $newDescription);
                     }
                 }
-                mysqli_free_result($result);
             }
+            mysqli_free_result($result);
+            //set if no items or test above pass
             query("Update playerinfo set Description=".prepVar($newDescription)." where ID=".prepVar($_SESSION['playerID']));
             removeAlert(alertTypes::newItem);
         break;
@@ -126,8 +115,7 @@ switch($function){
         
         //add the item into db
         $Description = implode(" ",$descArray);
-        $lastID = lastIDquery("insert into items (Name, Description) values (".prepVar($_GET['Name']).",".prepVar($Description).")");
-        query("insert into playeritems (playerID, itemID) values (".prepVar($_SESSION['playerID']).",".prepVar($lastID).")");
+        $lastID = lastIDquery("insert into items (playerID, Name, Description) values (".prepVar($_SESSION['playerID']).",".prepVar($_GET['Name']).",".prepVar($Description).")");
         //add new item to the end of player's description
         $row = query("select Description from playerinfo where ID=".prepVar($_SESSION['playerID']));
         $playerDescription = $row['Description'];
@@ -155,30 +143,9 @@ switch($function){
     case('putItemIn'):
         $itemName = prepVar($_GET['itemName']);
         $containerName = prepVar($_GET['containerName']);
-        //all the player's items
-        $result = queryMulti("select itemID from playeritems where playerID = ".prepVar($_SESSION['playerID']));
-            if(!is_bool($result)){
-                $row = mysqli_fetch_array($result);
-                $itemQuery = "select Name,size,ID,insideOf from items where ID=".$row['itemID'];
-                $containerQuery = "select Name,room,ID from items where ID=".$row['itemID'];
-                while($row = mysqli_fetch_array($result)){
-                    $itemQuery .= "or ".$row['itemID'];
-                    $containerQuery .= "or ".$row['itemID'];
-                    
-                }
-                $itemQuery .= " and Name=".prepVar($itemName);
-                $containerQuery .= " and Name=".prepVar($containerName);
-                mysqli_free_result($result);
-            }
-            else{
-                echo "you don't have any items.";
-                mysqli_free_result($result);
-                return;
-            }
-            
-        //make sure both items were found
-        $itemRow = query($itemQuery);
-        $containerRow = query($itemQuery);
+        //get item and container info
+        $itemRow = query("select size,ID,insideOf from items where playerID=".prepVar($_SESSION['playerID'])." and Name=".$itemName);
+        $containerRow = query("select room,ID from items where playerID=".prepVar($_SESSION['playerID'])." and Name=".$containerName);
         //make sure item was found
         if(!isset($itemRow['ID'])){
             echo "the ".$itemName." was not found";
@@ -344,5 +311,14 @@ final class requiredItemKeywordTypes {
  *final class requiredSceneKeywordTypes = []; not used
  * 3: crafting station
  */
+
+/**
+ * keyword ID => increase in combat skill
+ */
+$combatItemKeywords = array{
+    2 => 2,
+    4 => 1
+}
+
 
 ?>

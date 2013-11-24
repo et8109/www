@@ -30,10 +30,11 @@ a popup that asks if each keyword should be enabled or ignored
     [done]revamp walk
     [done]add player to list on login
     [done]revamp attack
-####Attacking will be the addition of player combat-related skills with player's combat-related item keywords
+[1/2 done]####Attacking will be the addition of player combat-related skills with player's combat-related item keywords
     player skills be be player desc keywords
-a logout function, player is removed from sceneplayers
 ********************************************
+
+[done]combine playerItems and items tables
 
 think about item sizes/weights and bags again
 
@@ -54,6 +55,8 @@ alpha begins!
 ********************************************
 later:
 ********************************************
+a logout function, player is removed from sceneplayers when not active..
+some weapons/combat stuf doesnt work if in a container
 add options for each command, custom commands
     add list of players to look
 landmark scenes(essentially seach by scene keyword)

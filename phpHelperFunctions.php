@@ -126,7 +126,15 @@ function speakAction($type, $targetName, $targetID){
             $text .= "<>".$targetID."<>".getSpanText(spanTypes::PLAYER,$_SESSION['playerID'],$_SESSION['playerName'])." walked to ".getSpanText(spanTypes::SCENE,$targetID,$targetName);
             break;
         case(actionTypes::ATTACK):
-            $text .= "<>".$targetID."<>".getSpanText(spanTypes::PLAYER,$_SESSION['playerID'],$_SESSION['playerName'])." attacked ".getSpanText(spanTypes::PLAYER,$targetID,$targetName);
+            $playerCombatLevel = getCombatLevel($_SESSION['playerID']);
+            $opponentCombatLevel = getCombatLevel($_GET['Name']);
+            if($playerCombatLevel > $opponentCombatLevel){
+                $actionWords = " attacked ";
+            }
+            else{
+                $actionWords = " blocked and retaliated against ";
+            }
+            $text .= "<>".$targetID."<>".getSpanText(spanTypes::PLAYER,$_SESSION['playerID'],$_SESSION['playerName']).$actionWords.getSpanText(spanTypes::PLAYER,$targetID,$targetName);
             break;
     }
     addChatText($text);
@@ -151,5 +159,43 @@ function getSpanText($type, $id, $name){
             return "<span class='sceneName' onclick='addDesc(".spanTypes::SCENE.",".$id.")'>".$name."</span>";
             break;
     }
+}
+
+/**
+ *Gets the combat level of the player with the playerID.
+ *Does not check if the player is nearby
+ */
+function getCombatLevel($playerID){
+    //set initial
+    $playerCombatLevel = 0;
+    //get player item ids
+    $rowItemIds = queryMulti("select ID from items where playerID=".prepVar($_SESSION['playerID']));
+    //if player has no items
+    if(is_bool($rowItemIds)){
+        mysqli_free_result($rowItemIds);
+    }
+    else{
+        //get keywords from items
+        $itemRow = mysqli_fetch_array($rowItemIds);
+        $multiQuery = "select keywordID from itemKeywords where itemID=".prepVar($itemRow['ID'])
+        while($itemRow = mysqli_fetch_array($rowItemIds)){
+            $multiQuery .= "or ".prepVar($itemRow['ID']);
+        }
+        mysqli_free_result($rowItemIds);
+        $keywordIdRows = queryMulti($multiQuery);
+        //if items have no keywords
+        if(is_bool($keywordIdRows)){
+            mysqli_free_result($keywordIdRows);
+        }
+        else{
+            //combat math, items
+            while($keywordRow = mysqli_fetch_array($rowItemIds)){
+                if(isset( $GLOBALS['combatItemKeywords'][$keywordRow['keywordID']] )){
+                    $playerCombatLevel += $GLOBALS['combatItemKeywords'][$keywordRow['keywordID']];
+                }
+            }
+        }
+    }
+    return $playerCombatLevel;
 }
 ?>
