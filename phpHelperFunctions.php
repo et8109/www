@@ -134,6 +134,7 @@ function speakAction($type, $targetName, $targetID){
             else{
                 $actionWords = " blocked and retaliated against ";
             }
+            $actionWords .= $playerCombatLevel." p--o ".$opponentCombatLevel." ";
             $text .= "<>".$targetID."<>".getSpanText(spanTypes::PLAYER,$_SESSION['playerID'],$_SESSION['playerName']).$actionWords.getSpanText(spanTypes::PLAYER,$targetID,$targetName);
             break;
     }
@@ -172,7 +173,7 @@ function getCombatLevel($playerID){
     $rowItemIds = queryMulti("select ID from items where playerID=".prepVar($_SESSION['playerID']));
     //if player has no items
     if(is_bool($rowItemIds)){
-        mysqli_free_result($rowItemIds);
+        //nothing
     }
     else{
         //get keywords from items
@@ -185,7 +186,7 @@ function getCombatLevel($playerID){
         $keywordIdRows = queryMulti($multiQuery);
         //if items have no keywords
         if(is_bool($keywordIdRows)){
-            mysqli_free_result($keywordIdRows);
+            //nothing
         }
         else{
             //combat math, items
@@ -197,5 +198,21 @@ function getCombatLevel($playerID){
         }
     }
     return $playerCombatLevel;
+}
+
+/**
+ *replaces the first keyword of the given type
+ */
+function replaceKeywordType($desc, $type){
+    $descArray = explode(" ",$desc);
+    $descArrayLength = count($descArray);
+    for($i=0; $i<$descArrayLength; $i++){
+        $keywordRow = query("select ID from keywordwords where Word=".prepVar($descArray[$i])." and Type=".prepVar($type));
+        if(!is_bool($keywordRow)){
+            $descArray[$i] = getSpanText(spanTypes::KEYWORD,$descArray[$i],$descArray[$i]);
+            return implode(" ",$descArray);
+        }
+    }
+    return false;
 }
 ?>

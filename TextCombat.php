@@ -52,8 +52,8 @@ switch($function){
                         $newDescription = str_replace($row2['Name'], getSpanText(spanTypes::ITEM,$row2['ID'],$row2['Name']), $newDescription);
                     }
                 }
+                mysqli_free_result($result);
             }
-            mysqli_free_result($result);
             //set if no items or test above pass
             query("Update playerinfo set Description=".prepVar($newDescription)." where ID=".prepVar($_SESSION['playerID']));
             removeAlert(alertTypes::newItem);
@@ -87,35 +87,16 @@ switch($function){
          *adds an alert for the player
          */
     case('craftItem'):
-        /**
-         *a 2d array.
-         *[keyword type][0:true if in desc. 1: keywordID]
-         */
-        $keywordTypes = array();
-        //replace all keywords
-        $descArray = explode(" ",$_GET['Description']);
-        $descArrayLength = count($descArray);
-        //for each word in the desc, find a keyword to match it
-        for($i=0; $i<$descArrayLength; $i++){
-            $word = $descArray[$i];
-            $row = query("select ID,Type from keywordwords where Word=".prepVar($word));
-            //if there is a keyword
-            if(isset($row['ID'])){
-                $descArray[$i] = getSpanText(spanTypes::KEYWORD,$word,$word);
-                $keywordTypes[$row['Type']] = array(true, $row['ID']);
-            }
-        }
         //make sure all required keyword types were replaced
+        $desc = $_GET['Description'];
         foreach(requiredItemKeywordTypes as $type){
-            if($keywordTypes[$type][0] != true){
+            if(!replaceKeywordType($desc, $type){
                 echo "type ".$type." keyword was not found";
                 return;
             }
         }
-        
         //add the item into db
-        $Description = implode(" ",$descArray);
-        $lastID = lastIDquery("insert into items (playerID, Name, Description) values (".prepVar($_SESSION['playerID']).",".prepVar($_GET['Name']).",".prepVar($Description).")");
+        $lastID = lastIDquery("insert into items (playerID, Name, Description) values (".prepVar($_SESSION['playerID']).",".prepVar($_GET['Name']).",".prepVar($desc).")");
         //add new item to the end of player's description
         $row = query("select Description from playerinfo where ID=".prepVar($_SESSION['playerID']));
         $playerDescription = $row['Description'];
