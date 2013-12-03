@@ -73,7 +73,6 @@ function prepVar($var){
 }
 
 $fileName = "chats/".$_SESSION['currentScene']."Chat.txt";
-
 /**
  *adds the given text to the current chat file
  */
@@ -201,7 +200,8 @@ function getCombatLevel($playerID){
 }
 
 /**
- *replaces the first keyword of the given type
+ *replaces the first keyword of the given type.
+ *returns false if not found
  */
 function replaceKeywordType($desc, $type){
     $descArray = explode(" ",$desc);

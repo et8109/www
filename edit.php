@@ -14,6 +14,9 @@
         <script>
             //remember type, from radios
             var type = "Scene";
+            /**
+             *called by radio buttons to set the new type of object
+             */
             function setType(newType) {
                 type = newType;
             }
@@ -23,11 +26,6 @@
              */
             function load() {
                 var ID = document.getElementById("idInput").value;
-                var table = getTable();
-                if (table == null) {
-                    return;
-                }
-                
                 request = new XMLHttpRequest();
                 request.onreadystatechange = function(){
                     if (this.readyState==4 && this.status==200) {
@@ -36,16 +34,10 @@
                         document.getElementById("textArea").value = response[1];
                     }
                 }
-                request.open("GET", "editBack.php?function=getInfo&table="+table+"&ID="+ID, true);
+                request.open("GET", "editBack.php?function=getInfo&type="+type+"&ID="+ID, true);
                 request.send();
             }
             
-          
-          
-     
-            
-            
-           
            
             /**
              *overrites an object, needs id, name, radio, and description selected
@@ -54,13 +46,8 @@
                 var ID = document.getElementById("idInput").value;
                 var Name = document.getElementById("nameInput").value;
                 var Description = document.getElementById("textArea").value
-                var table = getTable();
-                if (table == null) {
-                    return;
-                }
-                
                 request = new XMLHttpRequest();
-                request.open("GET", "editBack.php?function=save&table="+table+"&ID="+ID+"&Name="+Name+"&Description="+Description, true);
+                request.open("GET", "editBack.php?function=save&type="+type+"&ID="+ID+"&Name="+Name+"&Description="+Description, true);
                 request.send();
             }
             
@@ -72,33 +59,10 @@
             function saveNew() {
                 var Name = document.getElementById("nameInput").value;
                 var Description = document.getElementById("textArea").value
-                var table = getTable();
-                if (table == null) {
-                    return;
-                }
                 document.getElementById("idInput").value = "new id created";
-                
                 request = new XMLHttpRequest();
-                request.open("GET", "editBack.php?function=saveNew&table="+table+"&Name="+Name+"&Description="+Description, true);
+                request.open("GET", "editBack.php?function=saveNew&type="+type+"&Name="+Name+"&Description="+Description, true);
                 request.send();
-            }
-            /**
-             *gets the table, determined by radio buttons
-             */
-            function getTable(){
-                switch(type){
-                    case("Scene"):
-                        return 'scenes';
-                        break;
-                    case("Item"):
-                        return 'items';
-                        break;
-                    case("Player"):
-                        return 'playerInfo';
-                        break;
-                }
-                alert("A table of "+type+" was not found..");
-                return null;
             }
         </script>
         <style>
@@ -118,6 +82,9 @@
         <input type="radio" name="type" onclick="setType(this.value)" value="Scene">Scene</br>
         <input type="radio" name="type" onclick="setType(this.value)" value="Item">Item</br>
         <input type="radio" name="type" onclick="setType(this.value)" value="Player">Player</br>
+        <p id="message">
+            [no message]
+        </p>
             </br>
             text doc holds all info?<br/>
             description max: 255 bytes (tinyText)<br/>

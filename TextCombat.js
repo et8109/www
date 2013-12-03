@@ -354,22 +354,22 @@ function setNewDescription() {
 * Also updates currentChatTime and adds a walking message ot chat
 */
 function walk(newSceneId) {
-deactivateActiveLinks();
-if (frontLoadSceneText) {
-    addDesc(spanTypes.SCENE, newSceneId);
-}
-request = new XMLHttpRequest();
-request.onreadystatechange = function(){
-        if (this.readyState==4 && this.status==200) {
-            if (!frontLoadSceneText) {
-                addDesc(spanTypes.SCENE, newSceneId);
+    deactivateActiveLinks();
+    if (frontLoadSceneText) {
+        addDesc(spanTypes.SCENE, newSceneId);
+    }
+    request = new XMLHttpRequest();
+    request.onreadystatechange = function(){
+            if (this.readyState==4 && this.status==200) {
+                if (!frontLoadSceneText) {
+                    addDesc(spanTypes.SCENE, newSceneId);
+                }
             }
-        }
-}
-request.open("GET", "TextCombat.php?function=moveScenes&newScene="+newSceneId, true);
-request.send();
-cancelWaits();
-closeTextArea();
+    }
+    request.open("GET", "TextCombat.php?function=moveScenes&newScene="+newSceneId, true);
+    request.send();
+    cancelWaits();
+    closeTextArea();
 }
 /**
     *open text area and display player description.
@@ -463,6 +463,22 @@ function addCraftDescription(){
     }
     request.open("GET", "TextCombat.php?function=craftItem&Name="+itemName+"&Description="+itemDescription, true);
     request.send();
+}
+
+/**
+ *Begins the service at a pub
+ */
+function startWaiter(){
+    //check current waits
+    if (isWaiting){
+        addText("You're already focused on something else. Finish with that, then you can order something");
+        return;
+    }
+    addText("A waiter approaches your table. 'Hello there. What would you like?' they ask.");
+    //check menu at this pub
+    
+    //add menu text
+    //add wait
 }
 
 /**
@@ -663,7 +679,7 @@ function setTextAreaMessage(message){
 }
 /**
  *Returns the text in the text area.
- *returns null if the text area contained < or >
+ *returns null and gives an error message if the text area contained < or >
  */
 function getTextAreaText(){
     var text = document.getElementById("textArea").value;
@@ -760,7 +776,8 @@ function cancelWaits() {
     waitingForTextLine = textLineInputs.NOTHING;
 }
 /**
- *returns true if the player is waiting for something
+ *returns true if the player is waiting for something,
+ *  in the line or area
  */
 function isWaiting() {
     return(waitingForTextArea != textAreaInputs.NOTHING || waitingForTextLine != textLineInputs.NOTHING);

@@ -26,8 +26,8 @@ a popup that asks if each keyword should be enabled or ignored
 [done]creating items add the item to itemKeywords
 [done]scenes have keywords
     move constants to new php page
-    on scene creation or modification, check keywords: use new phphf
-        do for items and players too?
+    [done]on scene creation or modification, check keywords: use new phphf
+        [done]do for items and players too?
 [done]scenePlayers db table with players in each scene
     [done]revamp walk
     [done]add player to list on login
@@ -44,7 +44,7 @@ think about item sizes/weights and bags again
 
 scenes can hold things
 
-    make a pub
+    [started]make a pub
 
     make a library
 

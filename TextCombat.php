@@ -90,7 +90,7 @@ switch($function){
         //make sure all required keyword types were replaced
         $desc = $_GET['Description'];
         foreach(requiredItemKeywordTypes as $type){
-            if(!replaceKeywordType($desc, $type){
+            if(!replaceKeywordType($desc, $type)){
                 echo "type ".$type." keyword was not found";
                 return;
             }
