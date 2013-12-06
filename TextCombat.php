@@ -159,6 +159,32 @@ switch($function){
         addAlert(alertTypes::hiddenItem);
         break;
     
+    case('getItemsInScene'):
+        //get item ids
+        $itemIDsResult = queryMulti("select itemID from itemsinscenes where sceneID=".$_SESSION['currentScene']);
+        //get items names and ids
+        if($row = mysqli_fetch_array($itemIDsResult)){
+            $itemNamesQuery = "select ID,Name from items where ID=";
+        }
+        else{
+            //no items in the scene
+            echo "";
+            mysqli_free_result($itemIDsResult);
+            return;
+        }
+        $itemNamesQuery .= $row['itemID'];
+        while($row = mysqli_fetch_array($itemIDsResult)){
+            $itemNamesQuery .=" or ".$row['itemID'];
+        }
+        mysqli_free_result($itemIDsResult);
+        $itemNamesResult = queryMulti($itemNamesQuery);
+        //seperate into <>
+        while($row = mysqli_fetch_array($itemNamesQuery)){
+            echo getSpanText(spanTypes::ITEM,$row['ID'],$row['Name'])."<>";
+        }
+        mysqli_free_result($itemNamesQuery);
+        break;
+    
     case('attack'):        
         //see if player is there
         $row = query("SELECT playerID FROM sceneplayers WHERE SceneID =".prepVar($_SESSION['currentScene'])." AND playerName = ".prepVar($_GET['Name']));

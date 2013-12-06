@@ -354,6 +354,7 @@ function setNewDescription() {
 * Also updates currentChatTime and adds a walking message ot chat
 */
 function walk(newSceneId) {
+    currentScene = newSceneId;
     deactivateActiveLinks();
     if (frontLoadSceneText) {
         addDesc(spanTypes.SCENE, newSceneId);
@@ -470,13 +471,29 @@ function addCraftDescription(){
  */
 function startWaiter(){
     //check current waits
-    if (isWaiting){
+    if (isWaiting()){
         addText("You're already focused on something else. Finish with that, then you can order something");
         return;
     }
     addText("A waiter approaches your table. 'Hello there. What would you like?' they ask.");
     //check menu at this pub
-    
+    request = new XMLHttpRequest();
+    request.onreadystatechange = function(){
+        if (this.readyState==4 && this.status==200) {
+            var response = this.responseText;
+            if (response == "") {
+                addText("Oops, sorry. There is nothing available.");
+                return;
+            }
+            //success
+            var splitResponse = response.split("<>");
+            for(i in splitResonse){
+                addText(splitResponse[i]);
+            }
+        }
+    }
+    request.open("GET", "TextCombat.php?function=getItemsInScene", true);
+    request.send();
     //add menu text
     //add wait
 }

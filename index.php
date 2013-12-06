@@ -57,6 +57,7 @@ alpha begins!
 ********************************************
 later:
 ********************************************
+javascript can be disabled, protect from that
 a logout function, player is removed from sceneplayers when not active..
 some weapons/combat stuf doesnt work if in a container
 add options for each command, custom commands
