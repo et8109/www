@@ -15,7 +15,7 @@ switch($function){
         echo $row['Name'] ."<>". $row['Description'];
         break;
     
-    case('save'):
+    case('save')://needs to use universal update description
         $table = getTable($_GET['type']);
         if($table == null){
             return "error<>saveerror";

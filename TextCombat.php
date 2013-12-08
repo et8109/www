@@ -2,7 +2,7 @@
 
 session_start();
 include 'phpHelperFunctions.php';
-
+include 'constants.php';
 //set connection
 $con = getConnection();
 $function = $_GET['function'];
@@ -26,44 +26,33 @@ switch($function){
             case(spanTypes::SCENE):
                 $row = query("select Name, Description from scenes where ID=".prepVar($_GET['ID']));
                 echo getSpanText(spanTypes::SCENE,$_GET['ID'],$row["Name"])."<>".$row["Description"];
+                //managing the scene
+                $playerKeywordRow = query("select locationID,keywordID from playerkeywords where ID=".prepVar($_SESSION['playerID'])." and type=".keywordTypes::PLAYER_JOB);
+                $sceneKeywordRow = query("select keywordID from scenekeywords where type=".keywordTypes::SCENE_ACTION);
+                //scene keyword matches plyer job keyword && correct location
+                if($GLOBALS['sceneKeywordToPlayerJob'][$sceneKeywordRow['keywordID']] == $playerKeywordRow['keywordID'] &&
+                   $playerKeywordRow['locationID'] == $_GET['ID']){
+                    echo " ".getSpanTextManagingScene($_GET['ID']);
+                }
                 break;
         }
         break;
     
+    //when player looks at thier own desc
     case('getPlayerDescription'):
             $row = query("select Description from playerinfo where ID=".prepVar($_SESSION['playerID']));
             echo $row["Description"];
         break;
     
     case('updateDescription'):
-            $newDescription = $_GET['Description'];
-            //find item names
-            $result = queryMulti("select Name from items where playerID=".prepVar($_SESSION['playerID'])." and insideOf=0");
-            if(!is_bool($result)){
-                while($row2 = mysqli_fetch_array($result)){
-                    //if an item is not found
-                    if(strpos($newDescription, $row2['Name']) == false){
-                        echo "Please use all your visible items in your description.".$row2['Name']."was not found.";
-                        mysqli_free_result($result);
-                        return;
-                    }
-                    //the item was found
-                    else{
-                        $newDescription = str_replace($row2['Name'], getSpanText(spanTypes::ITEM,$row2['ID'],$row2['Name']), $newDescription);
-                    }
-                }
-                mysqli_free_result($result);
-            }
-            //set if no items or test above pass
-            query("Update playerinfo set Description=".prepVar($newDescription)." where ID=".prepVar($_SESSION['playerID']));
+         if(updateDescription($_SESSION['playerID'], $_GET['Description'], spanTypes::PLAYER){
+            //if success
             removeAlert(alertTypes::newItem);
-        break;
-    
-    case('getSceneInfo'):
-        //find current scene based on id from db
-        $row = query("select Name, Description from scenes where ID=".prepVar($_SESSION['currentScene']));
-        //echo scene name and description
-        echo $row['Name'] ."<>". $row['Description'];
+         }
+         else{
+            //if fail
+            echo "could not update";
+         }
         break;
     
     case('moveScenes'):
@@ -77,7 +66,6 @@ switch($function){
         updateChatTime();
         //add player to new scene list
         query("insert into sceneplayers (sceneID,playerID,playerName) values(".prepVar($_SESSION['currentScene']).",".prepVar($_SESSION['playerID']).",".prepVar($_SESSION['playerName']).")");
-
         break;
 
         /**
@@ -273,59 +261,5 @@ switch($function){
         mysqli_free_result($result);
         break;
 }
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~alert functions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-/**
- *types of alerts that can show up in the alert box
- */
-final class alertTypes{
-    //the number is it's id in db
-    const newItem = 1;
-    const hiddenItem = 2;
-}
-
-/**
- *the possible actions that are visible in chat.
- *duplicated in js
- */
-final class actionTypes {
-    const WALKING = 0;
-    const ATTACK = 1;
-}
-
-/**
- *The types of spans that you can click for a description
- */
-final class spanTypes {
-    const ITEM = 0;
-    const PLAYER = 1;
-    const SCENE = 2;
-    const KEYWORD = 3;
-}
-
-/**
- *the keyword types required in all items
- *1: material
- *2:quality
- */
-final class requiredItemKeywordTypes {
-    const material = 1;
-    const quality = 2;
-}
-
-/**
- *final class requiredSceneKeywordTypes = []; not used
- * 3: crafting station
- */
-
-/**
- * keyword ID => increase in combat skill
- */
-$combatItemKeywords = array(
-    2 => 2,
-    4 => 1
-);
-
 
 ?>

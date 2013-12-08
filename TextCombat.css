@@ -66,6 +66,7 @@ border: solid 1px brown;
     cursor: pointer;
     margin-left: 20px;
 }
+/* active classes turn inactive */
 .inactive{ /*location names, no longer visitable*/
     color: black;
     cursor: auto;
@@ -77,6 +78,9 @@ border: solid 1px brown;
     position: absolute;
     left:400px;
     cursor: pointer;
+}
+.manageScene{/*the button that lets you manage a scene if you have the rights*/
+    color:blue;
 }
 
 /*player name in the hub*/

@@ -86,6 +86,7 @@
             [no message]
         </p>
             </br>
+            !!Do not use!! - in progress
             text doc holds all info?<br/>
             description max: 255 bytes (tinyText)<br/>
             name max: 20 char</br>

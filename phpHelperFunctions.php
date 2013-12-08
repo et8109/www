@@ -1,5 +1,29 @@
 <?php
 /**
+ *printDebug
+ *getConnection
+ *query
+ *  queryMulti
+ *  lastIDQuery
+ *prepVar
+ *addChatText
+ *  speakAction
+ *  updateChatTime
+ *addAlert
+ *  removeAlert
+ *getSpanText
+ *  getSpanTextManagingScene
+ *getCombatLevel
+ *replaceKeywordType
+ *  replaceKeywordID
+ *  replacePlayerItems
+ *updateDescription
+ *getTable
+ *  getTableKeywords
+ */
+include 'constants.php';
+
+/**
  *prints the input string to the debug file.
  *adds a new line
  */
@@ -142,6 +166,7 @@ function speakAction($type, $targetName, $targetID){
 
 /**
  *returns the span text for the given object.
+ *the span text is for the title/name, not description
  *Note: id for keywords is the actual word, not number
  */
 function getSpanText($type, $id, $name){
@@ -159,6 +184,13 @@ function getSpanText($type, $id, $name){
             return "<span class='sceneName' onclick='addDesc(".spanTypes::SCENE.",".$id.")'>".$name."</span>";
             break;
     }
+}
+
+/**
+ *returns additional span text for managing a scene
+ */
+function getSpanTextManagingScene($sceneID){
+    return "<span class='active manageScene' onclick='manageScene(".$sceneID.")'>Manage</span>";
 }
 
 /**
@@ -214,5 +246,125 @@ function replaceKeywordType($desc, $type){
         }
     }
     return false;
+}
+
+/**
+ *replaces the first keyword of the given ID.
+ *returns false if not found
+ */
+function replaceKeywordID($desc, $ID){
+    $descArray = explode(" ",$desc);
+    $descArrayLength = count($descArray);
+    for($i=0; i<$descArrayLength; $i++){
+        $keywordRow = query("select ID from keywordwords where Word=".prepVar($descArray[$i])." and ID=".prepVar($ID));
+        if(!is_bool($keywordRow)){
+            $descArray[$i] = getSpanText(spanTypes::KEYWORD,$descArray[$i],$descArray[$i]);
+            return implode(" ",$descArray);
+        }
+    }
+    return false;
+}
+
+/**
+ *replaces all items in the player's description
+ *returns false if not found
+ */
+function replacePlayerItems($description){
+    //find item names
+    $itemNamesResult = queryMulti("select Name from items where playerID=".prepVar($_SESSION['playerID'])." and insideOf=0");
+    //if failed in query
+    if(is_bool($itemNamesResult)){
+        return false;
+    }
+    while($itemRow = mysqli_fetch_array($itemNamesResult)){
+        //if an item is not found
+        if(strpos($description, $itemRow['Name']) == false){
+            mysqli_free_result($itemNamesResult);
+            return false;
+        }
+        else{
+            //the item was found
+            $description = str_replace($itemRow['Name'], getSpanText(spanTypes::ITEM,$itemRow['ID'],$itemRow['Name']), $description);
+        }
+    }
+    mysqli_free_result($itemNamesResult);
+}
+
+/**
+ *updates a description in the db
+ *returns false if failed
+ */
+function updateDescription($ID, $description, $spanTypesType){
+    $table = getTable($spanTypesType);
+    $keywordTable = getTableKeywords($spanTypesType);
+    if($table == null){
+        return false;
+    }
+    //get IDs of keywords
+    $keywordsResult = queryMulti("select keywordID from ".$keywordTable." where ID=".$ID);
+    if(is_bool($keywordsResult)){
+        return false;
+    }
+    //replace one of each keyword ID
+    while($keywordRow = mysqli_fetch_array($keywordsResult)){
+        $description = replaceKeywordID($description,$keywordRow['keywordID']);
+        //if ID not found
+        if($description == false){
+            mysqli_free_result($keywordsResult);
+            return false;
+        }
+    }
+    mysqli_free_result($keywordsResult);
+    //if a player, make sure items are there
+    if($spanTypesType == spanTypes::PLAYER){
+        $description = replacePlayerItems($description);
+        if($description == false){
+            return false;
+        }
+    }
+    query("update ".$table." set Description=".prepVar($description)." where ID=".prepVar($ID);
+    return true;
+}
+
+/**
+ *returns the table where the object itself it
+ */
+function getTable($spanTypesType){
+    switch($spanTypesType){
+        case(spanTypes::SCENE):
+            return 'scenes';
+            break;
+        case(spanTypes::ITEM):
+            return 'items';
+            break;
+        case(spanTypes::PLAYER):
+            return 'playerInfo';
+            break;
+        case(spanTypes::KEYWORD):
+            return 'keywords';
+            break;
+    }
+    return null;
+}
+
+/**
+ *returns the table where the object's keywords are
+ */
+function getTableKeywords($spanTypesType){
+    switch($spanTypesType){
+        case(spanTypes::SCENE):
+            return 'scenekeywords';
+            break;
+        case(spanTypes::ITEM):
+            return 'items';
+            break;
+        case(spanTypes::PLAYER):
+            return 'playerInfo';
+            break;
+        case(spanTypes::KEYWORD):
+            return 'keywords';
+            break;
+    }
+    return null;
 }
 ?>

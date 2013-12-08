@@ -585,7 +585,9 @@ function openOptions(){
     }
     menuInside.innerHTML +="Front load keyword text. About 6 lines.</input>";
 }
-
+/**
+ *puts an item into a container item
+ */
 function putItemIn(itemName, containerName) {
     request = new XMLHttpRequest();
     request.onreadystatechange = function(){
@@ -602,7 +604,12 @@ function putItemIn(itemName, containerName) {
     request.open("GET", "TextCombat.php?function=putItemIn&itemName="+itemName+"&containerName="+containerName, true);
     request.send();
 }
-
+/**
+ *pulls up the options to manage a scene if player has the rights
+ */
+function manageScene($sceneID) {
+    
+}
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////

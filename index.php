@@ -42,9 +42,17 @@ think about item sizes/weights and bags again
 
 [sort of]look for repeated code
 
-scenes can hold things
+[doneish]scenes can hold things
 
     [started]make a pub
+        [done]player keyword db table
+            [done]keyowrds have name, description, locationID
+        [done]when creating a player description, check player keywords
+            [done, except for edit]universalize update desc
+        [done]getSpanText gives manage span if the player has the right keyword and location
+        manageScene lets player add/remove from itemsInScene list
+            lets player minimally change description, with scene keyword check
+        visitors can buy from shop
 
     make a library
 
