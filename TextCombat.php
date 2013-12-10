@@ -149,10 +149,13 @@ switch($function){
     
     case('getItemsInScene'):
         //get item ids
-        $itemIDsResult = queryMulti("select itemID from itemsinscenes where sceneID=".$_SESSION['currentScene']);
+        $itemIDsResult = queryMulti("select itemID,note from itemsinscenes where sceneID=".$_SESSION['currentScene']);
+        //store itemID note connection
+        $itemNotes = array();
         //get items names and ids
         if($row = mysqli_fetch_array($itemIDsResult)){
-            $itemNamesQuery = "select ID,Name from items where ID=";
+            $itemNamesQuery = "select ID,Name from items where ID=".$row['itemID'];
+            $itemNotes[$row['itemID']] = $row['note'];
         }
         else{
             //no items in the scene
@@ -160,17 +163,29 @@ switch($function){
             mysqli_free_result($itemIDsResult);
             return;
         }
-        $itemNamesQuery .= $row['itemID'];
         while($row = mysqli_fetch_array($itemIDsResult)){
             $itemNamesQuery .=" or ".$row['itemID'];
+            $itemNotes[$row['itemID']] = $row['note'];
         }
         mysqli_free_result($itemIDsResult);
         $itemNamesResult = queryMulti($itemNamesQuery);
         //seperate into <>
         while($row = mysqli_fetch_array($itemNamesQuery)){
             echo getSpanText(spanTypes::ITEM,$row['ID'],$row['Name'])."<>";
+            echo $itemNotes[$row['ID']];
         }
         mysqli_free_result($itemNamesQuery);
+        break;
+    
+    case('addItemToScene'):
+        //check player manage keyword/permission
+        $keywordRow = query("select ID from playerkeywords where ID=".prepVar($_SESSION['playerID'])." and type=".keywordTypes::PLAYER_JOB." and locationID=".prepVar($_SESSION['currentScene']));
+        if(is_bool($keywordRow)){
+            return "You do not have permission";
+        }
+        //check scene size
+        //check player has item?
+        //add item to items in scenes, along with note
         break;
     
     case('attack'):        

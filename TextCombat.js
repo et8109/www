@@ -95,8 +95,8 @@ if (frontLoadKeywords) {
 }
 
 /**
-     *sets the timer to update chat
-     */
+*sets the timer to update chat
+*/
 updater: setInterval("updateChat()", 3000);
 /**
  *The possible inputs from the text area at the bottom of the page
@@ -104,7 +104,8 @@ updater: setInterval("updateChat()", 3000);
 var textAreaInputs = {
     NOTHING : 0,
     PERSONAL_DESCRIPTION : 1,
-    ITEM_DESCRIPTION : 2
+    ITEM_DESCRIPTION : 2,
+    NOTE_FOR_ADDING_ITEM : 3
 };
 /**
  *The possible inputs from the main text line
@@ -112,7 +113,8 @@ var textAreaInputs = {
 var textLineInputs = {
     NOTHING : 0,
     ITEM_NAME : 1,
-    TARGET_NAME : 2
+    TARGET_NAME : 2,
+    ITEM_NAME_TO_ADD_TO_SCENE : 3
 };
 var waitingForTextArea = textAreaInputs.NOTHING;
 var waitingForTextLine = textLineInputs.NOTHING;
@@ -161,7 +163,9 @@ var actionTypes ={
 }
 
 /**
- *holds the name of the item to be crafted
+ *holds the name of the item to be:
+ *crafted
+ *added to scene
  */
 var itemName;
 /**
@@ -227,6 +231,9 @@ function textTyped(e){
             break;
             case(textLineInputs.TARGET_NAME):
                 attack();
+                break;
+            case(textLineInputs.ITEM_NAME_TO_ADD_TO_SCENE):
+                addItemNoteToScenePrompt();
                 break;
         }
     }
@@ -467,7 +474,8 @@ function addCraftDescription(){
 }
 
 /**
- *Begins the service at a pub
+ *Begins the service at a pub.
+ *prints items available
  */
 function startWaiter(){
     //check current waits
@@ -477,12 +485,20 @@ function startWaiter(){
     }
     addText("A waiter approaches your table. 'Hello there. What would you like?' they ask.");
     //check menu at this pub
+    getItemsInScene("Oops, sorry. There is nothing available right now.");
+}
+
+/**
+ *gets the items in the scene(item and store note).
+ *prints empty text if nothing was found
+ */
+function getItemsInScene(onEmptyText){
     request = new XMLHttpRequest();
     request.onreadystatechange = function(){
         if (this.readyState==4 && this.status==200) {
             var response = this.responseText;
             if (response == "") {
-                addText("Oops, sorry. There is nothing available.");
+                onEmptyText ? addText(onEmptyText) : addText('Nothing here.');
                 return;
             }
             //success
@@ -494,10 +510,48 @@ function startWaiter(){
     }
     request.open("GET", "TextCombat.php?function=getItemsInScene", true);
     request.send();
-    //add menu text
-    //add wait
+}
+/**
+ *prompts for what item to add to the curent scene
+ */
+function addItemToScenePrompt() {
+    addText("what item if yours would you like to add to this location?");
+    waitingForTextLine = textLineInputs.ITEM_NAME_TO_ADD_TO_SCENE;
 }
 
+/**
+ *adds an item to the current scene
+ */
+function addItemNoteToScenePrompt(){
+    //get item name
+    var itemName = getInputText();
+    addText("what is the note for the "+itemName+"?");
+    cancelWaits();
+    waitingForTextArea = textAreaInputs.NOTE_FOR_ADDING_ITEM;
+}
+/**
+ *adds the item and its note to the scene
+ */
+function addItemToScene(){
+    var noteText = getTextAreaText();
+    if (noteText == null) {
+       return; 
+    }
+    cancelWaits();
+    request = new XMLHttpRequest();
+    request.onreadystatechange = function(){
+        if (this.readyState==4 && this.status==200) {
+            var response = this.responseText;
+            if (response == "") {
+                addText("added "+itemName);
+                return;
+            }
+            addText(response);
+        }
+    }
+    request.open("GET", "TextCombat.php?function=addItemToScene&Name="+itemName+"&Note="+noteText, true);
+    request.send();
+}
 /**
 *find who the player want to attack, after /attack
 */
@@ -607,9 +661,13 @@ function putItemIn(itemName, containerName) {
 /**
  *pulls up the options to manage a scene if player has the rights
  */
-function manageScene($sceneID) {
-    
+function manageScene() {
+    adText("edit scene title/desc in progress");
+    addText("<span class='active action' onclick='getItemsInScene()'>view items</span>");
+    addText("<span class='active action' onclick='addItemToScenePrompt()'>add item</span>");
+    addText("take item from scene");
 }
+
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////
@@ -681,7 +739,7 @@ function speak(inputText){
 }
 
 /**
- *returns the text int the input field
+ *returns the text in the input field/text line
  */
 function getInputText(){
     return document.getElementById("input").value;
@@ -724,6 +782,9 @@ function textAreaSumbit() {
             break;
         case(textAreaInputs.ITEM_DESCRIPTION):
             addCraftDescription();
+            break;
+        case(textAreaInputs.NOTE_FOR_ADDING_ITEM):
+            addItemToScene();
             break;
     }
 }
@@ -845,7 +906,7 @@ function toggleFrontLoadSceneText(){
  *switches whether the keyword text is front loaded or not
  *also tells db
  */
-function toggleFrontLoadKeywords(){
+function toggleFrontLoadKeywords(){ 
     frontLoadKeywords=!frontLoadKeywords;
     var frontLoad;
     if (frontLoadKeywords) {
@@ -858,6 +919,4 @@ function toggleFrontLoadKeywords(){
     request.open("GET", "TextCombat.php?function=setFrontLoadKeywords&load="+frontLoad, true);
     request.send();
 }
-
-
 
