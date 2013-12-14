@@ -51,7 +51,7 @@ think about item sizes/weights and bags again
             [done, except for edit]universalize update desc
         [done]getSpanText gives manage span if the player has the right keyword and location
         manageScene lets player add/remove from itemsInScene list
-            adding items to scenes
+            [doneish]adding items to scenes
             removing items from scene
             change the notes on items
             lets player minimally change description, with scene keyword check
@@ -70,6 +70,10 @@ alpha begins!
 ********************************************
 later:
 ********************************************
+removeItemFromScene doesnt check for player inventory size
+getInput text should check for < and >
+number of items in the scene is not checked when adding one
+make sure items table has a secondary search set fo playerID
 scenes can only hold 1 list of items/1 job
 should check for scene size when add an item
 auto-completeing when selecting things, like items from your inventory

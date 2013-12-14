@@ -51,11 +51,12 @@ function getConnection(){
  *querys the databse and returns the row.
  *only returns 1 row. If you need more, use queryMulti.
  *uses $GLOBALS['con']. doesn't work if not set
+ *frees the result on its own
  */
 function query($sql){
     $result = mysqli_query($GLOBALS['con'], $sql);
     if(is_bool($result)){
-        return;
+        return false;
     }
     $row = mysqli_fetch_array($result);
     mysqli_free_result($result);
@@ -366,5 +367,15 @@ function getTableKeywords($spanTypesType){
             break;
     }
     return null;
+}
+
+/**
+ *adds the item to the end of the players description
+ */
+function addItemToPlayerDescription($itemID, $itemName){
+    $row = query("select Description from playerinfo where ID=".prepVar($_SESSION['playerID']));
+    $playerDescription = $row['Description'];
+    $playerDescription .= getSpanText(spanTypes::ITEM,$itemID,$itemName);
+    query("Update playerinfo set Description=".prepVar($playerDescription)." where ID=".prepVar($_SESSION['playerID']));
 }
 ?>

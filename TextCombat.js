@@ -114,7 +114,8 @@ var textLineInputs = {
     NOTHING : 0,
     ITEM_NAME : 1,
     TARGET_NAME : 2,
-    ITEM_NAME_TO_ADD_TO_SCENE : 3
+    ITEM_NAME_TO_ADD_TO_SCENE : 3,
+    ITEM_NAME_TO_REMOVE_FROM_SCENE : 4
 };
 var waitingForTextArea = textAreaInputs.NOTHING;
 var waitingForTextLine = textLineInputs.NOTHING;
@@ -234,6 +235,9 @@ function textTyped(e){
                 break;
             case(textLineInputs.ITEM_NAME_TO_ADD_TO_SCENE):
                 addItemNoteToScenePrompt();
+                break;
+            case(textLineInputs.ITEM_NAME_TO_REMOVE_FROM_SCENE):
+                removeItemFromScene();
                 break;
         }
     }
@@ -530,6 +534,13 @@ function addItemNoteToScenePrompt(){
     waitingForTextArea = textAreaInputs.NOTE_FOR_ADDING_ITEM;
 }
 /**
+ *prompts for what item to remove from the scene
+ */
+function removeItemFromScenePrompt() {
+    addText("what item if yours would you like to remove from this location?");
+    waitingForTextLine = textLineInputs.ITEM_NAME_TO_REMOVE_FROM_SCENE;
+}
+/**
  *adds the item and its note to the scene
  */
 function addItemToScene(){
@@ -550,6 +561,29 @@ function addItemToScene(){
         }
     }
     request.open("GET", "TextCombat.php?function=addItemToScene&Name="+itemName+"&Note="+noteText, true);
+    request.send();
+}
+/**
+ *removes the given item from the scene
+ */
+function removeItemFromScene(){
+    var name = getInputText();
+    if (noteText == null) {
+       return; 
+    }
+    cancelWaits();
+    request = new XMLHttpRequest();
+    request.onreadystatechange = function(){
+        if (this.readyState==4 && this.status==200) {
+            var response = this.responseText;
+            if (response == "") {
+                addText("you take the "+itemName);
+                return;
+            }
+            addText(response);
+        }
+    }
+    request.open("GET", "TextCombat.php?function=removeItemFromScene&Name="+itemName, true);
     request.send();
 }
 /**
