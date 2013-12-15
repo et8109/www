@@ -21,7 +21,7 @@
  *getTable
  *  getTableKeywords
  */
-include 'constants.php';
+include_once 'constants.php';
 
 /**
  *prints the input string to the debug file.
@@ -323,7 +323,7 @@ function updateDescription($ID, $description, $spanTypesType){
             return false;
         }
     }
-    query("update ".$table." set Description=".prepVar($description)." where ID=".prepVar($ID);
+    query("update ".$table." set Description=".prepVar($description)." where ID=".prepVar($ID));
     return true;
 }
 

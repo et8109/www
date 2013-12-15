@@ -105,7 +105,8 @@ var textAreaInputs = {
     NOTHING : 0,
     PERSONAL_DESCRIPTION : 1,
     ITEM_DESCRIPTION : 2,
-    NOTE_FOR_ADDING_ITEM : 3
+    NOTE_FOR_ADDING_ITEM : 3,
+    NEW_ITEM_NOTE_TEXT : 4
 };
 /**
  *The possible inputs from the main text line
@@ -115,7 +116,8 @@ var textLineInputs = {
     ITEM_NAME : 1,
     TARGET_NAME : 2,
     ITEM_NAME_TO_ADD_TO_SCENE : 3,
-    ITEM_NAME_TO_REMOVE_FROM_SCENE : 4
+    ITEM_NAME_TO_REMOVE_FROM_SCENE : 4,
+    ITEM_NAME_TO_CHANGE_NOTE_OF : 5
 };
 var waitingForTextArea = textAreaInputs.NOTHING;
 var waitingForTextLine = textLineInputs.NOTHING;
@@ -167,6 +169,7 @@ var actionTypes ={
  *holds the name of the item to be:
  *crafted
  *added to scene
+ *have a changed note in scene
  */
 var itemName;
 /**
@@ -238,6 +241,9 @@ function textTyped(e){
                 break;
             case(textLineInputs.ITEM_NAME_TO_REMOVE_FROM_SCENE):
                 removeItemFromScene();
+                break;
+            case(textLineInputs.ITEM_NAME_TO_CHANGE_NOTE_OF):
+                newNoteTextPromt();
                 break;
         }
     }
@@ -519,7 +525,7 @@ function getItemsInScene(onEmptyText){
  *prompts for what item to add to the curent scene
  */
 function addItemToScenePrompt() {
-    addText("what item if yours would you like to add to this location?");
+    addText("what item of yours would you like to add to this location?");
     waitingForTextLine = textLineInputs.ITEM_NAME_TO_ADD_TO_SCENE;
 }
 
@@ -528,7 +534,7 @@ function addItemToScenePrompt() {
  */
 function addItemNoteToScenePrompt(){
     //get item name
-    var itemName = getInputText();
+    itemName = getInputText();
     addText("what is the note for the "+itemName+"?");
     cancelWaits();
     waitingForTextArea = textAreaInputs.NOTE_FOR_ADDING_ITEM;
@@ -537,7 +543,7 @@ function addItemNoteToScenePrompt(){
  *prompts for what item to remove from the scene
  */
 function removeItemFromScenePrompt() {
-    addText("what item if yours would you like to remove from this location?");
+    addText("what item would you like to remove from this location?");
     waitingForTextLine = textLineInputs.ITEM_NAME_TO_REMOVE_FROM_SCENE;
 }
 /**
@@ -586,6 +592,46 @@ function removeItemFromScene(){
     request.open("GET", "TextCombat.php?function=removeItemFromScene&Name="+itemName, true);
     request.send();
 }
+/**
+ *prompts the player for what note they want to change in this scene
+ */
+function changeItemNotePrompt() {
+    addText("what item note would you like to change in this location?");
+    cancelWaits();
+    waitingForTextLine = textLineInputs.ITEM_NAME_TO_CHANGE_NOTE_OF;
+}
+/**
+ *prompts for the new note text
+ */
+function newNoteTextPromt(){
+    itemName = getInputText();
+    addText("Edit the note below.");
+    cancelWaits();
+    waitingForTextLine = textAreaInputs.NEW_ITEM_NOTE_TEXT;
+}
+/**
+ *gets the note text and changes the item note
+ */
+function changeItemNote(){
+    var noteText = getTextAreaText();
+    if (noteText == null) {
+       return; 
+    }
+    cancelWaits();
+    request = new XMLHttpRequest();
+    request.onreadystatechange = function(){
+        if (this.readyState==4 && this.status==200) {
+            var response = this.responseText;
+            if (response == "") {
+                addText("changed note for "+itemName);
+                return;
+            }
+            addText(response);
+        }
+    }
+    request.open("GET", "TextCombat.php?function=changeItemNote&Name="+itemName+"&Note="+noteText, true);
+    request.send();
+}  
 /**
 *find who the player want to attack, after /attack
 */
@@ -699,7 +745,8 @@ function manageScene() {
     adText("edit scene title/desc in progress");
     addText("<span class='active action' onclick='getItemsInScene()'>view items</span>");
     addText("<span class='active action' onclick='addItemToScenePrompt()'>add item</span>");
-    addText("take item from scene");
+    addText("<span class='active action' onclick='changeItemNotePrompt()'>change items note</span>");
+    addText("<span class='active action' onclick='removeItemFromScenePrompt()'>take item</span>");
 }
 
 ////////////////////////////////////////////////////
@@ -819,6 +866,9 @@ function textAreaSumbit() {
             break;
         case(textAreaInputs.NOTE_FOR_ADDING_ITEM):
             addItemToScene();
+            break;
+        case(textAreaInputs.NEW_ITEM_NOTE_TEXT):
+            changeItemNote();
             break;
     }
 }

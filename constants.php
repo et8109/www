@@ -1,25 +1,6 @@
 <?php
 
 /**
-*the possible actions that are visible in chat.
-*duplicated in js
-*/
-final class actionTypes {
-   const WALKING = 0;
-   const ATTACK = 1;
-}
-
-/**
-*The types of spans that you can click for a description
-*/
-final class spanTypes {
-   const ITEM = 0;
-   const PLAYER = 1;
-   const SCENE = 2;
-   const KEYWORD = 3;
-}
-
-/**
  *types of alerts that can show up in the alert box
  */
 final class alertTypes{
@@ -69,11 +50,11 @@ final class requiredItemKeywordTypes {
 /**
  *currently empty
  */
-final class requiredSceneKeywordTypes = [];
+final class requiredSceneKeywordTypes {};
 /**
  *currently empty
  */
-final class requiredPlayerKeywordTypes = [];
+final class requiredPlayerKeywordTypes {};
 
 /**
  * keyword ID => increase in combat skill

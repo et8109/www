@@ -2,7 +2,6 @@
 
 session_start();
 include 'phpHelperFunctions.php';
-include 'constants.php';
 //set connection
 $con = getConnection();
 $function = $_GET['function'];
@@ -45,7 +44,7 @@ switch($function){
         break;
     
     case('updateDescription'):
-         if(updateDescription($_SESSION['playerID'], $_GET['Description'], spanTypes::PLAYER){
+         if(updateDescription($_SESSION['playerID'], $_GET['Description'], spanTypes::PLAYER)){
             //if success
             removeAlert(alertTypes::newItem);
          }
@@ -186,8 +185,11 @@ switch($function){
             return "You do not have that item";
         }
         //check scene size?
+        //remove item from player
+        query("update items set playerID=0 where playerID=".prepVar($_SESSION['playerID'])." and ID=".prepVar($idRow['ID']));
         //add item to items in scenes, along with note
         query("insert into itemsinscenes (sceneID,itemID,note) values (".prepVar($_SESSION['currentScene']).",".prepVar($idRow['ID']).",".prepVar($_GET['Note']).")");
+        //alert needed
         break;
     
     case('removeItemFromScene'):
@@ -196,6 +198,7 @@ switch($function){
         if(is_bool($keywordRow)){
             return "You do not have permission";
         }
+        //check that item is in scene
         //get item id,size
         $idRow = query("select ID, size from items where playerID=".prepVar($_SESSION['playerID'])." and Name=".prepVar($_GET['Name']));
         if(is_bool($idRow)){
@@ -203,9 +206,20 @@ switch($function){
         }
         //check player inventory size
         //remove item from scene list
-        $removeRow = query("remove from itemsInScenes where sceneID=".prepVar($_SESSION['currentScene'])." and ".);
+        $removeRow = query("delete from itemsInScenes where sceneID=".prepVar($_SESSION['currentScene'])." and itemID=".prepVar($idRow['ID']));
         //take the item
         addItemToPlayerDescription($idRow['ID'],$_GET['Name']);
+        //change playerID for item in db
+        //alert needed
+        break;
+    
+    case('changeItemNote'):
+        //double check permissions
+        $idRow = query("select ID from items where playerID=".prepVar($_SESSION['playerID'])." and Name=".prepVar($_GET['Name']));
+        if(is_bool($idRow)){
+            return "Item not found";
+        }
+        query("update itemsinscenes set note=".prepVar($_GET['Note'])." where itemID=".$idRow['ID']);
         break;
     
     case('attack'):        

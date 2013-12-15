@@ -52,8 +52,8 @@ think about item sizes/weights and bags again
         [done]getSpanText gives manage span if the player has the right keyword and location
         manageScene lets player add/remove from itemsInScene list
             [doneish]adding items to scenes
-            removing items from scene
-            change the notes on items
+            [doneish]removing items from scene
+            [doneish]change the notes on items
             lets player minimally change description, with scene keyword check
         visitors can buy from shop
         
@@ -65,11 +65,20 @@ look over later list
 
 debug
 
+take note of all code practices
+
 alpha begins!
 
 ********************************************
 later:
 ********************************************
+divide php into more manageable files
+take/add item list does not add an alert. make a helper functino for adding/removing items
+scolling/clicking/autocomplete selection from lists
+js constants page with enums and text
+change waiting so that each wait has its own function to call on hear, rather than all in text/area input method
+change functions so that action is first, such as prompt
+incorrect username/password message on login
 removeItemFromScene doesnt check for player inventory size
 getInput text should check for < and >
 number of items in the scene is not checked when adding one
