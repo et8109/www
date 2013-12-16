@@ -26,11 +26,7 @@ switch($function){
                 $row = query("select Name, Description from scenes where ID=".prepVar($_GET['ID']));
                 echo getSpanText(spanTypes::SCENE,$_GET['ID'],$row["Name"])."<>".$row["Description"];
                 //managing the scene
-                $playerKeywordRow = query("select locationID,keywordID from playerkeywords where ID=".prepVar($_SESSION['playerID'])." and type=".keywordTypes::PLAYER_JOB);
-                $sceneKeywordRow = query("select keywordID from scenekeywords where type=".keywordTypes::SCENE_ACTION);
-                //scene keyword matches plyer job keyword && correct location
-                if($GLOBALS['sceneKeywordToPlayerJob'][$sceneKeywordRow['keywordID']] == $playerKeywordRow['keywordID'] &&
-                   $playerKeywordRow['locationID'] == $_GET['ID']){
+                if(checkPlayerManage() == true){
                     echo " ".getSpanTextManagingScene($_GET['ID']);
                 }
                 break;
@@ -84,8 +80,6 @@ switch($function){
         }
         //add the item into db
         $lastID = lastIDquery("insert into items (playerID, Name, Description) values (".prepVar($_SESSION['playerID']).",".prepVar($_GET['Name']).",".prepVar($desc).")");
-        //add new item to the end of player's description
-        addItemToPlayerDescription($lastID,$_GET['Name']);
         //give the item a size
         query("Update items set size=4 where ID=".$lastID);
         //if item is a container, give it room
@@ -96,8 +90,7 @@ switch($function){
         foreach ($keywordTypes as $type){
             query("insert into itemKeywords (itemID, keywordID, type) values (".$lastID.",".$keywordTypes[$type][1].",".$type.")");
         }
-        //add alert
-        addAlert(alertTypes::newItem);
+        addItemIdToPlayer($lastID);
         break;
     
     case('getCraftInfo'):
@@ -175,46 +168,47 @@ switch($function){
     
     case('addItemToScene'):
         //check player manage keyword/permission
-        $keywordRow = query("select ID from playerkeywords where ID=".prepVar($_SESSION['playerID'])." and type=".keywordTypes::PLAYER_JOB." and locationID=".prepVar($_SESSION['currentScene']));
-        if(is_bool($keywordRow)){
-            return "You do not have permission";
+        if(checkPlayerManage == false){
+            return "You don't have permission";
         }
         //get item id,size
         $idRow = query("select ID, size from items where playerID=".prepVar($_SESSION['playerID'])." and Name=".prepVar($_GET['Name']));
         if(is_bool($idRow)){
             return "You do not have that item";
         }
-        //check scene size?
+        //check scene size? -not done
         //remove item from player
-        query("update items set playerID=0 where playerID=".prepVar($_SESSION['playerID'])." and ID=".prepVar($idRow['ID']));
+        $removedReponse = removeItemIdFromPlayer($idRow['ID']);
+        //if could not remove item from player
+        if(is_string($removedReponse)){
+            return $removedReponse;
+        }
         //add item to items in scenes, along with note
         query("insert into itemsinscenes (sceneID,itemID,note) values (".prepVar($_SESSION['currentScene']).",".prepVar($idRow['ID']).",".prepVar($_GET['Note']).")");
-        //alert needed
         break;
     
     case('removeItemFromScene'):
         //check player manage keyword/permission
-        $keywordRow = query("select ID from playerkeywords where ID=".prepVar($_SESSION['playerID'])." and type=".keywordTypes::PLAYER_JOB." and locationID=".prepVar($_SESSION['currentScene']));
-        if(is_bool($keywordRow)){
-            return "You do not have permission";
+        if(checkPlayerManage == false){
+            return "You don't have permission";
         }
-        //check that item is in scene
         //get item id,size
-        $idRow = query("select ID, size from items where playerID=".prepVar($_SESSION['playerID'])." and Name=".prepVar($_GET['Name']));
+        $idRow = query("select ID from items where Name=".prepVar($_GET['Name']));
         if(is_bool($idRow)){
-            return "You do not have that item";
+            return "That item does not exist";
         }
-        //check player inventory size
+        //check that item is in scene -not done
         //remove item from scene list
         $removeRow = query("delete from itemsInScenes where sceneID=".prepVar($_SESSION['currentScene'])." and itemID=".prepVar($idRow['ID']));
-        //take the item
-        addItemToPlayerDescription($idRow['ID'],$_GET['Name']);
-        //change playerID for item in db
-        //alert needed
+        addItemIdToPlayer($idRow['ID']);
         break;
     
     case('changeItemNote'):
-        //double check permissions
+        //check player manage keyword/permission
+        if(checkPlayerManage == false){
+            return "You don't have permission";
+        }
+        //get item id
         $idRow = query("select ID from items where playerID=".prepVar($_SESSION['playerID'])." and Name=".prepVar($_GET['Name']));
         if(is_bool($idRow)){
             return "Item not found";

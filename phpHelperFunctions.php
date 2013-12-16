@@ -193,6 +193,28 @@ function getSpanText($type, $id, $name){
 function getSpanTextManagingScene($sceneID){
     return "<span class='active manageScene' onclick='manageScene(".$sceneID.")'>Manage</span>";
 }
+/**
+ *returns true if the player can manage this scene
+ *false if they can't
+ */
+function checkPlayerManage(){
+    //only works because there is 1 job per scene
+    $keywordRow = query("select ID from playerkeywords where ID=".prepVar($_SESSION['playerID'])." and type=".keywordTypes::PLAYER_JOB." and locationID=".prepVar($_SESSION['currentScene']));
+    if(is_bool($keywordRow)){
+        return false;
+    }
+    return true;
+    /* for multiple jobs in 1 scene
+    $playerKeywordRow = query("select locationID,keywordID from playerkeywords where ID=".prepVar($_SESSION['playerID'])." and type=".keywordTypes::PLAYER_JOB);
+    $sceneKeywordRow = query("select keywordID from scenekeywords where type=".keywordTypes::SCENE_ACTION);
+    //scene keyword matches plyer job keyword && correct location
+    if($GLOBALS['sceneKeywordToPlayerJob'][$sceneKeywordRow['keywordID']] == $playerKeywordRow['keywordID'] &&
+       $playerKeywordRow['locationID'] == $_GET['ID']){
+        return true;
+    }
+    return false;
+    */
+}
 
 /**
  *Gets the combat level of the player with the playerID.
@@ -370,12 +392,45 @@ function getTableKeywords($spanTypesType){
 }
 
 /**
- *adds the item to the end of the players description
+ *adds an item to the player's inventory
+ *returns empty string on success, a string on fail
  */
-function addItemToPlayerDescription($itemID, $itemName){
+function addItemNameToPlayer($itemName){
+    //get item ID
+    $idRow = query("select ID from items where playerID=".prepVar($_SESSION['playerID'])." and Name=".prepVar($_GET['Name']));
+        if(is_bool($idRow)){
+            return "You do not have that item";
+    }
+    return addItemIdToPlayer($idRow['ID']);
+}
+/**
+ *adds an item ro the player's inventory
+ *returns string message on fail
+ */
+function addItemIdToPlayer($itemID){
+    //check player desc length -not done
     $row = query("select Description from playerinfo where ID=".prepVar($_SESSION['playerID']));
     $playerDescription = $row['Description'];
+    //check size of item, player room -not done
+    //change playerID for the item
+    query("update items set playerID=".prepVar($_SESSION['playerID'])." where ID=".prepVar($itemID));
+    //add item to player desc
     $playerDescription .= getSpanText(spanTypes::ITEM,$itemID,$itemName);
     query("Update playerinfo set Description=".prepVar($playerDescription)." where ID=".prepVar($_SESSION['playerID']));
+    //add an alert for the player
+    addAlert(alertTypes::newItem);
+    return true;
+}
+/**
+ *removes the item from the player
+ *returns string message on fail
+ */
+function removeItemIdFromPlayer($itemID){
+    $updateRow = query("update items set playerID=0 where playerID=".prepVar($_SESSION['playerID'])." and ID=".prepVar($idRow['ID']));
+    if($updateRow == false){
+        return "You do not have this item";
+    }
+    addAlert(alertTypes::removedItem);
+    return true;
 }
 ?>

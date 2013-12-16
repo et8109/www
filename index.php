@@ -72,12 +72,12 @@ alpha begins!
 ********************************************
 later:
 ********************************************
+a php function to check if player has room for new item
 divide php into more manageable files
-take/add item list does not add an alert. make a helper functino for adding/removing items
 scolling/clicking/autocomplete selection from lists
 js constants page with enums and text
 change waiting so that each wait has its own function to call on hear, rather than all in text/area input method
-change functions so that action is first, such as prompt
+change function names so that action is first, such as prompt
 incorrect username/password message on login
 removeItemFromScene doesnt check for player inventory size
 getInput text should check for < and >

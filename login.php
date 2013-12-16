@@ -6,20 +6,22 @@ $password = "";
 if ($_SERVER['REQUEST_METHOD'] == 'POST'){
 	$username = $_POST['username'];
 	$password = $_POST['password'];
-        $username=smart_quote($username);
-        $password=smart_quote($password);
+        $quotedUsername=smart_quote($username);
+        $quotedPassword=smart_quote($password);
         
 $con = mysqli_connect("Localhost","root","","game");
 //check connection
 if (mysqli_connect_errno()){
     //failed to connect
 }else{
-    $SQL = "select * from playerinfo where Name=$username and Password=$password";
+    $SQL = "select * from playerinfo where Name=$quotedUsername and Password=$quotedPassword";
     $result=mysqli_query($con, $SQL);
 }
 //check result of search
 if($result){
-    if(mysqli_num_rows($result) == 1){
+    if(mysqli_num_rows($result) != 1){
+        //this should not happen
+    }
     //get id of player
     $row = mysqli_fetch_array($result);
     //start a session
@@ -31,7 +33,6 @@ if($result){
     mysqli_free_result($result);
     header("Location: index.php");
     exit;
-    }
 }else{
     mysqli_free_result($result);
     //failed to log in

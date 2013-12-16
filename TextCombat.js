@@ -149,7 +149,8 @@ var alerts ={};
  */
 var alertTypes ={
     NEW_ITEM : 1,
-    HIDDEN_ITEM : 2
+    HIDDEN_ITEM : 2,
+    REMOVED_ITEM : 3
 }
 
 /**
@@ -561,6 +562,7 @@ function addItemToScene(){
             var response = this.responseText;
             if (response == "") {
                 addText("added "+itemName);
+                addAlert(alertTypes.REMOVED_ITEM);
                 return;
             }
             addText(response);
@@ -584,6 +586,7 @@ function removeItemFromScene(){
             var response = this.responseText;
             if (response == "") {
                 addText("you take the "+itemName);
+                addAlert(alertTypes.NEW_ITEM);
                 return;
             }
             addText(response);

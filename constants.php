@@ -7,6 +7,7 @@ final class alertTypes{
     //the number is it's id in db
     const newItem = 1;
     const hiddenItem = 2;
+    const removedItem = 3;
 }
 
 /**
