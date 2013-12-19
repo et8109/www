@@ -1,4 +1,16 @@
 <?php
+/**
+ *the maximum text size in the db
+ */
+final class maxLength {
+    const playerDesc = 1000;
+    const sceneDesc = 1000;
+    const itemDesc = 500;
+    const keywordDesc = 255;
+    const alertDesc = 100;
+    const maxSpanLength = 110;
+}
+
 
 /**
  *types of alerts that can show up in the alert box

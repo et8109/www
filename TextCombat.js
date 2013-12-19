@@ -745,7 +745,7 @@ function putItemIn(itemName, containerName) {
  *pulls up the options to manage a scene if player has the rights
  */
 function manageScene() {
-    adText("edit scene title/desc in progress");
+    addText("edit scene title/desc in progress");
     addText("<span class='active action' onclick='getItemsInScene()'>view items</span>");
     addText("<span class='active action' onclick='addItemToScenePrompt()'>add item</span>");
     addText("<span class='active action' onclick='changeItemNotePrompt()'>change items note</span>");

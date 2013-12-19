@@ -67,13 +67,16 @@ debug
 
 take note of all code practices
 
+start changelog
+
 alpha begins!
 
 ********************************************
 later:
 ********************************************
-a php function to check if player has room for new item
+manage shows up in every scene
 divide php into more manageable files
+    move error messages to a constant
 scolling/clicking/autocomplete selection from lists
 js constants page with enums and text
 change waiting so that each wait has its own function to call on hear, rather than all in text/area input method

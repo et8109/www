@@ -1,5 +1,6 @@
 <?php
 /**
+ *--outdated
  *printDebug
  *getConnection
  *query
@@ -191,7 +192,7 @@ function getSpanText($type, $id, $name){
  *returns additional span text for managing a scene
  */
 function getSpanTextManagingScene($sceneID){
-    return "<span class='active manageScene' onclick='manageScene(".$sceneID.")'>Manage</span>";
+    return "<span class='active action manageScene' onclick='manageScene(".$sceneID.")'>Manage</span>";
 }
 /**
  *returns true if the player can manage this scene
@@ -345,8 +346,34 @@ function updateDescription($ID, $description, $spanTypesType){
             return false;
         }
     }
+    //make sure its under max length
+    $status = checkDescIsUnderMaxLength();
+    if($status < 0){
+        return false;
+    }
     query("update ".$table." set Description=".prepVar($description)." where ID=".prepVar($ID));
     return true;
+}
+
+/**
+ *returns negetive number if too long, positive if ok
+ *number is difference in lengths
+ */
+function checkDescIsUnderMaxLength($desc, $spanType){
+    switch($spanType){
+        case(spanTypes::ITEM):
+            return maxLength::itemDesc - strlen($desc);
+            break;
+        case(spanTypes::KEYWORD):
+            return maxLength::keywordDesc - strlen($desc);
+            break;
+        case(spanTypes::PLAYER):
+            return maxLength::playerDesc - strlen($desc);
+            break;
+        case(spanTypes::SCENE):
+            return maxLength::sceneDesc - strlen($desc);
+            break;
+    }
 }
 
 /**
@@ -394,6 +421,7 @@ function getTableKeywords($spanTypesType){
 /**
  *adds an item to the player's inventory
  *returns empty string on success, a string on fail
+ *checkPlayerCanTakeItem first!
  */
 function addItemNameToPlayer($itemName){
     //get item ID
@@ -404,21 +432,35 @@ function addItemNameToPlayer($itemName){
     return addItemIdToPlayer($idRow['ID']);
 }
 /**
- *adds an item ro the player's inventory
+ *adds an item to the player's inventory
  *returns string message on fail
+ *checkPlayerCanTakeItem first!
  */
 function addItemIdToPlayer($itemID){
-    //check player desc length -not done
-    $row = query("select Description from playerinfo where ID=".prepVar($_SESSION['playerID']));
-    $playerDescription = $row['Description'];
-    //check size of item, player room -not done
     //change playerID for the item
     query("update items set playerID=".prepVar($_SESSION['playerID'])." where ID=".prepVar($itemID));
     //add item to player desc
+    $row = query("select Description from playerinfo where ID=".prepVar($_SESSION['playerID']));
+    $playerDescription = $row['Description'];
     $playerDescription .= getSpanText(spanTypes::ITEM,$itemID,$itemName);
     query("Update playerinfo set Description=".prepVar($playerDescription)." where ID=".prepVar($_SESSION['playerID']));
     //add an alert for the player
     addAlert(alertTypes::newItem);
+    return true;
+}
+/**
+ *makes sure the player can take the described item
+ *returns string on fail, true on success
+ */
+function checkPlayerCanTakeItem($itemSize){
+    //check size of item, player room -not done
+    //check player desc length
+    $row = query("select Description from playerinfo where ID=".prepVar($_SESSION['playerID']));
+    $playerDescription = $row['Description'];
+    $descLength = strlen($playerDescription)+maxLength::maxSpanLength;
+    if($descLength > maxLength::playerDesc){
+        return "Your description is ".$descLength-maxLength::playerDesc." chars too long.";
+    }
     return true;
 }
 /**

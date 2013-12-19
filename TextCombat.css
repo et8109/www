@@ -80,7 +80,8 @@ border: solid 1px brown;
     cursor: pointer;
 }
 .manageScene{/*the button that lets you manage a scene if you have the rights*/
-    color:blue;
+    cursor: pointer;
+    font-size:10px;
 }
 
 /*player name in the hub*/

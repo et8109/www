@@ -70,13 +70,22 @@ switch($function){
          *adds an alert for the player
          */
     case('craftItem'):
+        //make sure the player can take an item
+        $status = checkPlayerCanTakeItem(4);
+        if(is_string($status)){
+            return $status;
+        }
         //make sure all required keyword types were replaced
         $desc = $_GET['Description'];
         foreach(requiredItemKeywordTypes as $type){
             if(!replaceKeywordType($desc, $type)){
-                echo "type ".$type." keyword was not found";
-                return;
+                return "type ".$type." keyword was not found";
             }
+        }
+        //make sure desc length is less than max
+        $status = checkDescIsUnderMaxLength($desc, spanTypes::ITEM);
+        if($status < 0){
+            return "Your description is ".$status*-1." chars too long";
         }
         //add the item into db
         $lastID = lastIDquery("insert into items (playerID, Name, Description) values (".prepVar($_SESSION['playerID']).",".prepVar($_GET['Name']).",".prepVar($desc).")");
@@ -197,7 +206,11 @@ switch($function){
         if(is_bool($idRow)){
             return "That item does not exist";
         }
-        //check that item is in scene -not done
+        //make sure the player can take an item
+        $status = checkPlayerCanTakeItem(4);
+        if(is_string($status)){
+            return $status;
+        }
         //remove item from scene list
         $removeRow = query("delete from itemsInScenes where sceneID=".prepVar($_SESSION['currentScene'])." and itemID=".prepVar($idRow['ID']));
         addItemIdToPlayer($idRow['ID']);
