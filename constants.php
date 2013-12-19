@@ -1,4 +1,9 @@
 <?php
+
+final class constants {
+    const maxPlayerItems = 4;
+    const maxSceneItems = 4;
+}
 /**
  *the maximum text size in the db
  */
@@ -83,4 +88,15 @@ $combatItemKeywords = array(
 $sceneKeywordToPlayerJob = array(
     6 => 7
 );
+
+/**
+ *the names asocciated with each keyword type
+ */
+$keywordTypeNames = array(
+  0 => "container",
+  1 => "material",
+  2 => "quality",
+  3 => "sceneAction"
+);
+
 ?>

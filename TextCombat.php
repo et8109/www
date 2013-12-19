@@ -79,13 +79,13 @@ switch($function){
         $desc = $_GET['Description'];
         foreach(requiredItemKeywordTypes as $type){
             if(!replaceKeywordType($desc, $type)){
-                return "type ".$type." keyword was not found";
+                return "type ".$keywordTypeNames[$type]." keyword was not found";
             }
         }
         //make sure desc length is less than max
         $status = checkDescIsUnderMaxLength($desc, spanTypes::ITEM);
         if($status < 0){
-            return "Your description is ".$status*-1." chars too long";
+            return "Your description is ".(-1*$status)." chars too long";
         }
         //add the item into db
         $lastID = lastIDquery("insert into items (playerID, Name, Description) values (".prepVar($_SESSION['playerID']).",".prepVar($_GET['Name']).",".prepVar($desc).")");
@@ -185,7 +185,11 @@ switch($function){
         if(is_bool($idRow)){
             return "You do not have that item";
         }
-        //check scene size? -not done
+        //make sure scene has less than max items
+        $numItems = query("select count(1) from itemsinscenes where sceneID=".prepVar($_SESSION['currentScene']));
+        if($numItems >= constants::maxSceneItems){
+            return "This location is full already";
+        }
         //remove item from player
         $removedReponse = removeItemIdFromPlayer($idRow['ID']);
         //if could not remove item from player

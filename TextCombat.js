@@ -193,10 +193,9 @@ function textTyped(e){
         return;
     }
     var inputText = getInputText();
-    //<>check
-    if (inputText.indexOf("<") != -1 || inputText.indexOf(">") != -1) {
-        addText("Please don't use < or > ..");
-        return;
+    //make sure input is valid
+    if (inputText == null) {
+        //nothing, skips to clear input
     }
     //command check
     else if(inputText.indexOf("/") == 0){
@@ -428,6 +427,9 @@ waitingForTextLine = textLineInputs.ITEM_NAME;
  */
 function addCraftName(){
     itemName = getInputText();
+    if (itemName == null) {
+        return;
+    }
     openTextArea(itemName+"'s description");
     //has a name, need a description
     request = new XMLHttpRequest();
@@ -536,6 +538,9 @@ function addItemToScenePrompt() {
 function addItemNoteToScenePrompt(){
     //get item name
     itemName = getInputText();
+    if (itemName == null) {
+        return;
+    }
     addText("what is the note for the "+itemName+"?");
     cancelWaits();
     waitingForTextArea = textAreaInputs.NOTE_FOR_ADDING_ITEM;
@@ -576,7 +581,7 @@ function addItemToScene(){
  */
 function removeItemFromScene(){
     var name = getInputText();
-    if (noteText == null) {
+    if (name == null) {
        return; 
     }
     cancelWaits();
@@ -608,6 +613,9 @@ function changeItemNotePrompt() {
  */
 function newNoteTextPromt(){
     itemName = getInputText();
+    if (itemName == null) {
+        return;
+    }
     addText("Edit the note below.");
     cancelWaits();
     waitingForTextLine = textAreaInputs.NEW_ITEM_NOTE_TEXT;
@@ -642,6 +650,9 @@ function attack() {
     waitingForTextLine = textAreaInputs.NOTHING;
     cancelWaits();
     var name = getInputText();
+    if (name == null) {
+        return;
+    }
     request = new XMLHttpRequest();
     request.onreadystatechange = function(){
         if (this.readyState==4 && this.status==200) {
@@ -650,7 +661,7 @@ function attack() {
             }
         }
     }
-    request.open("GET", "TextCombat.php?function=attack&Name="+getInputText(), true);
+    request.open("GET", "TextCombat.php?function=attack&Name="+name, true);
     request.send();
 }
 
@@ -824,9 +835,14 @@ function speak(inputText){
 
 /**
  *returns the text in the input field/text line
+ *returns null if invalid input and prints error
  */
 function getInputText(){
-    return document.getElementById("input").value;
+    var text =  document.getElementById("input").value;
+    if (!validateInput(text)) {
+        return null;
+    }
+    return text;
 }
 
 /**
@@ -849,8 +865,7 @@ function setTextAreaMessage(message){
  */
 function getTextAreaText(){
     var text = document.getElementById("textArea").value;
-    if (text.indexOf("<") != -1 || text.indexOf(">") != -1) {
-        setTextAreaMessage("please don't use < or >");
+    if (!validateInput(text)){
         return null;
     }
     return text;
@@ -859,7 +874,7 @@ function getTextAreaText(){
     *Called when the text area done button is clicked
     *looks at waiting stuff
     */
-function textAreaSumbit() {
+function textAreaSubmit() {
     switch (waitingForTextArea) {
         case(textAreaInputs.PERSONAL_DESCRIPTION):
             setNewDescription();
@@ -1006,4 +1021,19 @@ function toggleFrontLoadKeywords(){
     request.open("GET", "TextCombat.php?function=setFrontLoadKeywords&load="+frontLoad, true);
     request.send();
 }
-
+/**
+ *checks for unwanted input
+ *returns false on fail
+ *pints the error message on its own
+ */
+function validateInput(text){
+    //check for < or >
+    if (text.indexOf("<") != -1 || text.indexOf(">") != -1) {
+        return "please don't use < or >";
+    }
+    //check for empty string
+    if (text.trim == "") {
+        return "that was an empty input";
+    }
+    return true;
+}

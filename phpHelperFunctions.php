@@ -225,7 +225,7 @@ function getCombatLevel($playerID){
     //set initial
     $playerCombatLevel = 0;
     //get player item ids
-    $rowItemIds = queryMulti("select ID from items where playerID=".prepVar($_SESSION['playerID']));
+    $rowItemIds = queryMulti("select ID from items where playerID=".prepVar($_SESSION['playerID'])." and insideOf=0");
     //if player has no items
     if(is_bool($rowItemIds)){
         //nothing
@@ -454,6 +454,11 @@ function addItemIdToPlayer($itemID){
  */
 function checkPlayerCanTakeItem($itemSize){
     //check size of item, player room -not done
+    //check player has less than max items
+    $numItems = query("select count(1) from items where playerID=".prepVar($_SESSION['playerID']));
+    if($numItems >= constants::maxPlayerItems){
+        return "You have too many items";
+    }
     //check player desc length
     $row = query("select Description from playerinfo where ID=".prepVar($_SESSION['playerID']));
     $playerDescription = $row['Description'];

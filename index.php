@@ -63,6 +63,8 @@ think about item sizes/weights and bags again
 
 look over later list
 
+rethink items having sizes
+
 debug
 
 take note of all code practices
@@ -82,16 +84,11 @@ js constants page with enums and text
 change waiting so that each wait has its own function to call on hear, rather than all in text/area input method
 change function names so that action is first, such as prompt
 incorrect username/password message on login
-removeItemFromScene doesnt check for player inventory size
-getInput text should check for < and >
-number of items in the scene is not checked when adding one
 make sure items table has a secondary search set fo playerID
 scenes can only hold 1 list of items/1 job
-should check for scene size when add an item
 auto-completeing when selecting things, like items from your inventory
 javascript can be disabled, double check things on server side
 a logout function, player is removed from sceneplayers when not active..
-some weapons/combat stuf doesnt work if in a container
 add options for each command, custom commands
     add list of players to look
 landmark scenes(essentially seach by scene keyword)
@@ -106,21 +103,15 @@ scrolls/library? A way for players to write thier own lore -> admin hierarchy
     sroll: two types of people, knights and squires. together it is a powerful relationship, but k/k or s/s are easily friends.
     scroll: each month is a cyle of sin (pennance, regret, deciciveness, inaction, ect.)
 darkness/night time has a light setting, where the screen gets darker unless there is a candle/lamp
-get textAreaInput cleans, but getInput does not
 change sql responses to errors, also send to js in setup
-crafting needs type info on fail
 put all types into one big enum?
 cache stuff?
 remove active links is still messed up
 does js .length take linear time?
-echo a bunch of stuff instead of appending to a string first
 updateChat() still replaces spans in the js
-getSpanText() deos not prepvar
 crafting doesn't check crafting skill when looking for craft qualities.
 whitespace problems when looking for keywards, happend in crafting
 find a way to see sql errors
-textAreaSubmit is spelled wrong
-sql required keyword types should be on the lower end to reduce the lendth of the array when crafting items
 php count() is not automatic, and loops through each time. avoid.
 make a string builder
 don't accept wirdt stuf fin inputs, like empystring/blank
@@ -144,7 +135,6 @@ prepVar causes craft item to append an item name with single quotes
 make sure removing an alerts actually removes it, not extends it by null
 add alert check to setup function. set alert and numAlerts
 there is a maximum amount of alerts
-**sometimes an item is not added tot he item list?? -> HAPPENS WHEN TINYTEXT IN PLAYER DESCRIPTION RUNS OUT??
 make sure all variables have var
 only have things on client-side which will not impact anyone else
 find both wood and wooden in descriptions, ect.
@@ -205,7 +195,7 @@ remove \r\n from all input text
         
         <div id="extra">
             <textArea id="textArea"></textArea><br/>
-            <span class="textAreaButton" onclick="textAreaSumbit()">Done</span>
+            <span class="textAreaButton" onclick="textAreaSubmit()">Done</span>
             <span class="textAreaButton" onclick="closeTextArea(), cancelWaits()">Cancel</span><br/>
             <span id="descriptionError"></span>
         </div>
