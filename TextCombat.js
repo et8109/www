@@ -4,6 +4,22 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //Globals
 
+function waitFunc(onHearFunction, onCancelFunction){
+    this.onHear = onHearFunction;
+    this.onCancel = onCancelFunction;
+}
+
+var waitForCraftItemName = new waitFunc(
+    //on hear
+  function(){
+    addCraftName();
+  },
+  //on cancel
+  function() {
+    addText("You decide not to make anything");
+  }
+);
+
 var frontLoadAlertText;
 var frontLoadSceneText;
 var frontLoadKeywords;
@@ -29,7 +45,7 @@ request.onreadystatechange = function(){
         document.getElementById("input").disabled=false;
     }
 }
-request.open("GET", "TextCombat.php?function=setUp", false);
+request.open("GET", "setup.php?function=setUp", false);
 request.send();
 }());
 var alertText ={};
@@ -51,7 +67,7 @@ if (frontLoadAlertText) {
             }
         }
     }
-    request.open("GET", "TextCombat.php?function=frontLoadAlerts", true);
+    request.open("GET", "setup.php?function=frontLoadAlerts", true);
     request.send();
     }());
 }
@@ -69,7 +85,7 @@ if (frontLoadSceneText) {
             }
         }
     }
-    request.open("GET", "TextCombat.php?function=frontLoadScenes", false);
+    request.open("GET", "setup.php?function=frontLoadScenes", false);
     request.send();
     }());
 }
@@ -89,7 +105,7 @@ if (frontLoadKeywords) {
             }
         }
     }
-    request.open("GET", "TextCombat.php?function=frontLoadKeywords", false);
+    request.open("GET", "setup.php?function=frontLoadKeywords", false);
     request.send();
     }());
 }
@@ -441,7 +457,7 @@ function addCraftName(){
             waitingForTextArea = textAreaInputs.ITEM_DESCRIPTION;
         }
     }
-    request.open("GET", "TextCombat.php?function=getCraftInfo", true);
+    request.open("GET", "crafting.php?function=getCraftInfo", true);
     request.send();
 }
 /**
@@ -482,7 +498,7 @@ function addCraftDescription(){
         }
         
     }
-    request.open("GET", "TextCombat.php?function=craftItem&Name="+itemName+"&Description="+itemDescription, true);
+    request.open("GET", "crafting.php?function=craftItem&Name="+itemName+"&Description="+itemDescription, true);
     request.send();
 }
 
@@ -573,7 +589,7 @@ function addItemToScene(){
             addText(response);
         }
     }
-    request.open("GET", "TextCombat.php?function=addItemToScene&Name="+itemName+"&Note="+noteText, true);
+    request.open("GET", "manage.php?function=addItemToScene&Name="+itemName+"&Note="+noteText, true);
     request.send();
 }
 /**
@@ -597,7 +613,7 @@ function removeItemFromScene(){
             addText(response);
         }
     }
-    request.open("GET", "TextCombat.php?function=removeItemFromScene&Name="+itemName, true);
+    request.open("GET", "manage.php?function=removeItemFromScene&Name="+itemName, true);
     request.send();
 }
 /**
@@ -640,7 +656,7 @@ function changeItemNote(){
             addText(response);
         }
     }
-    request.open("GET", "TextCombat.php?function=changeItemNote&Name="+itemName+"&Note="+noteText, true);
+    request.open("GET", "manage.php?function=changeItemNote&Name="+itemName+"&Note="+noteText, true);
     request.send();
 }  
 /**
@@ -661,7 +677,7 @@ function attack() {
             }
         }
     }
-    request.open("GET", "TextCombat.php?function=attack&Name="+name, true);
+    request.open("GET", "combat.php?function=attack&Name="+name, true);
     request.send();
 }
 

@@ -77,11 +77,11 @@ alpha begins!
 later:
 ********************************************
 manage shows up in every scene
-divide php into more manageable files
-    move error messages to a constant
+not all manage links are disabled when one is selected
 scolling/clicking/autocomplete selection from lists
 js constants page with enums and text
-change waiting so that each wait has its own function to call on hear, rather than all in text/area input method
+--change waiting so that each wait has its own function to call on hear, rather than all in text/area input method
+    put the creation of the wait function in the method that calls the wait, not a constant
 change function names so that action is first, such as prompt
 incorrect username/password message on login
 make sure items table has a secondary search set fo playerID
@@ -145,12 +145,9 @@ make some cancelling methods
 loading screen
 add a quality tag to the item description check. commented right now
 make sure everything is searching by ID
-store textBox object in js memory
-a chat for each scene
-"include" php helper functions, or paste them into every php file?
+store textBox object in js memory?
 put chat into db rather than text file?
-no max length for input text/talking
-prepVar type thing for putting into text file
+dynamically change max length of inputs when listening
 don't completely trust js saved variables, like namItems. have a db lookup too
 check to make sure cookies were not changed
 looks for upper case and lower case items in description
@@ -194,7 +191,7 @@ remove \r\n from all input text
         <span id="alert" onclick="openMenu()">alerts</span>
         
         <div id="extra">
-            <textArea id="textArea"></textArea><br/>
+            <textArea id="textArea" maxlength="1000"></textArea><br/>
             <span class="textAreaButton" onclick="textAreaSubmit()">Done</span>
             <span class="textAreaButton" onclick="closeTextArea(), cancelWaits()">Cancel</span><br/>
             <span id="descriptionError"></span>

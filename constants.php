@@ -16,7 +16,6 @@ final class maxLength {
     const maxSpanLength = 110;
 }
 
-
 /**
  *types of alerts that can show up in the alert box
  */
@@ -57,15 +56,6 @@ final class keywordTypes {
 }
 
 /**
- *the keyword types required in all items
- *1: material
- *2:quality
- */
-final class requiredItemKeywordTypes {
-    const material = 1;
-    const quality = 2;
-}
-/**
  *currently empty
  */
 final class requiredSceneKeywordTypes {};
@@ -73,14 +63,6 @@ final class requiredSceneKeywordTypes {};
  *currently empty
  */
 final class requiredPlayerKeywordTypes {};
-
-/**
- * keyword ID => increase in combat skill
- */
-$combatItemKeywords = array(
-    2 => 2,
-    4 => 1
-);
 
 /**
  *scene keyword ID => player job keyword ID
