@@ -77,7 +77,6 @@ alpha begins!
 ********************************************
 later:
 ********************************************
-make errors into throwing exceptions
 location creation needs apprenticeship option
 lots of crafting stuff doesn't work, no error messages
 scolling/clicking/autocomplete selection from lists

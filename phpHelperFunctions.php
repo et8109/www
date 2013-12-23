@@ -256,12 +256,12 @@ function updateDescription($ID, $description, $spanTypesType){
     $table = getTable($spanTypesType);
     $keywordTable = getTableKeywords($spanTypesType);
     if($table == null){
-        return false;
+        return "unfindeable type";
     }
     //get IDs of keywords
     $keywordsResult = queryMulti("select keywordID from ".$keywordTable." where ID=".$ID);
     if(is_bool($keywordsResult)){
-        return false;
+        return "can't find the required keywords";
     }
     //replace one of each keyword ID
     while($keywordRow = mysqli_fetch_array($keywordsResult)){
@@ -269,7 +269,8 @@ function updateDescription($ID, $description, $spanTypesType){
         //if ID not found
         if($description == false){
             mysqli_free_result($keywordsResult);
-            return false;
+            return "yes";
+            //return "could not find keyword type: ".$keywordTypeNames[$keywordRow['keywordID']];
         }
     }
     mysqli_free_result($keywordsResult);
@@ -277,16 +278,16 @@ function updateDescription($ID, $description, $spanTypesType){
     if($spanTypesType == spanTypes::PLAYER){
         $description = replacePlayerItems($description);
         if($description == false){
-            return false;
+            return "not all items found";
         }
     }
     //make sure its under max length
     $status = checkDescIsUnderMaxLength();
     if($status < 0){
-        return false;
+        return "Description is ".(-1*$status)." chars too long";
     }
     query("update ".$table." set Description=".prepVar($description)." where ID=".prepVar($ID));
-    return true;
+    return "successness";//should be return true
 }
 
 /**

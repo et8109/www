@@ -1,40 +1,40 @@
-1385238675
+1387765735
 1
 Ensetym
-<1><>1<><span class='name' onclick='addDesc(1,1)'>Ensetym</span> attacked <span class='name' onclick='addDesc(1,1)'>Ensetym</span>
-1385333976
+bfsdojfds
+1387766707
 1
 Ensetym
-ahaha lol
-1385333984
+ds
+1387766913
 1
 Ensetym
-der we goooo
-1385420461
+suuo
+1387766920
 1
 Ensetym
-<1><>1<><span class='name' onclick='addDesc(1,1)'>Ensetym</span> blocked and retaliated against 0 p--o 0 <span class='name' onclick='addDesc(1,1)'>Ensetym</span>
-1385420634
+hey everyone :)
+1387766940
 1
 Ensetym
-<1><>1<><span class='name' onclick='addDesc(1,1)'>Ensetym</span> blocked and retaliated against 0 p--o 0 <span class='name' onclick='addDesc(1,1)'>Ensetym</span>
-1386038433
+sup!
+1387766951
 1
 Ensetym
-<0><>101<><span class='name' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName' onclick='addDesc(2,101)'>Town Square</span>
-1386038439
+*prepares to cast an epic spell*
+1387766959
 1
 Ensetym
-<0><>101<><span class='name' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName' onclick='addDesc(2,101)'>Town Square</span>
-1386299620
+VVVVBaM!
+1387767889
 1
 Ensetym
-<0><>101<><span class='name' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName' onclick='addDesc(2,101)'>Town Square</span>
-1386302159
+<0><>101<><span class='name' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Town Square</span>
+1387772789
 1
 Ensetym
-<0><>100<><span class='name' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName' onclick='addDesc(2,100)'>Pub</span>
-1386302345
+hihi
+1387772854
 1
 Ensetym
-<0><>101<><span class='name' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName' onclick='addDesc(2,101)'>Town Square</span>
+asd

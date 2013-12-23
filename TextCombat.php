@@ -44,14 +44,7 @@ switch($function){
         break;
     
     case('updateDescription'):
-         if(updateDescription($_SESSION['playerID'], $_GET['Description'], spanTypes::PLAYER)){
-            //if success
-            removeAlert(alertTypes::newItem);
-         }
-         else{
-            //if fail
-            echo "could not update";
-         }
+        return updateDescription($_SESSION['playerID'], $_GET['Description'], spanTypes::PLAYER);
         break;
     
     case('moveScenes'):
@@ -164,5 +157,4 @@ switch($function){
         mysqli_free_result($result);
         break;
 }
-
 ?>

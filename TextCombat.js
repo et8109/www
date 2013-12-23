@@ -354,6 +354,7 @@ function setNewDescription() {
             response = this.responseText;
             //if success
             if (response == "") {
+                alert("success");
                 closeTextArea();
                 //new item, cange description alert
                 removeAlert(alertTypes.NEW_ITEM);
@@ -868,6 +869,7 @@ function openTextArea(message) {
  *sets the message of the text area. does not open it.
  */
 function setTextAreaMessage(message){
+    alert(message);
     document.getElementById("descriptionError").innerHTML = message;
 }
 /**
