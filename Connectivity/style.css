@@ -1,0 +1,13 @@
+body{
+    text-align: center;
+}
+/* a button to click on that does stuff */
+.option{
+    display: block;
+    cursor: pointer;
+    margin: 10px; 
+}
+
+.posQ{
+    visibility: hidden;
+}

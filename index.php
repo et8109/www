@@ -50,12 +50,13 @@ think about item sizes/weights and bags again
         [done]when creating a player description, check player keywords
             [done, except for edit]universalize update desc
         [done]getSpanText gives manage span if the player has the right keyword and location
-        manageScene lets player add/remove from itemsInScene list
+        [doneish]manageScene lets player add/remove from itemsInScene list
             [doneish]adding items to scenes
             [doneish]removing items from scene
             [doneish]change the notes on items
-            lets player minimally change description, with scene keyword check
+        lets player minimally change description, with scene keyword check
         visitors can buy from shop
+        a way to ask for apprenticeship
         
     sendRequest js function
 
@@ -76,12 +77,11 @@ alpha begins!
 ********************************************
 later:
 ********************************************
-manage shows up in every scene
-not all manage links are disabled when one is selected
+make errors into throwing exceptions
+location creation needs apprenticeship option
+lots of crafting stuff doesn't work, no error messages
 scolling/clicking/autocomplete selection from lists
 js constants page with enums and text
---change waiting so that each wait has its own function to call on hear, rather than all in text/area input method
-    put the creation of the wait function in the method that calls the wait, not a constant
 change function names so that action is first, such as prompt
 incorrect username/password message on login
 make sure items table has a secondary search set fo playerID

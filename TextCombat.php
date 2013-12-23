@@ -23,11 +23,15 @@ switch($function){
                 echo getSpanText(spanTypes::PLAYER,$_GET['ID'],$row["Name"])."<>".$row["Description"];
                 break;
             case(spanTypes::SCENE):
-                $row = query("select Name, Description from scenes where ID=".prepVar($_GET['ID']));
+                $row = query("select Name, Description, appshp from scenes where ID=".prepVar($_GET['ID']));
                 echo getSpanText(spanTypes::SCENE,$_GET['ID'],$row["Name"])."<>".$row["Description"];
                 //managing the scene
                 if(checkPlayerManage() == true){
                     echo " ".getSpanTextManagingScene($_GET['ID']);
+                }
+                //apply for apprenticeship
+                else if($row['appshp'] == true){
+                    echo " ".getSpanTextApplyForAppshp($_GET['ID']);
                 }
                 break;
         }

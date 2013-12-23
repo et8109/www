@@ -4,22 +4,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //Globals
 
-function waitFunc(onHearFunction, onCancelFunction){
-    this.onHear = onHearFunction;
-    this.onCancel = onCancelFunction;
-}
-
-var waitForCraftItemName = new waitFunc(
-    //on hear
-  function(){
-    addCraftName();
-  },
-  //on cancel
-  function() {
-    addText("You decide not to make anything");
-  }
-);
-
 var frontLoadAlertText;
 var frontLoadSceneText;
 var frontLoadKeywords;
@@ -41,6 +25,11 @@ request.onreadystatechange = function(){
         frontLoadAlertText = parseInt(response[3]);
         frontLoadSceneText = parseInt(response[4]);
         frontLoadKeywords = parseInt(response[5]);
+        //see if alerts button should be gold
+        var numAlerts = parseInt(response[6]);
+        if (numAlerts > 0) {
+            document.getElementById("alert").style.color="gold";
+        }
         //allow input
         document.getElementById("input").disabled=false;
     }
@@ -660,6 +649,12 @@ function changeItemNote(){
     request.send();
 }  
 /**
+ *asks the owner of the location if the player can be an apprentice
+ */
+function applyappshp(){
+    addText("[apprenticeships not done yet]");
+}
+/**
 *find who the player want to attack, after /attack
 */
 function attack() {
@@ -787,7 +782,7 @@ function manageScene() {
 
 /**
  *adds an alert to the list.
- *doe snot add to the db
+ *does not add to the db
  */
 function addAlert(alertType) {
     if (alerts[alertType]) {
@@ -827,16 +822,16 @@ function addText(text) {
 *Deactivates all spans with class active
 */
 function deactivateActiveLinks(){
-    var previous = document.getElementsByClassName("active");
-    for(var i=0; i<previous.length; i++){
-        previous[i].setAttribute("onclick", null);
-        previous[i].setAttribute("class", "inactive");
-    }
-    //sometimes the last is skipped
-    skipped = document.getElementsByClassName("active");
-    if (skipped.length>0){
-        skipped[0].setAttribute("onclick", null);
-        skipped[0].setAttribute("class", "inactive");
+    var previous = document.getElementsByClassName('active');
+    var numDeactivated = 0;
+    var numTotal = previous.length;
+    while(numDeactivated < numTotal){
+        previous = document.getElementsByClassName('active');
+        for(var i=0; i<previous.length; i++){
+            previous[i].setAttribute("onclick", null);
+            previous[i].setAttribute("class", "inactive");
+            numDeactivated++;
+        }
     }
 }
 

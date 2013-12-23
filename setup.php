@@ -13,6 +13,9 @@ switch($function){
         echo "<>".$row['frontLoadAlerts'];
         echo "<>".$row['frontLoadScenes'];
         echo "<>".$row['frontLoadKeywords'];
+        //find if the player has a alert
+        $alertCount = query("select count(1) from playeralerts where playerID=".$_SESSION['playerID']);
+        echo "<>".$alertCount[0];
         //add player to scene list
         query("insert into sceneplayers (sceneID,playerID,playerName) values(".prepVar($_SESSION['currentScene']).",".prepVar($_SESSION['playerID']).",".prepVar($_SESSION['playerName']).")");
 

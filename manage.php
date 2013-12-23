@@ -1,35 +1,5 @@
 <?php
 
-/**
- *returns additional span text for managing a scene
- */
-function getSpanTextManagingScene($sceneID){
-    return "<span class='active action manageScene' onclick='manageScene(".$sceneID.")'>Manage</span>";
-}
-/**
- *returns true if the player can manage this scene
- *false if they can't
- */
-function checkPlayerManage(){
-    //only works because there is 1 job per scene
-    $keywordRow = query("select ID from playerkeywords where ID=".prepVar($_SESSION['playerID'])." and type=".keywordTypes::PLAYER_JOB." and locationID=".prepVar($_SESSION['currentScene']));
-    if(is_bool($keywordRow)){
-        return false;
-    }
-    return true;
-    /* for multiple jobs in 1 scene
-    $playerKeywordRow = query("select locationID,keywordID from playerkeywords where ID=".prepVar($_SESSION['playerID'])." and type=".keywordTypes::PLAYER_JOB);
-    $sceneKeywordRow = query("select keywordID from scenekeywords where type=".keywordTypes::SCENE_ACTION);
-    //scene keyword matches plyer job keyword && correct location
-    if($GLOBALS['sceneKeywordToPlayerJob'][$sceneKeywordRow['keywordID']] == $playerKeywordRow['keywordID'] &&
-       $playerKeywordRow['locationID'] == $_GET['ID']){
-        return true;
-    }
-    return false;
-    */
-}
-
-
 session_start();
 include 'phpHelperFunctions.php';
 //set connection

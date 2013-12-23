@@ -183,7 +183,8 @@ function getSpanText($type, $id, $name){
             return "<span class='name' onclick='addDesc(".spanTypes::PLAYER.",".$id.")'>".$name."</span>";
             break;
         case(spanTypes::SCENE):
-            return "<span class='sceneName' onclick='addDesc(".spanTypes::SCENE.",".$id.")'>".$name."</span>";
+            return "<span class='sceneName'>".$name."</span>";
+            //return "<span class='sceneName' onclick='addDesc(".spanTypes::SCENE.",".$id.")'>".$name."</span>";
             break;
     }
 }
@@ -412,5 +413,42 @@ function removeItemIdFromPlayer($itemID){
     }
     addAlert(alertTypes::removedItem);
     return true;
+}
+
+/**
+ *returns true if the player can manage this scene
+ *false if they can't
+ */
+function checkPlayerManage(){
+    //only works because there is 1 job per scene
+    $keywordRow = query("select count(1) from playerkeywords where ID=".prepVar($_SESSION['playerID'])." and type=".keywordTypes::PLAYER_JOB." and locationID=".prepVar($_SESSION['currentScene']));
+    if($keywordRow != 1){
+        return false;
+    }
+    return true;
+    /* for multiple jobs in 1 scene
+    $playerKeywordRow = query("select locationID,keywordID from playerkeywords where ID=".prepVar($_SESSION['playerID'])." and type=".keywordTypes::PLAYER_JOB);
+    $sceneKeywordRow = query("select keywordID from scenekeywords where type=".keywordTypes::SCENE_ACTION);
+    //scene keyword matches plyer job keyword && correct location
+    if($GLOBALS['sceneKeywordToPlayerJob'][$sceneKeywordRow['keywordID']] == $playerKeywordRow['keywordID'] &&
+       $playerKeywordRow['locationID'] == $_GET['ID']){
+        return true;
+    }
+    return false;
+    */
+}
+
+/**
+ *returns additional span text for managing a scene
+ */
+function getSpanTextManagingScene($sceneID){
+    return "<span class='active action manageScene' onclick='manageScene(".$sceneID.")'>Manage</span>";
+}
+
+/**
+ *returns additional span text for applying for an apprenticeship
+ */
+function getSpanTextApplyForAppshp($sceneID){
+    return "<span class='active action applyAppshp' onclick='applyappshp(".$sceneID.")'>Apply to be an apprentice</span>";
 }
 ?>
