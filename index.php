@@ -54,13 +54,17 @@ think about item sizes/weights and bags again
             [doneish]adding items to scenes
             [doneish]removing items from scene
             [doneish]change the notes on items
-        lets player minimally change description, with scene keyword check
+        [done]lets player minimally change description, with scene keyword check
         visitors can buy from shop
+            trading between players
         a way to ask for apprenticeship
         
     [done]sendRequest js function
         [done]constant error recieving
         [done]a php error sender function
+        
+        responsibility hierarchy
+            email supprt
 
     make a library
 

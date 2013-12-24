@@ -232,6 +232,7 @@ function replacePlayerItems($description){
         }
     }
     mysqli_free_result($itemNamesResult);
+    return $description;
 }
 
 /**
@@ -261,12 +262,9 @@ function updateDescription($ID, $description, $spanTypesType){
     //if a player, make sure items are there
     if($spanTypesType == spanTypes::PLAYER){
         $description = replacePlayerItems($description);
-        if($description == false){
-            sendError("not all items found");
-        }
     }
     //make sure its under max length
-    checkDescIsUnderMaxLength();
+    checkDescIsUnderMaxLength($description,$spanTypesType);
     query("update ".$table." set Description=".prepVar($description)." where ID=".prepVar($ID));
     return true;
 }
@@ -274,6 +272,7 @@ function updateDescription($ID, $description, $spanTypesType){
 /**
  *sends error if too short,
  *return num left if ok
+ *scene is scene desc
  */
 function checkDescIsUnderMaxLength($desc, $spanType){
     $resultNum = 0;
@@ -311,7 +310,7 @@ function getTable($spanTypesType){
             return 'items';
             break;
         case(spanTypes::PLAYER):
-            return 'playerInfo';
+            return 'playerinfo';
             break;
         case(spanTypes::KEYWORD):
             return 'keywords';
@@ -332,7 +331,7 @@ function getTableKeywords($spanTypesType){
             return 'items';
             break;
         case(spanTypes::PLAYER):
-            return 'playerInfo';
+            return 'playerkeywords';
             break;
         case(spanTypes::KEYWORD):
             return 'keywords';

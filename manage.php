@@ -56,5 +56,13 @@ switch($function){
         }
         query("update itemsinscenes set note=".prepVar($_GET['Note'])." where itemID=".$idRow['ID']);
         break;
+    
+    case('changeSceneDesc'):
+        //check player manage keyword/permission
+        if(checkPlayerManage == false){
+            sendError("You don't have permission");
+        }
+        updateDescription($_SESSION['currentScene'],$_GET['desc'],spanTypes::SCENE);
+        break;
 }
 ?>

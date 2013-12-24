@@ -19,28 +19,26 @@ switch($function){
                 echo getSpanText(spanTypes::KEYWORD,$_GET['ID'],$_GET['ID'])."<>".$row["Description"];
                 break;
             case(spanTypes::PLAYER):
-                $row = query("select Name, Description from playerinfo where ID=".prepVar($_GET['ID']));
-                echo getSpanText(spanTypes::PLAYER,$_GET['ID'],$row["Name"])."<>".$row["Description"];
+                //if no id is set, make it the player
+                $ID = isset($_GET['ID']) : $_GET['ID'] ? $_SESSION['playerID'];
+                $row = query("select Name, Description from playerinfo where ID=".prepVar($ID));
+                echo getSpanText(spanTypes::PLAYER,$ID,$row["Name"])."<>".$row["Description"];
                 break;
             case(spanTypes::SCENE):
-                $row = query("select Name, Description, appshp from scenes where ID=".prepVar($_GET['ID']));
-                echo getSpanText(spanTypes::SCENE,$_GET['ID'],$row["Name"])."<>".$row["Description"];
+                //if no id set, it's the current scene
+                $ID = isset($_GET['ID']) : $_GET['ID'] ? $_SESSION['currentScene'];
+                $row = query("select Name, Description, appshp from scenes where ID=".prepVar($ID));
+                echo getSpanText(spanTypes::SCENE,$ID,$row["Name"])."<>".$row["Description"];
                 //managing the scene
                 if(checkPlayerManage() == true){
-                    echo " ".getSpanTextManagingScene($_GET['ID']);
+                    echo " ".getSpanTextManagingScene($ID);
                 }
                 //apply for apprenticeship
                 else if($row['appshp'] == true){
-                    echo " ".getSpanTextApplyForAppshp($_GET['ID']);
+                    echo " ".getSpanTextApplyForAppshp($ID);
                 }
                 break;
         }
-        break;
-    
-    //when player looks at thier own desc
-    case('getPlayerDescription'):
-            $row = query("select Description from playerinfo where ID=".prepVar($_SESSION['playerID']));
-            echo $row["Description"];
         break;
     
     case('updateDescription'):

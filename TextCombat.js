@@ -111,7 +111,8 @@ var textAreaInputs = {
     PERSONAL_DESCRIPTION : 1,
     ITEM_DESCRIPTION : 2,
     NOTE_FOR_ADDING_ITEM : 3,
-    NEW_ITEM_NOTE_TEXT : 4
+    NEW_ITEM_NOTE_TEXT : 4,
+    NEW_SCENE_DESC : 5
 };
 /**
  *The possible inputs from the main text line
@@ -271,11 +272,15 @@ function textTyped(e){
 */
 function updateChat(){
     sendRequest("FilesBack.php?function=updateChat",
-        function(){
+        function(response){
+            if (response=="") {
+                //nothing
+                return;
+            }
             response = response.split("\r\n");
-            //if an action, not a chat
 	    if (response.length>1) {
 		for(var i=0; i<response.length; i+=3){
+                    //if an action, not a chat
                     if (response[i+2].indexOf("<") == 1) {
                         var type = parseInt(response[i+2].charAt(2));
                         switch(type){
@@ -291,11 +296,11 @@ function updateChat(){
                                 break;
                         }
                     }
+                    //if a chat
+                    else{
+                        addText("<span class='name' onclick='addDesc("+spanTypes.PLAYER+","+response[i]+")'>"+response[i+1]+"</span>: "+response[i+2]);
+                    }
                 }
-            }
-            else{
-            //if a chat
-            addText("<span class='name' onclick='addDesc("+spanTypes.PLAYER+","+response[i]+")'>"+response[i+1]+"</span>: "+response[i+2]);
             }
         }
     );
@@ -379,10 +384,12 @@ function walk(newSceneId) {
     */
 function displayMyDesc() {
     openTextArea("enter a new description");
-    sendRequest("TextCombat.php?function=getPlayerDescription",
+    sendRequest("TextCombat.php?function=getDesc&type="+spanTypes.PLAYER,
         function(response){
+            //first is name, second id desc
+            response = response.split("<>");
             //remove styling, not visible in text area
-            document.getElementById("textArea").value=response.replace(/(<([^>]+)>)/ig,"");
+            setTextAreaText(removeHtmlStyling(response[1]));
         }
     );
     cancelWaits();
@@ -569,6 +576,23 @@ function newNoteTextPromt(){
     waitingForTextLine = textAreaInputs.NEW_ITEM_NOTE_TEXT;
 }
 /**
+ *prompts for the new scene description
+ */
+function newSceneDescPrompt() {
+    addText("Edit the description below.");
+    cancelWaits();
+    //get scene desc
+    sendRequest("TextCombat.php?function=getDesc&type="+spanTypes.SCENE,
+        function(response){
+            openTextArea();
+            //first is name, second is desc
+            response=response.split("<>");
+            setTextAreaText(removeHtmlStyling(response[1]));
+            waitingForTextLine = textAreaInputs.NEW_ITEM_NOTE_TEXT;
+        }
+    );
+}
+/**
  *gets the note text and changes the item note
  */
 function changeItemNote(){
@@ -584,6 +608,22 @@ function changeItemNote(){
         }
     );
 }  
+/**
+ *reuests to change the description of this scene
+ */
+function editSceneDesc(){
+    var desc = getTextAreaText();
+    if (desc == null) {
+        //nothing
+        return;
+    }
+    cancelWaits();
+    sendRequest("manage.php?function=changeSceneDesc&desc="+desc,
+        function(response){
+           addText("changed scene description"); 
+        }
+    );
+}
 /**
  *asks the owner of the location if the player can be an apprentice
  */
@@ -687,7 +727,8 @@ function putItemIn(itemName, containerName) {
  *pulls up the options to manage a scene if player has the rights
  */
 function manageScene() {
-    addText("edit scene title/desc in progress");
+    //addText("can't edit scene title yet");
+    addText("<span class='active action' onclick='newSceneDescPrompt()'>edit scene desc</span>");
     addText("<span class='active action' onclick='getItemsInScene()'>view items</span>");
     addText("<span class='active action' onclick='addItemToScenePrompt()'>add item</span>");
     addText("<span class='active action' onclick='changeItemNotePrompt()'>change items note</span>");
@@ -777,11 +818,18 @@ function getInputText(){
 }
 
 /**
-* Opens the bottom text area, sets the value and error to blank
+* Opens the bottom text area, sets the value to blank
 */
-function openTextArea(message) {
+function openTextArea() {
     document.getElementById("textArea").value="";
     document.getElementById("extra").style.display="block";
+}
+/**
+ *sets the text area value
+ *use removeHtmlStyling beforehand
+ */
+function setTextAreaText(text){
+    document.getElementById("textArea").value=text;
 }
 /**
  *sets the message of the text area. does not open it.
@@ -817,6 +865,9 @@ function textAreaSubmit() {
             break;
         case(textAreaInputs.NEW_ITEM_NOTE_TEXT):
             changeItemNote();
+            break;
+        case(textAreaInputs.NEW_SCENE_DESC):
+            editSceneDesc();
             break;
     }
 }
@@ -899,7 +950,13 @@ function cancelWaits() {
 function isWaiting() {
     return(waitingForTextArea != textAreaInputs.NOTHING || waitingForTextLine != textLineInputs.NOTHING);
 }
-
+/**
+ *removes the html from the text
+ *returns the new text
+ */
+function removeHtmlStyling(text){
+    return text.replace(/(<([^>]+)>)/ig,"");
+}
 /**
  *switches whether the alert text is front loaded or not
  *also tells db
