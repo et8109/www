@@ -1,27 +1,5 @@
 <?php
-/**
- *--outdated
- *printDebug
- *getConnection
- *query
- *  queryMulti
- *  lastIDQuery
- *prepVar
- *addChatText
- *  speakAction
- *  updateChatTime
- *addAlert
- *  removeAlert
- *getSpanText
- *  getSpanTextManagingScene
- *getCombatLevel
- *replaceKeywordType
- *  replaceKeywordID
- *  replacePlayerItems
- *updateDescription
- *getTable
- *  getTableKeywords
- */
+
 include_once 'constants.php';
 
 /**
@@ -42,8 +20,7 @@ function getConnection(){
     $con = mysqli_connect("Localhost","root","","game");
     //check connection
     if (mysqli_connect_errno()){
-        die("could not connect to db");
-        //failed
+        sendError("could not connect");
     }
     return $con;
 }
@@ -80,8 +57,8 @@ function queryMulti($sql){
  *uses $GLOBALS['con']. doesn't work if not set
  */
 function lastIDQuery($sql){
-        mysqli_query($GLOBALS['con'], $sql);
-        return mysqli_insert_id($GLOBALS['con']);
+    mysqli_query($GLOBALS['con'], $sql);
+    return mysqli_insert_id($GLOBALS['con']);
         
 }
 
@@ -98,6 +75,14 @@ function prepVar($var){
     return $var;
 }
 
+/**
+ *sends the error to the client
+ *terminates all php
+ */
+function sendError($message){
+    echo "<<".$message;
+    die();
+}
 $fileName = "chats/".$_SESSION['currentScene']."Chat.txt";
 /**
  *adds the given text to the current chat file
@@ -216,6 +201,7 @@ function replaceKeywordID($desc, $ID){
     for($i=0; i<$descArrayLength; $i++){
         $keywordRow = query("select ID from keywordwords where Word=".prepVar($descArray[$i])." and ID=".prepVar($ID));
         if(!is_bool($keywordRow)){
+            //found, success
             $descArray[$i] = getSpanText(spanTypes::KEYWORD,$descArray[$i],$descArray[$i]);
             return implode(" ",$descArray);
         }
@@ -225,20 +211,20 @@ function replaceKeywordID($desc, $ID){
 
 /**
  *replaces all items in the player's description
- *returns false if not found
+ *sends error if not found
  */
 function replacePlayerItems($description){
     //find item names
     $itemNamesResult = queryMulti("select Name from items where playerID=".prepVar($_SESSION['playerID'])." and insideOf=0");
     //if failed in query
     if(is_bool($itemNamesResult)){
-        return false;
+        sendError("could not find item names");
     }
     while($itemRow = mysqli_fetch_array($itemNamesResult)){
         //if an item is not found
         if(strpos($description, $itemRow['Name']) == false){
             mysqli_free_result($itemNamesResult);
-            return false;
+            sendError("description does not contain ".$itemRow['Name']);
         }
         else{
             //the item was found
@@ -250,27 +236,25 @@ function replacePlayerItems($description){
 
 /**
  *updates a description in the db
- *returns false if failed
+ *sends error on fail
  */
 function updateDescription($ID, $description, $spanTypesType){
     $table = getTable($spanTypesType);
     $keywordTable = getTableKeywords($spanTypesType);
     if($table == null){
-        return "unfindeable type";
+        sendError("unfindeable type");
     }
     //get IDs of keywords
     $keywordsResult = queryMulti("select keywordID from ".$keywordTable." where ID=".$ID);
     if(is_bool($keywordsResult)){
-        return "can't find the required keywords";
+        sendError("can't find the required keywords");
     }
     //replace one of each keyword ID
     while($keywordRow = mysqli_fetch_array($keywordsResult)){
         $description = replaceKeywordID($description,$keywordRow['keywordID']);
         //if ID not found
         if($description == false){
-            mysqli_free_result($keywordsResult);
-            return "yes";
-            //return "could not find keyword type: ".$keywordTypeNames[$keywordRow['keywordID']];
+            sendError("could not find keyword type: ".$keywordTypeNames[$keywordRow['keywordID']]);
         }
     }
     mysqli_free_result($keywordsResult);
@@ -278,36 +262,40 @@ function updateDescription($ID, $description, $spanTypesType){
     if($spanTypesType == spanTypes::PLAYER){
         $description = replacePlayerItems($description);
         if($description == false){
-            return "not all items found";
+            sendError("not all items found");
         }
     }
     //make sure its under max length
-    $status = checkDescIsUnderMaxLength();
-    if($status < 0){
-        return "Description is ".(-1*$status)." chars too long";
-    }
+    checkDescIsUnderMaxLength();
     query("update ".$table." set Description=".prepVar($description)." where ID=".prepVar($ID));
-    return "successness";//should be return true
+    return true;
 }
 
 /**
- *returns negetive number if too long, positive if ok
- *number is difference in lengths
+ *sends error if too short,
+ *return num left if ok
  */
 function checkDescIsUnderMaxLength($desc, $spanType){
+    $resultNum = 0;
     switch($spanType){
         case(spanTypes::ITEM):
-            return maxLength::itemDesc - strlen($desc);
+            $resultNum = maxLength::itemDesc - strlen($desc);
             break;
         case(spanTypes::KEYWORD):
-            return maxLength::keywordDesc - strlen($desc);
+            $resultNum = maxLength::keywordDesc - strlen($desc);
             break;
         case(spanTypes::PLAYER):
-            return maxLength::playerDesc - strlen($desc);
+            $resultNum = maxLength::playerDesc - strlen($desc);
             break;
         case(spanTypes::SCENE):
-            return maxLength::sceneDesc - strlen($desc);
+            $resultNum = maxLength::sceneDesc - strlen($desc);
             break;
+    }
+    if($resultNum < 0){
+        sendError("Your description is ".(-1*$status)." chars too long");
+    }
+    else{
+        return $resultNum;
     }
 }
 
@@ -355,20 +343,20 @@ function getTableKeywords($spanTypesType){
 
 /**
  *adds an item to the player's inventory
- *returns empty string on success, a string on fail
+ *returns empty string on success
+ *sends error on fail
  *checkPlayerCanTakeItem first!
  */
 function addItemNameToPlayer($itemName){
     //get item ID
     $idRow = query("select ID from items where playerID=".prepVar($_SESSION['playerID'])." and Name=".prepVar($_GET['Name']));
         if(is_bool($idRow)){
-            return "You do not have that item";
+            sendError("You do not have that item");
     }
     return addItemIdToPlayer($idRow['ID']);
 }
 /**
  *adds an item to the player's inventory
- *returns string message on fail
  *checkPlayerCanTakeItem first!
  */
 function addItemIdToPlayer($itemID){
@@ -385,32 +373,29 @@ function addItemIdToPlayer($itemID){
 }
 /**
  *makes sure the player can take the described item
- *returns string on fail, true on success
+ *sends error on fail, returns true on success
  */
 function checkPlayerCanTakeItem($itemSize){
     //check size of item, player room -not done
     //check player has less than max items
     $numItems = query("select count(1) from items where playerID=".prepVar($_SESSION['playerID']));
     if($numItems >= constants::maxPlayerItems){
-        return "You have too many items";
+        sendError("You have too many items");
     }
     //check player desc length
     $row = query("select Description from playerinfo where ID=".prepVar($_SESSION['playerID']));
     $playerDescription = $row['Description'];
-    $descLength = strlen($playerDescription)+maxLength::maxSpanLength;
-    if($descLength > maxLength::playerDesc){
-        return "Your description is ".$descLength-maxLength::playerDesc." chars too long.";
-    }
+    checkDescIsUnderMaxLength($playerDescription.maxLength::maxSpanLength);
     return true;
 }
 /**
  *removes the item from the player
- *returns string message on fail
+ *sends error on fail
  */
 function removeItemIdFromPlayer($itemID){
     $updateRow = query("update items set playerID=0 where playerID=".prepVar($_SESSION['playerID'])." and ID=".prepVar($idRow['ID']));
     if($updateRow == false){
-        return "You do not have this item";
+        sendError("You do not have this item");
     }
     addAlert(alertTypes::removedItem);
     return true;

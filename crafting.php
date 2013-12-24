@@ -24,10 +24,7 @@ switch($function){
          */
     case('craftItem'):
         //make sure the player can take an item
-        $status = checkPlayerCanTakeItem(4);
-        if(is_string($status)){
-            return $status;
-        }
+        checkPlayerCanTakeItem(4);
         //make sure all required keyword types were replaced
         $desc = $_GET['Description'];
         foreach(requiredItemKeywordTypes as $type){
@@ -36,10 +33,7 @@ switch($function){
             }
         }
         //make sure desc length is less than max
-        $status = checkDescIsUnderMaxLength($desc, spanTypes::ITEM);
-        if($status < 0){
-            return "Your description is ".(-1*$status)." chars too long";
-        }
+        checkDescIsUnderMaxLength($desc, spanTypes::ITEM);
         //add the item into db
         $lastID = lastIDquery("insert into items (playerID, Name, Description) values (".prepVar($_SESSION['playerID']).",".prepVar($_GET['Name']).",".prepVar($desc).")");
         //give the item a size

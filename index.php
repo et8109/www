@@ -58,7 +58,9 @@ think about item sizes/weights and bags again
         visitors can buy from shop
         a way to ask for apprenticeship
         
-    sendRequest js function
+    [done]sendRequest js function
+        [done]constant error recieving
+        [done]a php error sender function
 
     make a library
 
@@ -183,6 +185,7 @@ remove \r\n from all input text
         <br/>
         <!-- holds the input, buttons, and text area -->
         <div id="hub">
+        <span id="error"></span></br>
         <input id="input" disabled="true" type="text" id="input" maxlength="100" onkeypress="textTyped(event)"></input></br>
         <span id="logout"><a href="logout.php">log out</a></span>
         <span id="hubName" onclick="displayMyDesc()"><?php echo $_SESSION['playerName']; ?></span>
@@ -193,7 +196,6 @@ remove \r\n from all input text
             <textArea id="textArea" maxlength="1000"></textArea><br/>
             <span class="textAreaButton" onclick="textAreaSubmit()">Done</span>
             <span class="textAreaButton" onclick="closeTextArea(), cancelWaits()">Cancel</span><br/>
-            <span id="descriptionError"></span>
         </div>
         </div>
         <!-- The notifications popup -->

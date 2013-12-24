@@ -270,14 +270,12 @@ function textTyped(e){
 *adds the lines to the text box
 */
 function updateChat(){
-    request = new XMLHttpRequest();
-    request.onreadystatechange = function(){
-	if (this.readyState==4 && this.status==200) {
-	    response = this.responseText;
-	    response = response.split("\r\n");
+    sendRequest("FilesBack.php?function=updateChat",
+        function(){
+            response = response.split("\r\n");
+            //if an action, not a chat
 	    if (response.length>1) {
 		for(var i=0; i<response.length; i+=3){
-                    //if an action, not a chat
                     if (response[i+2].indexOf("<") == 1) {
                         var type = parseInt(response[i+2].charAt(2));
                         switch(type){
@@ -293,16 +291,14 @@ function updateChat(){
                                 break;
                         }
                     }
-                    else{
-                    //if a chat
-		    addText("<span class='name' onclick='addDesc("+spanTypes.PLAYER+","+response[i]+")'>"+response[i+1]+"</span>: "+response[i+2]);
-                    }
                 }
-	    }
-	}
-    }
-    request.open("GET", "FilesBack.php?function=updateChat", true);
-    request.send();
+            }
+            else{
+            //if a chat
+            addText("<span class='name' onclick='addDesc("+spanTypes.PLAYER+","+response[i]+")'>"+response[i+1]+"</span>: "+response[i+2]);
+            }
+        }
+    );
 }
 
 /**
@@ -326,17 +322,14 @@ function addDesc(type, id) {
             }
             break;
     }
-    request = new XMLHttpRequest();
-    request.onreadystatechange = function(){
-        if (this.readyState==4 && this.status==200) {
-            response = this.responseText.split("<>");
+    sendRequest("TextCombat.php?function=getDesc&type="+type+"&ID="+id,
+        function(response) {
+            response = response.split("<>");
             addText(response[0]);
             addText(response[1]);
         }
-    }
-    request.open("GET", "TextCombat.php?function=getDesc&type="+type+"&ID="+id, true);
-    request.send();
-    }
+    );
+}
   
 /**
 *Sets the player's new description after checking for inventory items, no < or >.
@@ -348,26 +341,14 @@ function setNewDescription() {
     if (null == newDescription) {
         return;
     }
-    request = new XMLHttpRequest();
-    request.onreadystatechange = function(){
-        if (this.readyState==4 && this.status==200) {
-            response = this.responseText;
-            //if success
-            if (response == "") {
-                alert("success");
-                closeTextArea();
-                //new item, cange description alert
-                removeAlert(alertTypes.NEW_ITEM);
-                waitingForTextArea=textAreaInputs.NOTHING;
-            }
-            //if something was wrong
-            else{
-                setTextAreaMessage(response);
-            }
+    sendRequest("TextCombat.php?function=updateDescription&Description="+newDescription,
+        function(response) {
+            closeTextArea();
+            //new item, cange description alert
+            removeAlert(alertTypes.NEW_ITEM);
+            waitingForTextArea=textAreaInputs.NOTHING;
         }
-    }
-    request.open("GET", "TextCombat.php?function=updateDescription&Description="+newDescription, true);
-    request.send();
+    );
 }
 
 
@@ -382,16 +363,13 @@ function walk(newSceneId) {
     if (frontLoadSceneText) {
         addDesc(spanTypes.SCENE, newSceneId);
     }
-    request = new XMLHttpRequest();
-    request.onreadystatechange = function(){
-            if (this.readyState==4 && this.status==200) {
-                if (!frontLoadSceneText) {
-                    addDesc(spanTypes.SCENE, newSceneId);
-                }
+    sendRequest("TextCombat.php?function=moveScenes&newScene="+newSceneId,
+        function(response){
+            if (!frontLoadSceneText) {
+                addDesc(spanTypes.SCENE, newSceneId);
             }
-    }
-    request.open("GET", "TextCombat.php?function=moveScenes&newScene="+newSceneId, true);
-    request.send();
+        }
+    );
     cancelWaits();
     closeTextArea();
 }
@@ -401,16 +379,12 @@ function walk(newSceneId) {
     */
 function displayMyDesc() {
     openTextArea("enter a new description");
-    request = new XMLHttpRequest();
-    request.onreadystatechange = function(){
-        if (this.readyState==4 && this.status==200) {
-            response = this.responseText;
+    sendRequest("TextCombat.php?function=getPlayerDescription",
+        function(response){
             //remove styling, not visible in text area
             document.getElementById("textArea").value=response.replace(/(<([^>]+)>)/ig,"");
         }
-    }
-    request.open("GET", "TextCombat.php?function=getPlayerDescription", true);
-    request.send();
+    );
     cancelWaits();
     waitingForTextArea = textAreaInputs.PERSONAL_DESCRIPTION;
 }
@@ -438,17 +412,14 @@ function addCraftName(){
     }
     openTextArea(itemName+"'s description");
     //has a name, need a description
-    request = new XMLHttpRequest();
-    request.onreadystatechange = function(){
-        if (this.readyState==4 && this.status==200) {
+    sendRequest("crafting.php?function=getCraftInfo",
+        function(response){
             waitingForTextLine = textLineInputs.NOTHING;
             cancelWaits();
-            addText("Your craftSkill is "+this.responseText+ ". enter the "+itemName+"'s description below. Your tags are: tags not done yet");
+            addText("Your craftSkill is "+response+ ". enter the "+itemName+"'s description below. Your tags are: tags not done yet");
             waitingForTextArea = textAreaInputs.ITEM_DESCRIPTION;
         }
-    }
-    request.open("GET", "crafting.php?function=getCraftInfo", true);
-    request.send();
+    );
 }
 /**
  *When and items description is given, and a name was already chosen
@@ -465,31 +436,20 @@ function addCraftDescription(){
         return;
     }
     //input into database
-    request = new XMLHttpRequest();
-    request.onreadystatechange = function(){
-        if (this.readyState==4 && this.status==200) {
-            //on success
-            if(this.responseText == ""){
-                addText("You make a "+itemName);
-                closeTextArea();
-                waitingForTextArea = textAreaInputs.NOTHING;
-                cancelWaits();
-                //new item in inventory alert
-                //also in db
-                addAlert(alertTypes.NEW_ITEM);
-                //sound
-                playSound("anvil");
-                itemName = "";
-            }
-            //something was wrong
-            else{
-                addText(this.responseText);
-            }
+    sendRequest("crafting.php?function=craftItem&Name="+itemName+"&Description="+itemDescription,
+        function(response){
+            addText("You make a "+itemName);
+            closeTextArea();
+            waitingForTextArea = textAreaInputs.NOTHING;
+            cancelWaits();
+            //new item in inventory alert
+            //also in db
+            addAlert(alertTypes.NEW_ITEM);
+            //sound
+            playSound("anvil");
+            itemName = "";
         }
-        
-    }
-    request.open("GET", "crafting.php?function=craftItem&Name="+itemName+"&Description="+itemDescription, true);
-    request.send();
+    );
 }
 
 /**
@@ -512,10 +472,8 @@ function startWaiter(){
  *prints empty text if nothing was found
  */
 function getItemsInScene(onEmptyText){
-    request = new XMLHttpRequest();
-    request.onreadystatechange = function(){
-        if (this.readyState==4 && this.status==200) {
-            var response = this.responseText;
+    sendRequest("TextCombat.php?function=getItemsInScene",
+        function(response) {
             if (response == "") {
                 onEmptyText ? addText(onEmptyText) : addText('Nothing here.');
                 return;
@@ -526,9 +484,7 @@ function getItemsInScene(onEmptyText){
                 addText(splitResponse[i]);
             }
         }
-    }
-    request.open("GET", "TextCombat.php?function=getItemsInScene", true);
-    request.send();
+    );
 }
 /**
  *prompts for what item to add to the curent scene
@@ -567,20 +523,13 @@ function addItemToScene(){
        return; 
     }
     cancelWaits();
-    request = new XMLHttpRequest();
-    request.onreadystatechange = function(){
-        if (this.readyState==4 && this.status==200) {
-            var response = this.responseText;
-            if (response == "") {
-                addText("added "+itemName);
-                addAlert(alertTypes.REMOVED_ITEM);
-                return;
-            }
-            addText(response);
+    sendRequest("manage.php?function=addItemToScene&Name="+itemName+"&Note="+noteText,
+        function(response){
+            addText("added "+itemName);
+            addAlert(alertTypes.REMOVED_ITEM);
+            return;
         }
-    }
-    request.open("GET", "manage.php?function=addItemToScene&Name="+itemName+"&Note="+noteText, true);
-    request.send();
+    );
 }
 /**
  *removes the given item from the scene
@@ -591,20 +540,13 @@ function removeItemFromScene(){
        return; 
     }
     cancelWaits();
-    request = new XMLHttpRequest();
-    request.onreadystatechange = function(){
-        if (this.readyState==4 && this.status==200) {
-            var response = this.responseText;
-            if (response == "") {
-                addText("you take the "+itemName);
-                addAlert(alertTypes.NEW_ITEM);
-                return;
-            }
-            addText(response);
+    sendRequest("manage.php?function=removeItemFromScene&Name="+itemName,
+        function(response){
+            addText("you take the "+itemName);
+            addAlert(alertTypes.NEW_ITEM);
+            return;
         }
-    }
-    request.open("GET", "manage.php?function=removeItemFromScene&Name="+itemName, true);
-    request.send();
+    );
 }
 /**
  *prompts the player for what note they want to change in this scene
@@ -635,19 +577,12 @@ function changeItemNote(){
        return; 
     }
     cancelWaits();
-    request = new XMLHttpRequest();
-    request.onreadystatechange = function(){
-        if (this.readyState==4 && this.status==200) {
-            var response = this.responseText;
-            if (response == "") {
-                addText("changed note for "+itemName);
-                return;
-            }
-            addText(response);
+    sendRequest("manage.php?function=changeItemNote&Name="+itemName+"&Note="+noteText,
+        function(response){
+            addText("changed note for "+itemName);
+            return;
         }
-    }
-    request.open("GET", "manage.php?function=changeItemNote&Name="+itemName+"&Note="+noteText, true);
-    request.send();
+    );
 }  
 /**
  *asks the owner of the location if the player can be an apprentice
@@ -664,17 +599,10 @@ function attack() {
     var name = getInputText();
     if (name == null) {
         return;
-    }
-    request = new XMLHttpRequest();
-    request.onreadystatechange = function(){
-        if (this.readyState==4 && this.status==200) {
-            if ("" != this.responseText) {
-                addText(this.responseText);
-            }
-        }
-    }
-    request.open("GET", "combat.php?function=attack&Name="+name, true);
-    request.send();
+    }  
+    sendRequest("combat.php?function=attack&Name="+name,
+        function(){}
+    );
 }
 
 function openMenu(){
@@ -749,20 +677,11 @@ function openOptions(){
  *puts an item into a container item
  */
 function putItemIn(itemName, containerName) {
-    request = new XMLHttpRequest();
-    request.onreadystatechange = function(){
-        if (this.readyState==4 && this.status==200) {
-            if (this.responseText != "") {
-                addText(this.responseText);
-            }
-            else{ //success
-                //add alert
-                addAlert(alertTypes.HIDDEN_ITEM);
-            }
+    sendRequest("TextCombat.php?function=putItemIn&itemName="+itemName+"&containerName="+containerName,
+        function(){
+            addAlert(alertTypes.HIDDEN_ITEM);
         }
-    }
-    request.open("GET", "TextCombat.php?function=putItemIn&itemName="+itemName+"&containerName="+containerName, true);
-    request.send();
+    );
 }
 /**
  *pulls up the options to manage a scene if player has the rights
@@ -840,9 +759,9 @@ function deactivateActiveLinks(){
  *adds to the chat file
  */
 function speak(inputText){
-    request = new XMLHttpRequest();
-    request.open("GET", "FilesBack.php?function=speak&inputText="+inputText, true);  
-    request.send();
+    sendRequest("FilesBack.php?function=speak&inputText="+inputText,
+        function() {}
+    );
 }
 
 /**
@@ -861,16 +780,14 @@ function getInputText(){
 * Opens the bottom text area, sets the value and error to blank
 */
 function openTextArea(message) {
-    document.getElementById("descriptionError").innerHTML = message ? message : "";
     document.getElementById("textArea").value="";
     document.getElementById("extra").style.display="block";
 }
 /**
  *sets the message of the text area. does not open it.
  */
-function setTextAreaMessage(message){
-    alert(message);
-    document.getElementById("descriptionError").innerHTML = message;
+function setErrorMessage(message){
+    document.getElementById("error").innerHTML = message;
 }
 /**
  *Returns the text in the text area.
@@ -996,9 +913,9 @@ function toggleFrontLoadAlertText() {
     else{
         frontLoad = 0;
     }
-    request = new XMLHttpRequest();
-    request.open("GET", "TextCombat.php?function=setFrontLoadAlerts&load="+frontLoad, true);
-    request.send();
+    sendRequest("TextCombat.php?function=setFrontLoadAlerts&load="+frontLoad,
+        function(){}
+    );
 }
 /**
  *switches whether the scene text is front loaded or not
@@ -1013,9 +930,9 @@ function toggleFrontLoadSceneText(){
     else{
         frontLoad = 0;
     }
-    request = new XMLHttpRequest();
-    request.open("GET", "TextCombat.php?function=setFrontLoadScenes&load="+frontLoad, true);
-    request.send();
+    sendRequest("TextCombat.php?function=setFrontLoadScenes&load="+frontLoad,
+        function(){}
+    );
 }
 /**
  *switches whether the keyword text is front loaded or not
@@ -1030,9 +947,9 @@ function toggleFrontLoadKeywords(){
     else{
         frontLoad = 0;
     }
-    request = new XMLHttpRequest();
-    request.open("GET", "TextCombat.php?function=setFrontLoadKeywords&load="+frontLoad, true);
-    request.send();
+    sendRequest("TextCombat.php?function=setFrontLoadKeywords&load="+frontLoad,
+        function(){}
+    );
 }
 /**
  *checks for unwanted input
@@ -1049,4 +966,25 @@ function validateInput(text){
         return "that was an empty input";
     }
     return true;
+}
+/**
+ *sends a request to the server
+ */
+function sendRequest(url, returnFunction){
+    request = new XMLHttpRequest();
+    request.onreadystatechange = function(){
+        if (this.readyState==4 && this.status==200) {
+            var response = this.responseText;
+            //if an error
+            if (response.indexOf("<<") == 0) {
+                setErrorMessage(response.replace("<<",""));
+            }
+            else{
+                //success, call function
+                returnFunction(response);
+            }
+        }
+    }
+    request.open("GET", url, true);
+    request.send();
 }

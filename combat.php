@@ -21,7 +21,7 @@ switch($function){
             //no need to echo, it's in chat
         }
         else{
-            echo $_GET['Name']." is not nearby..";
+            sendError($_GET['Name']." is not nearby");
         }
         break;
 }

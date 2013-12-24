@@ -68,28 +68,23 @@ switch($function){
         $containerRow = query("select room,ID from items where playerID=".prepVar($_SESSION['playerID'])." and Name=".$containerName);
         //make sure item was found
         if(!isset($itemRow['ID'])){
-            echo "the ".$itemName." was not found";
-            return;
+            sendError("the ".$itemName." was not found");
         }
         //make sure container was found
         if(!isset($containerRow['ID'])){
-            echo "the ".$containerName." was not found";
-            return;
+            sendError("the ".$containerName." was not found");
         }
         //make sure second item is a container
         if($containerRow['room'] == 0){
-            echo "either ".$containerName." is full, or it can not hold any items";
-            return;
+            sendError("either ".$containerName." is full, or it can not hold any items");
         }
         //make sure the first item is not is something else
         if($itemRow['insideOf'] != 0){
-            echo $itemName." is inside of something else. Remove it first.";
-            return;
+            sendError($itemName." is inside of something else. Remove it first.");
         }
         //make sure first item can be put into the second
         if($containerRow['room'] < $itemRow['size']){
-            echo "there is not enough room for ".$itemName." [".$itemRow['size']."] in ".$containerName." [".$containerRow['room']." left]";
-            return;
+            sendError("there is not enough room for ".$itemName." [".$itemRow['size']."] in ".$containerName." [".$containerRow['room']." left]");
         }
         //put in
         query("update items set insideOf=".$containerRow['ID']." where ID=".$itemRow['ID']);
