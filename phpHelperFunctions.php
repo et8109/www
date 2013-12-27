@@ -401,39 +401,52 @@ function removeItemIdFromPlayer($itemID){
 }
 
 /**
- *returns true if the player can manage this scene
- *false if they can't
+ *returns the manage level of the player in the current scene
+ *0: nothing
+ *1: apprentice
+ *2: manager
+ *3: lord
+ *4: monarch
  */
-function checkPlayerManage(){
+function getPlayerManageLevel(){
     //only works because there is 1 job per scene
-    $keywordRow = query("select count(1) from playerkeywords where ID=".prepVar($_SESSION['playerID'])." and type=".keywordTypes::PLAYER_JOB." and locationID=".prepVar($_SESSION['currentScene']));
-    if($keywordRow != 1){
-        return false;
+    //type is hierarchy level
+    $keywordRow = query("select type, locationID from playerkeywords where ID=".prepVar($_SESSION['playerID'])." and (type=".keywordTypes::APPSHP." or type=".keywordTypes::MANAGER." or type=".keywordTypes::LORD." or type=".keywordTypes::MONARCH.")");
+    //apprentice
+    if($keywordRow['type'] == 4 && $keywordRow['locationID'] == $_SESSION['currentScene']){
+        return 1;
     }
-    return true;
-    /* for multiple jobs in 1 scene
-    $playerKeywordRow = query("select locationID,keywordID from playerkeywords where ID=".prepVar($_SESSION['playerID'])." and type=".keywordTypes::PLAYER_JOB);
-    $sceneKeywordRow = query("select keywordID from scenekeywords where type=".keywordTypes::SCENE_ACTION);
-    //scene keyword matches plyer job keyword && correct location
-    if($GLOBALS['sceneKeywordToPlayerJob'][$sceneKeywordRow['keywordID']] == $playerKeywordRow['keywordID'] &&
-       $playerKeywordRow['locationID'] == $_GET['ID']){
-        return true;
+    //manager
+    else if($keywordRow['type'] == 5 && $keywordRow['locationID'] == $_SESSION['currentScene']){
+        return 2;
     }
-    return false;
-    */
+    //get the current scene town and land
+    $sceneRow = query("select town, land from scenes where ID=".prepVar($_SESSION['currentScene']));
+    //lord
+    if($keywordRow['type'] == 6 && $keywordRow['locationID'] == $sceneRow['town']){
+        return 3;
+    }
+    //lord
+    else if($keywordRow['type'] == 7 && $keywordRow['locationID'] == $sceneRow['land']){
+        return 4;
+    }
+    else{
+        //nothing
+        return 0;
+    }
 }
 
 /**
  *returns additional span text for managing a scene
  */
-function getSpanTextManagingScene($sceneID){
-    return "<span class='active action manageScene' onclick='manageScene(".$sceneID.")'>Manage</span>";
+function getSpanTextManagingScene($manageLevel){
+    return "<span class='active action manageScene' onclick='manageScene(".$manageLevel.")'>Manage</span>";
 }
 
 /**
  *returns additional span text for applying for an apprenticeship
  */
-function getSpanTextApplyForAppshp($sceneID){
-    return "<span class='active action applyAppshp' onclick='applyappshp(".$sceneID.")'>Apply to be an apprentice</span>";
+function getSpanTextApplyForAppshp(){
+    return "<span class='active action applyAppshp' onclick='applyappshp()'>Apply to be an apprentice</span>";
 }
 ?>

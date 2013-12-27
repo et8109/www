@@ -52,7 +52,10 @@ final class keywordTypes {
     const MATERIAL = 1;
     const QUALITY = 2;
     const SCENE_ACTION = 3;
-    const PLAYER_JOB = 4;
+    const APPSHP = 4;
+    const MANAGER = 5;
+    const LORD = 6;
+    const MONARCH = 7;
 }
 
 /**
@@ -78,7 +81,11 @@ $keywordTypeNames = array(
   0 => "container",
   1 => "material",
   2 => "quality",
-  3 => "sceneAction"
+  3 => "sceneAction",
+  4 => "apprenticeship",
+  5 => "manager",
+  6 => "lord",
+  7 => "monarch"
 );
 
 ?>

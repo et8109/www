@@ -7,8 +7,8 @@ $con = getConnection();
 $function = $_GET['function'];
 switch($function){
     case('addItemToScene'):
-        //check player manage keyword/permission
-        if(checkPlayerManage == false){
+        //must be at least an apprentice
+        if(getPlayerManageLevel() < 1){
             sendError("You don't have permission");
         }
         //get item id,size
@@ -28,8 +28,8 @@ switch($function){
         break;
     
     case('removeItemFromScene'):
-        //check player manage keyword/permission
-        if(checkPlayerManage == false){
+        //must be at least manager
+        if(getPlayerManageLevel() < 2){
             sendError("You don't have permission");
         }
         //get item id,size
@@ -45,8 +45,8 @@ switch($function){
         break;
     
     case('changeItemNote'):
-        //check player manage keyword/permission
-        if(checkPlayerManage == false){
+        //must be at least apprentice
+        if(getPlayerManageLevel() < 1){
             sendError("You don't have permission");
         }
         //get item id
@@ -58,11 +58,15 @@ switch($function){
         break;
     
     case('changeSceneDesc'):
-        //check player manage keyword/permission
-        if(checkPlayerManage == false){
+        //must be at least a lord
+        if(getPlayerManageLevel() < 3){
             sendError("You don't have permission");
         }
         updateDescription($_SESSION['currentScene'],$_GET['desc'],spanTypes::SCENE);
+        break;
+    
+    case(''):
+        
         break;
 }
 ?>

@@ -64,7 +64,19 @@ think about item sizes/weights and bags again
         [done]a php error sender function
         
         responsibility hierarchy
+            [done]-each has their own keyword type for playerkeywords
+            [done]-scens have a town and land location, shared with other scenes
+                [done]lord kwrd uses town, diety kwrd uses land
+            [done]-change manage functions to manage level
+            apprentice
+            manager
+            lord - sheriff, ect.
+            diety, seer, ect.
+            ---
             email supprt
+                send lower level changes higher up, can change in options
+                change asking for appshp, editing scenes
+            a way to become manager+
 
     make a library
 
@@ -83,6 +95,7 @@ alpha begins!
 ********************************************
 later:
 ********************************************
+player description should always include responsibilities, from appshp to diety
 location creation needs apprenticeship option
 lots of crafting stuff doesn't work, no error messages
 scolling/clicking/autocomplete selection from lists

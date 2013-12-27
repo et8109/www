@@ -628,6 +628,13 @@ function editSceneDesc(){
  *asks the owner of the location if the player can be an apprentice
  */
 function applyappshp(){
+    //send request to manager
+    sendRequest("manage.php?function=applyappshp",
+        function(response){
+            //respond with manager name
+            addText("Your request has been submitted to");
+        }
+    );
     addText("[apprenticeships not done yet]");
 }
 /**
@@ -726,13 +733,22 @@ function putItemIn(itemName, containerName) {
 /**
  *pulls up the options to manage a scene if player has the rights
  */
-function manageScene() {
-    //addText("can't edit scene title yet");
-    addText("<span class='active action' onclick='newSceneDescPrompt()'>edit scene desc</span>");
+function manageScene(manageLevel) {
     addText("<span class='active action' onclick='getItemsInScene()'>view items</span>");
     addText("<span class='active action' onclick='addItemToScenePrompt()'>add item</span>");
-    addText("<span class='active action' onclick='changeItemNotePrompt()'>change items note</span>");
-    addText("<span class='active action' onclick='removeItemFromScenePrompt()'>take item</span>");
+    addText("<span class='active action' onclick='changeItemNotePrompt()'>change an items note</span>");
+    if (manageLevel > 1) {
+        //at least manager
+        addText("<span class='active action' onclick='removeItemFromScenePrompt()'>take item</span>");
+    }
+    if (manageLevel > 2) {
+        //at least lord
+        addText("<span class='active action' onclick='newSceneDescPrompt()'>edit scene desc</span>");
+    }
+    if (manageLevel > 3) {
+        //at least monarch
+        addText("can't edit scene title yet");
+    }
 }
 
 ////////////////////////////////////////////////////

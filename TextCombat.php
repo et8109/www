@@ -30,12 +30,13 @@ switch($function){
                 $row = query("select Name, Description, appshp from scenes where ID=".prepVar($ID));
                 echo getSpanText(spanTypes::SCENE,$ID,$row["Name"])."<>".$row["Description"];
                 //managing the scene
-                if(checkPlayerManage() == true){
-                    echo " ".getSpanTextManagingScene($ID);
+                $manageLevel = getPlayerManageLevel();
+                if($manageLevel > 0){
+                    echo " ".getSpanTextManagingScene($manageLevel);
                 }
                 //apply for apprenticeship
                 else if($row['appshp'] == true){
-                    echo " ".getSpanTextApplyForAppshp($ID);
+                    echo " ".getSpanTextApplyForAppshp();
                 }
                 break;
         }
