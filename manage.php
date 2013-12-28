@@ -65,8 +65,18 @@ switch($function){
         updateDescription($_SESSION['currentScene'],$_GET['desc'],spanTypes::SCENE);
         break;
     
-    case(''):
-        
+    case('applyappshp'):
+        //make sure player has no job
+        $playerRow = query("select count(1) from playerkeywords where ID=".prepVar($_SESSION['playerID'])." and (type=".keywordTypes::APPSHP." or type=".keywordTypes::MANAGER." or type=".keywordTypes::LORD." or type=".keywordTypes::MONARCH.")");
+        if($playerRow > 0){
+            sendError("Leave your current job first");
+        }
+        //make sure the location accepts/has room for apprentice
+        $sceneRow = query("select count(1) from scenes where ID=".prepVar($_SESSION['playerID'])." and appshp=1");
+        if($playerRow < 1){
+            sendError("This location does not accept apprentices");
+        }
+        //make sure location has a manager, send request
         break;
 }
 ?>

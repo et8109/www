@@ -77,6 +77,8 @@ think about item sizes/weights and bags again
                 send lower level changes higher up, can change in options
                 change asking for appshp, editing scenes
             a way to become manager+
+            a way to leave your job
+                what happens when manager+ leaves
 
     make a library
 
@@ -95,6 +97,7 @@ alpha begins!
 ********************************************
 later:
 ********************************************
+ability to view players from the home page
 player description should always include responsibilities, from appshp to diety
 location creation needs apprenticeship option
 lots of crafting stuff doesn't work, no error messages

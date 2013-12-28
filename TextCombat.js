@@ -635,7 +635,6 @@ function applyappshp(){
             addText("Your request has been submitted to");
         }
     );
-    addText("[apprenticeships not done yet]");
 }
 /**
 *find who the player want to attack, after /attack
