@@ -97,6 +97,7 @@ alpha begins!
 ********************************************
 later:
 ********************************************
+remove admin level from playerInfo
 ability to view players from the home page
 player description should always include responsibilities, from appshp to diety
 location creation needs apprenticeship option

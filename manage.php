@@ -68,7 +68,7 @@ switch($function){
     case('applyappshp'):
         //make sure player has no job
         $playerRow = query("select count(1) from playerkeywords where ID=".prepVar($_SESSION['playerID'])." and (type=".keywordTypes::APPSHP." or type=".keywordTypes::MANAGER." or type=".keywordTypes::LORD." or type=".keywordTypes::MONARCH.")");
-        if($playerRow > 0){
+        if(is_int($playerRow) && $playerRow > 0){
             sendError("Leave your current job first");
         }
         //make sure the location accepts/has room for apprentice
@@ -77,6 +77,31 @@ switch($function){
             sendError("This location does not accept apprentices");
         }
         //make sure location has a manager, send request
+        $managerRow = query("select ID from playerkeywords where locationID=".prepVar($_SESSION['currentScene'])." and type=".keywordTypes::MANAGER);
+        if(!isset($managerRow)){
+            //if there is no manager
+            sendError("No current manager.<span class='active action' onclick='applyManage()'>Apply to manage?</span>");
+        }
+        else{
+            //if there is a manager
+            echo sendAppshpRequest($managerRow['ID']);
+            return;
+        }
         break;
+}
+
+/**
+ *sends a request to the manager for an apprenticeship
+ *returns the name of the manager
+ */
+function sendAppshpRequest($managerID){
+    //get name, email
+    $managerRow = query("select Name, email from playerinfo where ID=".prepVar($managerID));
+    if(!isset($managerRow)){
+        sendError("Error contancting the manager.");
+    }
+    //send message to manager
+    
+    return $managerRow['Name'];
 }
 ?>

@@ -20,13 +20,13 @@ switch($function){
                 break;
             case(spanTypes::PLAYER):
                 //if no id is set, make it the player
-                $ID = isset($_GET['ID']) : $_GET['ID'] ? $_SESSION['playerID'];
+                $ID = isset($_GET['ID']) ? $_GET['ID'] : $_SESSION['playerID'];
                 $row = query("select Name, Description from playerinfo where ID=".prepVar($ID));
                 echo getSpanText(spanTypes::PLAYER,$ID,$row["Name"])."<>".$row["Description"];
                 break;
             case(spanTypes::SCENE):
                 //if no id set, it's the current scene
-                $ID = isset($_GET['ID']) : $_GET['ID'] ? $_SESSION['currentScene'];
+                $ID = isset($_GET['ID']) ? $_GET['ID'] : $_SESSION['currentScene'];
                 $row = query("select Name, Description, appshp from scenes where ID=".prepVar($ID));
                 echo getSpanText(spanTypes::SCENE,$ID,$row["Name"])."<>".$row["Description"];
                 //managing the scene

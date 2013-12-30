@@ -198,6 +198,8 @@ function textTyped(e){
     if(event.keyCode != 13){
         return;
     }
+    //clear error
+    document.getElementById("error").innerHTML="";
     var inputText = getInputText();
     //make sure input is valid
     if (inputText == null) {
@@ -632,9 +634,15 @@ function applyappshp(){
     sendRequest("manage.php?function=applyappshp",
         function(response){
             //respond with manager name
-            addText("Your request has been submitted to");
+            addText("Your request has been submitted to "+response);
         }
     );
+}
+/**
+ *sends a request to the lord to manage this location
+ */
+function applyManage() {
+    alert("I want to manage");
 }
 /**
 *find who the player want to attack, after /attack
@@ -868,6 +876,8 @@ function getTextAreaText(){
     *looks at waiting stuff
     */
 function textAreaSubmit() {
+    //clear error
+    document.getElementById("error").innerHTML="";
     switch (waitingForTextArea) {
         case(textAreaInputs.PERSONAL_DESCRIPTION):
             setNewDescription();

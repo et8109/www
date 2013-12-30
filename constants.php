@@ -14,6 +14,7 @@ final class maxLength {
     const keywordDesc = 255;
     const alertDesc = 100;
     const maxSpanLength = 110;
+    const maxEmailLength = 35;
 }
 
 /**
