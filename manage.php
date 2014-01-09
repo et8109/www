@@ -92,6 +92,8 @@ switch($function){
     
     case("hireEmployee"):
         //make sure they have no job or are one level below
+        $manageLevel = getPlayerManageLevel();
+        
         //if lord/monarch and they have no job, specify location
             //if lord/monarch and they have a job, location is the same 
         //make sure there is room for them
