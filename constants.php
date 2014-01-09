@@ -25,6 +25,8 @@ final class alertTypes{
     const newItem = 1;
     const hiddenItem = 2;
     const removedItem = 3;
+    const appshpRequest = 4;
+    const manageRequest = 5;
 }
 
 /**
@@ -88,5 +90,4 @@ $keywordTypeNames = array(
   6 => "lord",
   7 => "monarch"
 );
-
 ?>

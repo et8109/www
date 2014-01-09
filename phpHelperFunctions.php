@@ -113,9 +113,13 @@ function updateChatTime(){
 /**
  *adds an alert to the player's alert list.
  *Does not add it to their page,this list is only checked during setup
+ *optional second param is playerID
  */
-function addAlert($alertNum){
-    query("insert into playeralerts (alertID, playerID) values (".$alertNum.",".prepVar($_SESSION['playerID']).")");
+function addAlert($alertNum, $optionalPlayerID){
+    if(!isset($optionalPlayerID)){
+        $optionalPlayerID = $_SESSION['playerID'];
+    }
+    query("insert into playeralerts (alertID, playerID) values (".$alertNum.",".prepVar($optionalPlayerID).")");
 }
 
 
@@ -436,17 +440,5 @@ function getPlayerManageLevel(){
     }
 }
 
-/**
- *returns additional span text for managing a scene
- */
-function getSpanTextManagingScene($manageLevel){
-    return "<span class='active action manageScene' onclick='manageScene(".$manageLevel.")'>Manage</span>";
-}
 
-/**
- *returns additional span text for applying for an apprenticeship
- */
-function getSpanTextApplyForAppshp(){
-    return "<span class='active action applyAppshp' onclick='applyappshp()'>Apply to be an apprentice</span>";
-}
 ?>

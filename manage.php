@@ -65,43 +65,97 @@ switch($function){
         updateDescription($_SESSION['currentScene'],$_GET['desc'],spanTypes::SCENE);
         break;
     
-    case('applyappshp'):
-        //make sure player has no job
-        $playerRow = query("select count(1) from playerkeywords where ID=".prepVar($_SESSION['playerID'])." and (type=".keywordTypes::APPSHP." or type=".keywordTypes::MANAGER." or type=".keywordTypes::LORD." or type=".keywordTypes::MONARCH.")");
-        if(is_int($playerRow) && $playerRow > 0){
-            sendError("Leave your current job first");
+    case('getManageSceneText'):
+        //find player manage level
+        $manageLevel = getPlayerManageLevel();
+        //can't manage anything
+        if($manageLevel == 0){
+            sendError("You cannot manage this location");
         }
-        //make sure the location accepts/has room for apprentice
-        $sceneRow = query("select count(1) from scenes where ID=".prepVar($_SESSION['playerID'])." and appshp=1");
-        if($playerRow < 1){
-            sendError("This location does not accept apprentices");
+        echo "<span class='active action' onclick='quitJobPrompt()'>quit job</span>";
+        echo "</br><span class='active action' onclick='getItemsInScene()'>view items</span>";
+        echo "</br><span class='active action' onclick='addItemToScenePrompt()'>add item</span>";
+        echo "</br><span class='active action' onclick='changeItemNotePrompt()'>change an items note</span>";
+        if (manageLevel > 1) {
+            //at least manager
+            echo "</br><span class='active action' onclick='removeItemFromScenePrompt()'>take item</span>";
         }
-        //make sure location has a manager, send request
-        $managerRow = query("select ID from playerkeywords where locationID=".prepVar($_SESSION['currentScene'])." and type=".keywordTypes::MANAGER);
-        if(!isset($managerRow)){
-            //if there is no manager
-            sendError("No current manager.<span class='active action' onclick='applyManage()'>Apply to manage?</span>");
+        if (manageLevel > 2) {
+            //at least lord
+            echo "</br><span class='active action' onclick='newSceneDescPrompt()'>edit scene desc</span>";
         }
-        else{
-            //if there is a manager
-            echo sendAppshpRequest($managerRow['ID']);
-            return;
+        if (manageLevel > 3) {
+            //at least monarch
+            echo "</br>can't edit scene title yet";
         }
+        break;
+    
+    case("hireEmployee"):
+        //make sure they have no job or are one level below
+        //if lord/monarch and they have no job, specify location
+            //if lord/monarch and they have a job, location is the same 
+        //make sure there is room for them
+        //send a message to the player
+        break;
+    
+    case("fireEmployee"):
+        //make sure they work for you
+        //choose a replacement, or let them choose (if not apprentice)
+        //send a message to the player
+        break;
+    
+    case('quitJob'):
+        //make sure player has a job
+        if(!checkPlayerHasJob()){
+            sendError("You have no job");
+        }
+        //get job type and location
+        $jobRow = query("select type,locationID from playerkeywords where ID=".prepVar($_SESSION['playerID'])." and (type=".keywordTypes::APPSHP." or type=".keywordTypes::MANAGER." or type=".keywordTypes::LORD." or type=".keywordTypes::MONARCH.")");
+        //remove job from keywords
+        query("delete from playerkeywords where ID=".prepVar($_SESSION['playerID'])." and type=".$jobRow['type']);
+        //alert higher, lower, and same level jobs
+        //add alert to chenge desc
+        //replacement?
         break;
 }
 
 /**
- *sends a request to the manager for an apprenticeship
- *returns the name of the manager
+ *returns true if the player has a job, false if not
  */
-function sendAppshpRequest($managerID){
-    //get name, email
-    $managerRow = query("select Name, email from playerinfo where ID=".prepVar($managerID));
-    if(!isset($managerRow)){
-        sendError("Error contancting the manager.");
-    }
-    //send message to manager
+function checkPlayerHasJob(){
+    //make sure player has no job
+    $playerRow = query("select count(1) from playerkeywords where ID=".prepVar($_SESSION['playerID'])." and (type=".keywordTypes::APPSHP." or type=".keywordTypes::MANAGER." or type=".keywordTypes::LORD." or type=".keywordTypes::MONARCH.")");
+    return (is_int($playerRow) && $playerRow > 0);
+}
+
+/**
+ *returns true if the locations accepts apprentices, false if not
+ */
+function checkLocationAcceptsApprentice(){
+    //make sure the location accepts/has room for apprentice
+    $sceneRow = query("select count(1) from scenes where ID=".prepVar($_SESSION['playerID'])." and appshp=1");
+    return (is_int($sceneRow) && $sceneRow > 0);
+}
+
+/**
+ *sends an email to the player after checking email settings
+ */
+function sendEmail($playerID, $header, $body){
+    //check email settings**
+    //headers
+    $headerSubject = "TextGame: ";
+    $headerBody = "**If you do not know where this email came from, please disregard it. Sorry!**
     
-    return $managerRow['Name'];
+    This email is from the text game. You can change your email settings by logging in.
+    
+    ";
+    $footnoteBody = "
+    
+    -TextGame
+    Have a nice day!";
+    
+    //send email
+    mail($playerID, $headerSubject.$header, $headerBody.$body.$footnoteBody);
+    
 }
 ?>

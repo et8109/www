@@ -123,7 +123,8 @@ var textLineInputs = {
     TARGET_NAME : 2,
     ITEM_NAME_TO_ADD_TO_SCENE : 3,
     ITEM_NAME_TO_REMOVE_FROM_SCENE : 4,
-    ITEM_NAME_TO_CHANGE_NOTE_OF : 5
+    ITEM_NAME_TO_CHANGE_NOTE_OF : 5,
+    QUIT_JOB : 6
 };
 var waitingForTextArea = textAreaInputs.NOTHING;
 var waitingForTextLine = textLineInputs.NOTHING;
@@ -156,7 +157,9 @@ var alerts ={};
 var alertTypes ={
     NEW_ITEM : 1,
     HIDDEN_ITEM : 2,
-    REMOVED_ITEM : 3
+    REMOVED_ITEM : 3,
+    APPSHP_REQUEST :4,
+    MANAGE_REQUEST : 5
 }
 
 /**
@@ -209,8 +212,9 @@ function textTyped(e){
     else if(inputText.indexOf("/") == 0){
         closeTextArea();
         cancelWaits();
+        inputText = inputText.split(" ");
         //cancel waiting stuff?
-        switch (inputText.split(" ")[0]) {
+        switch (inputText[0]) {
             case("/look"):
                 deactivateActiveLinks();
                 addDesc(spanTypes.SCENE, currentScene);
@@ -228,6 +232,26 @@ function textTyped(e){
                 }
                 var items = inputText.replace("/put","").split(" in ");
                 putItemIn(items[0], items[1]);
+                break;
+            case("/manage"):
+                getManageSceneText();
+                break;
+            case("/quitjob"):
+                quitJobPrompt();
+                break;
+            case("/hire"):
+                var name = "";
+                for(var i=1; i<inputText.length; i++){
+                    name+=inputText[i];
+                }
+                hireEmployee(name);
+                break;
+            case("/fire"):
+                var name = "";
+                for(var i=1; i<inputText.length; i++){
+                    name+=inputText[i];
+                }
+                fireEmployee(name);
                 break;
             default:
                 addText(inputText+" ..unknown command");
@@ -252,6 +276,9 @@ function textTyped(e){
                 break;
             case(textLineInputs.ITEM_NAME_TO_CHANGE_NOTE_OF):
                 newNoteTextPromt();
+                break;
+            case(textLineInputs.QUIT_JOB):
+                quitJob();
                 break;
         }
     }
@@ -627,24 +654,6 @@ function editSceneDesc(){
     );
 }
 /**
- *asks the owner of the location if the player can be an apprentice
- */
-function applyappshp(){
-    //send request to manager
-    sendRequest("manage.php?function=applyappshp",
-        function(response){
-            //respond with manager name
-            addText("Your request has been submitted to "+response);
-        }
-    );
-}
-/**
- *sends a request to the lord to manage this location
- */
-function applyManage() {
-    alert("I want to manage");
-}
-/**
 *find who the player want to attack, after /attack
 */
 function attack() {
@@ -732,7 +741,7 @@ function openOptions(){
  */
 function putItemIn(itemName, containerName) {
     sendRequest("TextCombat.php?function=putItemIn&itemName="+itemName+"&containerName="+containerName,
-        function(){
+        function(response){
             addAlert(alertTypes.HIDDEN_ITEM);
         }
     );
@@ -740,24 +749,53 @@ function putItemIn(itemName, containerName) {
 /**
  *pulls up the options to manage a scene if player has the rights
  */
-function manageScene(manageLevel) {
-    addText("<span class='active action' onclick='getItemsInScene()'>view items</span>");
-    addText("<span class='active action' onclick='addItemToScenePrompt()'>add item</span>");
-    addText("<span class='active action' onclick='changeItemNotePrompt()'>change an items note</span>");
-    if (manageLevel > 1) {
-        //at least manager
-        addText("<span class='active action' onclick='removeItemFromScenePrompt()'>take item</span>");
-    }
-    if (manageLevel > 2) {
-        //at least lord
-        addText("<span class='active action' onclick='newSceneDescPrompt()'>edit scene desc</span>");
-    }
-    if (manageLevel > 3) {
-        //at least monarch
-        addText("can't edit scene title yet");
-    }
+function getManageSceneText() {
+    sendRequest("manage.php?function=getManageSceneText",
+        function(response){
+            addText(response);
+        }
+    );
 }
 
+/**
+ *makes sure the player really wants to quit thier job
+ */
+function quitJobPrompt(){
+    cancelWaits();
+    addText("Type 'quit' to leave your current job.");
+    waitingForTextLine = textLineInputs.QUIT_JOB;
+}
+
+/**
+ *removes th eplayer's current job
+ */
+function quitJob() {
+    sendRequest("manage.php?function=quitJob",
+        function(response){
+            //add alert to change desc
+        }
+    );
+}
+/**
+ *hires someone to the rank below you with the given name
+ */
+function hireEmployee(name){
+    sendRequest("manage.php?function=hireEmployee",
+        function(response){
+            //say that a message has been sent
+        }
+    );
+}
+/**
+ *fires someone who works for you so they loose thier job
+ */
+function fireEmployee(name) {
+    sendRequest("manage.php?function=fireEmployee",
+        function(response){
+            //say that they have been fired
+        }
+    );
+}
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////

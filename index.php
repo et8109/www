@@ -68,17 +68,25 @@ think about item sizes/weights and bags again
             [done]-scens have a town and land location, shared with other scenes
                 [done]lord kwrd uses town, diety kwrd uses land
             [done]-change manage functions to manage level
-            apprentice
-            manager
-            lord - sheriff, ect.
-            diety, seer, ect.
+            ---
+            to become:
+            apprentice: manager adds you via command
+                cannot leave any notes
+            manager: lord adds you via command or previous manager sets you
+                cannot leave any notes
+                if no manager for __ days, it closes down
+            lord: monarch adds you via command or previous lord sets you
+                cannot leave notes
+                if no lord for __ days, monarch is warned and other lords may choose?
+            to leave:
+            apprentice: use leave command
+            manager,lord, monarch: optionally choose successor
+                successor must have a certain amount of previous experience
             ---
             email supprt
                 send lower level changes higher up, can change in options
-                change asking for appshp, editing scenes
-            a way to become manager+
-            a way to leave your job
-                what happens when manager+ leaves
+            people who work at the same location should have shared notes
+            recieve an alert when you are accepted, told to update email
 
     make a library
 
@@ -91,6 +99,9 @@ debug
 take note of all code practices
 
 start changelog
+
+change email headers
+db uname/pass
 
 alpha begins!
 
