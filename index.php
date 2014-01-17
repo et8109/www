@@ -89,6 +89,10 @@ think about item sizes/weights and bags again
             recieve an alert when you are accepted, told to update email
 
     make a library
+    
+add images
+
+/self for info about yourself, like job, health, location, ect.
 
 look over later list
 

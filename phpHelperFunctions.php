@@ -30,6 +30,7 @@ function getConnection(){
  *only returns 1 row. If you need more, use queryMulti.
  *uses $GLOBALS['con']. doesn't work if not set
  *frees the result on its own
+ *returns false on fail
  */
 function query($sql){
     $result = mysqli_query($GLOBALS['con'], $sql);

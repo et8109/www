@@ -158,8 +158,7 @@ var alertTypes ={
     NEW_ITEM : 1,
     HIDDEN_ITEM : 2,
     REMOVED_ITEM : 3,
-    APPSHP_REQUEST :4,
-    MANAGE_REQUEST : 5
+    NEW_JOB : 4,
 }
 
 /**
@@ -767,12 +766,12 @@ function quitJobPrompt(){
 }
 
 /**
- *removes th eplayer's current job
+ *removes the player's current job
  */
 function quitJob() {
     sendRequest("manage.php?function=quitJob",
         function(response){
-            //add alert to change desc
+            addText("You have quit your job");
         }
     );
 }
@@ -780,7 +779,7 @@ function quitJob() {
  *hires someone to the rank below you with the given name
  */
 function hireEmployee(name){
-    sendRequest("manage.php?function=hireEmployee",
+    sendRequest("manage.php?function=hireEmployee&name="+name,
         function(response){
             //say that a message has been sent
         }
@@ -790,7 +789,7 @@ function hireEmployee(name){
  *fires someone who works for you so they loose thier job
  */
 function fireEmployee(name) {
-    sendRequest("manage.php?function=fireEmployee",
+    sendRequest("manage.php?function=fireEmployee&name="+name,
         function(response){
             //say that they have been fired
         }

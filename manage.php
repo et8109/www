@@ -91,19 +91,71 @@ switch($function){
         break;
     
     case("hireEmployee"):
-        //make sure they have no job or are one level below
-        $manageLevel = getPlayerManageLevel();
-        
-        //if lord/monarch and they have no job, specify location
-            //if lord/monarch and they have a job, location is the same 
+        //get employeeID
+        $IdRow = query("select ID from playerinfo where Name=".prepVar($_GET['name']));
+        if($IdRow == false){
+            sendError($_GET['name']." was not found");
+        }
+        $employeeID = $IdRow['ID'];
+        $employeeKeywordRow = query("select type,locationID from playerkeywords where ID=".prepVar($employeeID)." and (type=".keywordTypes::APPSHP." or type=".keywordTypes::MANAGER." or type=".keywordTypes::LORD." or type=".keywordTypes::MONARCH.")");
+        if($employeeKeywordRow != false){
+            sendError("They already have a job");
+        }
+        $manageRow = query("select type,locationID from playerkeywords where ID=".prepVar($_SESSION['currentScene'])." and (type=".keywordTypes::APPSHP." or type=".keywordTypes::MANAGER." or type=".keywordTypes::LORD." or type=".keywordTypes::MONARCH.")");
+        //player has no job
+        if($manageRow == false){
+            sendError("You have no job");
+        }
+        $playerManageLevel = $manageRow['type'];
+        if($playerManageLevel == keywordTypes::APPSHP){
+            sendError("You cannot hire anyone to work for you");
+        }
+        //temp: cannot hire as a lord or monarch yet
+        if($playerManageLevel == keywordTypes::LORD || $playerManageLevel == keywordTypes::MONARCH){
+            sendError("Higher level managers are being worked on");
+        }
         //make sure there is room for them
-        //send a message to the player
+        $sceneRow = query("select appshp from scenes where ID=".prepVar($manageRow['locationID']));
+        if($sceneRow['appshp'] == 0){
+            sendError("The scene cannot take apprentices");
+        }
+        //--Hire a new apprentice
+        query("delete from playerkeywords where type=".keywordTypes::APPSHP." or type=".keywordTypes::MANAGER." or type=".keywordTypes::LORD." or type=".keywordTypes::MONARCH);
+        query("insert into playerkeywords (ID,keywordID,locationID,type) values ".prepVar($employeeID).",7,".prepVar($manageRow['locationID']).",".keywordTypes::APPSHP);
+        addAlert(alertTypes::newJob, $employeeID);
         break;
     
     case("fireEmployee"):
-        //make sure they work for you
-        //choose a replacement, or let them choose (if not apprentice)
-        //send a message to the player
+        //get employee ID
+        $employeeRow = ("select ID from playerinfo where Name=".prepVar($_GET['name']));
+        if($employeeRow == false){
+            sendError("Player not found");
+        }
+        $managerRow = query("select type, locationID from playerkeywords where type=".keywordTypes::APPSHP." or type=".keywordTypes::MANAGER." or type=".keywordTypes::LORD." or type=".keywordTypes::MONARCH);
+        if($managerRow == false){
+            sendError("You have no job");
+        }
+        switch($managerRow['type']){
+            case(keywordTypes::APPSHP):
+                sendError("You don't have any employees");
+                break;
+            case(keywordTypes::MANAGER):
+                //make sure they work for you
+                $jobRow = query("select count(1) from playerkeywords where ID=".prepVar($employeeRow['ID'])." and locationID=".prepVar($managerRow['locationID'])." and type=".keywordTypes::APPSHP);
+                if(is_int($jobRow) && $jobRow != 1){
+                    sendError("Player does not work for you");
+                }
+                break;
+            case(keywordTypes::LORD):
+                sendError("You don't have any employees");
+                break;
+            case(keywordTypes::MONARCH):
+                sendError("You don't have any employees");
+                break;
+        }
+        //on success:
+        query("delete from playerkeywords where ID=".$employeeRow['ID']." and type=".keywordTypes::APPSHP." or type=".keywordTypes::MANAGER." or type=".keywordTypes::LORD." or type=".keywordTypes::MONARCH);
+        //give alert to fired employee
         break;
     
     case('quitJob'):

@@ -25,8 +25,7 @@ final class alertTypes{
     const newItem = 1;
     const hiddenItem = 2;
     const removedItem = 3;
-    const appshpRequest = 4;
-    const manageRequest = 5;
+    const newJob = 4;
 }
 
 /**
