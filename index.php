@@ -57,7 +57,6 @@ think about item sizes/weights and bags again
         [done]lets player minimally change description, with scene keyword check
         visitors can buy from shop
             trading between players
-        a way to ask for apprenticeship
         
     [done]sendRequest js function
         [done]constant error recieving
@@ -89,10 +88,6 @@ think about item sizes/weights and bags again
             recieve an alert when you are accepted, told to update email
 
     make a library
-    
-add images
-
-/self for info about yourself, like job, health, location, ect.
 
 look over later list
 
@@ -112,6 +107,10 @@ alpha begins!
 ********************************************
 later:
 ********************************************
+combine multiple querys into one in long functions
+when hiring, say what position people were hired to on success and error 
+replacing keywords must take into account crafting level restictions
+a way to remove certain alerts
 remove admin level from playerInfo
 ability to view players from the home page
 player description should always include responsibilities, from appshp to diety
@@ -221,7 +220,7 @@ remove \r\n from all input text
         <br/>
         <!-- holds the input, buttons, and text area -->
         <div id="hub">
-        <span id="error"></span></br>
+        <img id="errorPoint" src="images/errorPoint.png"><span id="error"></span></br>
         <input id="input" disabled="true" type="text" id="input" maxlength="100" onkeypress="textTyped(event)"></input></br>
         <span id="logout"><a href="logout.php">log out</a></span>
         <span id="hubName" onclick="displayMyDesc()"><?php echo $_SESSION['playerName']; ?></span>
@@ -236,8 +235,8 @@ remove \r\n from all input text
         </div>
         <!-- The notifications popup -->
         <div id="menuMain">
-        <div class="menuButton" id="alertsMenuButton" onclick="openAlerts()">a</div>
-        <div class="menuButton" id="optionsMenuButton" onclick="openOptions()">o</div>
+        <div class="menuButton" id="alertsMenuButton" onclick="openAlerts()"></div>
+        <div class="menuButton" id="optionsMenuButton" onclick="openOptions()"></div>
         <div id="menuMainInside">
         </div>
         <span id="menuMainClose" onclick="closeMenu()">Close</span>

@@ -144,11 +144,15 @@ cursor:pointer;
 text-decoration:underline;
 }
 #alertsMenuButton{
-    
+    background-image: url("images/exclamation.png");
 }
 #optionsMenuButton{
+    background-image: url("images/gear.png");
     top:35px;
 }
 #error{
     color: black;
+}
+#errorPoint{
+    visibility: hidden;
 }

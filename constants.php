@@ -26,6 +26,10 @@ final class alertTypes{
     const hiddenItem = 2;
     const removedItem = 3;
     const newJob = 4;
+    const fired = 5;
+    const employeeQuit = 6;
+    const newManager = 7;
+    const newLord = 8;
 }
 
 /**
@@ -63,11 +67,11 @@ final class keywordTypes {
 /**
  *currently empty
  */
-final class requiredSceneKeywordTypes {};
+//final class requiredSceneKeywordTypes {};
 /**
  *currently empty
  */
-final class requiredPlayerKeywordTypes {};
+//final class requiredPlayerKeywordTypes {};
 
 /**
  *scene keyword ID => player job keyword ID

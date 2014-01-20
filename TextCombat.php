@@ -43,7 +43,12 @@ switch($function){
         break;
     
     case('updateDescription'):
-        return updateDescription($_SESSION['playerID'], $_GET['Description'], spanTypes::PLAYER);
+        $success = updateDescription($_SESSION['playerID'], $_GET['Description'], spanTypes::PLAYER);
+        if($success){
+            removeAlert(alertTypes::newItem);
+            removeAlert(alertTypes::removedItem);
+            removeAlert(alertTypes::hiddenItem);
+        }
         break;
     
     case('moveScenes'):
@@ -63,7 +68,7 @@ switch($function){
         $itemName = prepVar($_GET['itemName']);
         $containerName = prepVar($_GET['containerName']);
         //get item and container info
-        $itemRow = query("select size,ID,insideOf from items where playerID=".prepVar($_SESSION['playerID'])." and Name=".$itemName);
+        $itemRow = query("select ID,insideOf from items where playerID=".prepVar($_SESSION['playerID'])." and Name=".$itemName);
         $containerRow = query("select room,ID from items where playerID=".prepVar($_SESSION['playerID'])." and Name=".$containerName);
         //make sure item was found
         if(!isset($itemRow['ID'])){
@@ -77,19 +82,35 @@ switch($function){
         if($containerRow['room'] == 0){
             sendError("either ".$containerName." is full, or it can not hold any items");
         }
-        //make sure the first item is not is something else
+        //make sure the first item is not in something else
         if($itemRow['insideOf'] != 0){
             sendError($itemName." is inside of something else. Remove it first.");
         }
-        //make sure first item can be put into the second
-        if($containerRow['room'] < $itemRow['size']){
-            sendError("there is not enough room for ".$itemName." [".$itemRow['size']."] in ".$containerName." [".$containerRow['room']." left]");
-        }
         //put in
-        query("update items set insideOf=".$containerRow['ID']." where ID=".$itemRow['ID']);
-        query("update items set room=".$containerRow['room']-$itemRow['size']);
+        query("update items set insideOf=".prepVar($containerRow['ID'])." where ID=".prepVar($itemRow['ID']));
+        query("update items set room=".prepVar(intval($containerRow['room'])-1)." where ID=".prepVar($containerRow['ID']));
         //add alert
         addAlert(alertTypes::hiddenItem);
+        break;
+    
+    case('takeItemFrom'):
+        $itemRow = query("select ID,insideOf from items where playerID=".prepVar($_SESSION['playerID'])." and Name=".prepVar($_GET['itemName']));
+        $containerRow = query("select room,ID from items where playerID=".prepVar($_SESSION['playerID'])." and Name=".prepVar($_GET['containerName']));
+        if($itemRow == false){
+            sendError("could not find ".$_GET['itemName']);
+        }
+        if($containerRow == false){
+            sendError("could not find ".$_GET['containerName']);
+        }
+        //make sure item is in the container
+        if($itemRow['insideOf'] != $containerRow['ID']){
+            sendError("The ".$_GET['itemName']." is not in the ".$_GET['containerName']);
+        }
+        //take out
+        query("update items set insideOf=0 where ID=".prepVar($itemRow['ID']));
+        query("update items set room=".prepVar(intval($containerRow['room'])+1)." where ID=".prepVar($containerRow['ID']));
+        //add name to desc
+        addItemIdToPlayer($itemRow['ID'],$_GET['itemName']);
         break;
     
     case('getItemsInScene'):
@@ -126,6 +147,84 @@ switch($function){
     case('getPlayerIDFromScene'):
         $row = query("SELECT ID FROM playerinfo WHERE Scene =".prepVar($_SESSION['currentScene'])." AND Name = ".prepVar($_GET['Name']));
         echo $row['ID'];
+        break;
+    
+    //used for /self
+    case('getPlayerInfo'):
+        //info
+        $playerRow = query("select Name,craftSkill from playerInfo where ID=".prepVar($_SESSION['playerID']));
+        if($playerRow == false){
+            sendError("Error finding your stats.");
+        }
+        echo "Name: ".$playerRow['Name'];
+        echo "<>ID: ".$_SESSION['playerID'];
+        echo "<>Craft skill: ".$playerRow['craftSkill'];
+        //job
+        $jobRow = query("select locationID,type from playerkeywords where playerID=".prepVar($_SESSION['playerID'])." and type=".keywordTypes::APPSHP." or type=".keywordTypes::MANAGER." or type=".keywordTypes::LORD." or type=".keywordTypes::MONARCH);
+        if($jobRow == false){
+            echo "<>No Job";
+        }
+        else{
+            //find name of lcoation
+            switch(intval($jobRow['type'])){
+                case(keywordTypes::APPSHP):
+                    $locationRow = query("select Name from scenes where ID=".prepVar($jobRow['locationID']));
+                    echo "Apprentice at ".$locationRow['Name'];
+                    break;
+                case(keywordTypes::MANAGER):
+                    $locationRow = query("select Name from scenes where ID=".prepVar($jobRow['locationID']));
+                    echo "Manager at ".$locationRow['Name'];
+                    break;
+                case(keywordTypes::LORD):
+                    $locationRow = query("select count(1) from scenes where town=".prepVar($jobRow['locationID']));
+                    echo "Lord of ".$locationRow[0]." locations";
+                    break;
+                case(keywordTypes::MONARCH):
+                    $locationRow = query("select count(1) from scenes where land=".prepVar($jobRow['locationID']));
+                    echo "Monarch of [in progress]";
+                    break;
+            }
+        }
+        //keywords
+        $keywordsResult = queryMulti("select keywordID,locationID,type from playerkeywords where ID=".prepVar($_SESSION['playerID']));
+        $row;
+        if(!$row = mysqli_fetch_array($keywordsResult)){
+            //no keywords
+            echo "<>No keywords";
+            mysqli_free_result($keywordsResult);
+        }
+        else{
+            echo "<>Keywords:";
+            do{
+                //get the description of the keyword type
+                echo "<>- ".$keywordTypeNames[$row['type']];
+                //find first keyword option
+                $wordRow = query("select word from keywordwords where ID=".prepVar($row['keywordID'])." limit 1");
+                echo ": ".$wordRow['word'];
+                //find location name, if applicable
+                if($row['locationID'] != 0){
+                    $locationRow = query("select name from scenes where ID=".prepVar($row['locationID']));
+                    echo ", ".$locationRow['name'];
+                }
+            }while($row = mysqli_fetch_array($keywordsResult));
+            mysqli_free_result($keywordsResult);
+        }
+        //items
+        $itemsResult = queryMulti("select name from items where playerID=".prepVar($_SESSION['playerID']));
+        $row;
+        if(!$row = mysqli_fetch_array($itemsResult)){
+            //no items
+            echo "<>No items";
+            mysqli_free_result($itemsResult);
+        }
+        else{
+            echo "<>Items:<>";
+            echo $row['name'];
+            while($row = mysqli_fetch_array($itemsResult)){
+                echo ", ".$row['name'];
+            }
+            mysqli_free_result($itemsResult);
+        }
         break;
     
     case('setFrontLoadAlerts'):

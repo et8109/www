@@ -1,17 +1,16 @@
 <?php
 
-/**
- *the keyword types required in all items
- *1: material
- *2:quality
- */
-final class requiredItemKeywordTypes {
-    const material = 1;
-    const quality = 2;
-}
-
 session_start();
 include 'phpHelperFunctions.php';
+
+/**
+ *the keyword types required in all items
+ */
+$itemKeywordTypes = array(
+    keywordTypes::MATERIAL,
+    keywordTypes::QUALITY
+);
+
 //set connection
 $con = getConnection();
 $function = $_GET['function'];
@@ -24,29 +23,44 @@ switch($function){
          */
     case('craftItem'):
         //make sure the player can take an item
-        checkPlayerCanTakeItem(4);
+        checkPlayerCanTakeItem();
+        $keywordIDs = array();
+        $IdOut = -1;
         //make sure all required keyword types were replaced
         $desc = $_GET['Description'];
-        foreach(requiredItemKeywordTypes as $type){
-            if(!replaceKeywordType($desc, $type)){
-                return "type ".$keywordTypeNames[$type]." keyword was not found";
+        $numTypes = sizeof($itemKeywordTypes);
+        for($i=0; $i<$numTypes; $i++){
+            $type = $itemKeywordTypes[$i];
+            $desc = replaceKeywordType($desc, $type, $IdOut);
+            $keywordIDs[$type] = $IdOut;
+            if($desc == false){
+                sendError("type ".$keywordTypeNames[$type]." keyword was not found");
             }
+        }
+        //check for optional keywords
+        $tempDesc = replaceKeywordType($desc, keywordTypes::CONTAINER,$IdOut);
+        $isContainer = false;
+        if($tempDesc != false){
+            $desc = $tempDesc;
+            $isContainer = true;
+            //add to keywords of item
+            $itemKeywordTypes[] = keywordTypes::CONTAINER;
+            $keywordIDs[keywordTypes::CONTAINER] = $IdOut;
         }
         //make sure desc length is less than max
         checkDescIsUnderMaxLength($desc, spanTypes::ITEM);
         //add the item into db
         $lastID = lastIDquery("insert into items (playerID, Name, Description) values (".prepVar($_SESSION['playerID']).",".prepVar($_GET['Name']).",".prepVar($desc).")");
-        //give the item a size
-        query("Update items set size=4 where ID=".$lastID);
         //if item is a container, give it room
-        if(isset($keywordTypes[0]) && $keywordTypes[0][0] == true){
-            query("Update items set room=9 where ID=".$lastID);
+        if($isContainer){
+            query("Update items set room=2 where ID=".$lastID);
         }
         //add the item to itemKeywords with it's keywords
-        foreach ($keywordTypes as $type){
-            query("insert into itemKeywords (itemID, keywordID, type) values (".$lastID.",".$keywordTypes[$type][1].",".$type.")");
+        $numKeywords = count($itemKeywordTypes);
+        foreach ($itemKeywordTypes as $t){
+            query("insert into itemkeywords (ID, keywordID, type) values (".$lastID.",".$keywordIDs[$t].",".$t.")");
         }
-        addItemIdToPlayer($lastID);
+        addItemIdToPlayer($lastID, $_GET['Name']);
         break;
     
     case('getCraftInfo'):

@@ -38,10 +38,10 @@ switch($function){
             sendError("That item does not exist");
         }
         //make sure the player can take an item
-        checkPlayerCanTakeItem(4);
+        checkPlayerCanTakeItem();
         //remove item from scene list
         $removeRow = query("delete from itemsInScenes where sceneID=".prepVar($_SESSION['currentScene'])." and itemID=".prepVar($idRow['ID']));
-        addItemIdToPlayer($idRow['ID']);
+        addItemIdToPlayer($idRow['ID'], $_GET['Name']);
         break;
     
     case('changeItemNote'):
@@ -101,27 +101,60 @@ switch($function){
         if($employeeKeywordRow != false){
             sendError("They already have a job");
         }
-        $manageRow = query("select type,locationID from playerkeywords where ID=".prepVar($_SESSION['currentScene'])." and (type=".keywordTypes::APPSHP." or type=".keywordTypes::MANAGER." or type=".keywordTypes::LORD." or type=".keywordTypes::MONARCH.")");
+        $manageRow = query("select type,locationID from playerkeywords where ID=".prepVar($_SESSION['playerID'])." and (type=".keywordTypes::APPSHP." or type=".keywordTypes::MANAGER." or type=".keywordTypes::LORD." or type=".keywordTypes::MONARCH.")");
         //player has no job
         if($manageRow == false){
             sendError("You have no job");
+        }
+        //make sure there is room for them
+        $sceneRow = query("select appshp from scenes where ID=".prepVar($manageRow['locationID']));
+        if($sceneRow['appshp'] == 0){
+            sendError("The location cannot take employees");
         }
         $playerManageLevel = $manageRow['type'];
         if($playerManageLevel == keywordTypes::APPSHP){
             sendError("You cannot hire anyone to work for you");
         }
-        //temp: cannot hire as a lord or monarch yet
-        if($playerManageLevel == keywordTypes::LORD || $playerManageLevel == keywordTypes::MONARCH){
-            sendError("Higher level managers are being worked on");
+        if($playerManageLevel == keywordTypes::MANAGER){
+            $startingKeywordID = 7;
+            $position = keywordTypes::APPSHP;
+            $location = $_SESSION['currentScene'];
         }
-        //make sure there is room for them
-        $sceneRow = query("select appshp from scenes where ID=".prepVar($manageRow['locationID']));
-        if($sceneRow['appshp'] == 0){
-            sendError("The scene cannot take apprentices");
+        if($playerManageLevel == keywordTypes::LORD){
+            //make sure there is no manager already
+            $positionRow = query("select count(1) from playerkeywords where type=".keywordTypes::MANAGER." and locationID=".prepVar($_SESSION['currentScene']));
+            if($positionRow[0] == 1){
+                sendError("Someone already has that position");
+            }
+            //tell the apprentices already there
+            $apprenticesResult = queryMulti("select ID from playerkeywords where type=".keywordTypes::APPSHP." and locationID=".prepVar($_SESSION['currentScene']));
+            while($row = mysqli_fetch_array($apprenticesResult)){
+                addAlert(alertTypes::newManager,$row['ID']);
+            }
+            $startingKeywordID = 8;
+            $position = keywordTypes::MANAGER;
+            $location = $_SESSION['currentScene'];
         }
-        //--Hire a new apprentice
-        query("delete from playerkeywords where type=".keywordTypes::APPSHP." or type=".keywordTypes::MANAGER." or type=".keywordTypes::LORD." or type=".keywordTypes::MONARCH);
-        query("insert into playerkeywords (ID,keywordID,locationID,type) values ".prepVar($employeeID).",7,".prepVar($manageRow['locationID']).",".keywordTypes::APPSHP);
+        if($playerManageLevel == keywordTypes::MONARCH){
+            sendError("Monarchs are being worked on");
+            //get id of current town
+            $townRow = query("select town from scenes where ID=".prepVar($_SESSION['currentScene'])." limit 1");
+            //make sure there is no lord already
+            $positionRow = query("select count(1) from playerkeywords where type=".keywordTypes::LORD." and locationID=".prepVar($townRow['town']));
+            if($positionRow[0] == 1){
+                sendError("Someone already has that position");
+            }
+            //tell managers and apprentices of the town
+            $lowerResult = queryMulti("select ID from playerkeywords where (type=".keywordTypes::APPSHP." or type=".keywordTypes::MANAGER.") and locationID=".prepVar($_SESSION['currentScene']));
+            while($row = mysqli_fetch_array($lowerResult)){
+                addAlert(alertTypes::newLord,$row['ID']);
+            }
+            $startingKeywordID = 9;
+            $position = keywordTypes::LORD;
+            $location = $townRow['town'];
+        }
+        query("delete from playerkeywords where ID=".prepVar($employeeID)." and (type=".keywordTypes::APPSHP." or type=".keywordTypes::MANAGER." or type=".keywordTypes::LORD." or type=".keywordTypes::MONARCH.")");
+        query("insert into playerkeywords (ID,keywordID,locationID,type) values ".prepVar($employeeID).",".$startingKeywordID.",".$location.",".$position);
         addAlert(alertTypes::newJob, $employeeID);
         break;
     
@@ -142,7 +175,7 @@ switch($function){
             case(keywordTypes::MANAGER):
                 //make sure they work for you
                 $jobRow = query("select count(1) from playerkeywords where ID=".prepVar($employeeRow['ID'])." and locationID=".prepVar($managerRow['locationID'])." and type=".keywordTypes::APPSHP);
-                if(is_int($jobRow) && $jobRow != 1){
+                if($jobRow[0] != 1){
                     sendError("Player does not work for you");
                 }
                 break;
@@ -156,6 +189,7 @@ switch($function){
         //on success:
         query("delete from playerkeywords where ID=".$employeeRow['ID']." and type=".keywordTypes::APPSHP." or type=".keywordTypes::MANAGER." or type=".keywordTypes::LORD." or type=".keywordTypes::MONARCH);
         //give alert to fired employee
+        addAlert(alertTypes::fired,$employeeRow['ID']);
         break;
     
     case('quitJob'):
@@ -165,11 +199,24 @@ switch($function){
         }
         //get job type and location
         $jobRow = query("select type,locationID from playerkeywords where ID=".prepVar($_SESSION['playerID'])." and (type=".keywordTypes::APPSHP." or type=".keywordTypes::MANAGER." or type=".keywordTypes::LORD." or type=".keywordTypes::MONARCH.")");
-        //remove job from keywords
+        $jobType = $jobRow['type'];
+        switch($jobType){
+            case(keywordTypes::APPSHP):
+                //find manager's ID
+                $managerRow = query("select ID from playerkeywords where type=".keywordTypes::MANAGER." and locationID=".prepVar($jobRow['locationID']));
+                addAlert(alertTypes::employeeQuit, $managerRow['ID']);
+                break;
+            case(keywordTypes::MANAGER):
+                //find lord's ID
+                /*$managerRow = query("select ID from playerkeywords where type=".keywordTypes::LORD." and locationID=".prepVar($jobRow['locationID']));
+                addAlert(alertTypes::employeeQuit, $managerRow['ID']);*/
+                break;
+            case(keywordTypes::MANAGER):
+                break;
+            case(keywordTypes::MONARCH):
+                break;
+        }
         query("delete from playerkeywords where ID=".prepVar($_SESSION['playerID'])." and type=".$jobRow['type']);
-        //alert higher, lower, and same level jobs
-        //add alert to chenge desc
-        //replacement?
         break;
 }
 
@@ -179,7 +226,7 @@ switch($function){
 function checkPlayerHasJob(){
     //make sure player has no job
     $playerRow = query("select count(1) from playerkeywords where ID=".prepVar($_SESSION['playerID'])." and (type=".keywordTypes::APPSHP." or type=".keywordTypes::MANAGER." or type=".keywordTypes::LORD." or type=".keywordTypes::MONARCH.")");
-    return (is_int($playerRow) && $playerRow > 0);
+    return ($playerRow[0] > 0);
 }
 
 /**
@@ -188,7 +235,7 @@ function checkPlayerHasJob(){
 function checkLocationAcceptsApprentice(){
     //make sure the location accepts/has room for apprentice
     $sceneRow = query("select count(1) from scenes where ID=".prepVar($_SESSION['playerID'])." and appshp=1");
-    return (is_int($sceneRow) && $sceneRow > 0);
+    return ($sceneRow[0] > 0);
 }
 
 /**

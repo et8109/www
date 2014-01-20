@@ -159,6 +159,10 @@ var alertTypes ={
     HIDDEN_ITEM : 2,
     REMOVED_ITEM : 3,
     NEW_JOB : 4,
+    FIRED : 5,
+    EMPLOYEE_QUIT : 6,
+    NEW_MANAGER : 7,
+    NEW_LORD : 8
 }
 
 /**
@@ -200,8 +204,7 @@ function textTyped(e){
     if(event.keyCode != 13){
         return;
     }
-    //clear error
-    document.getElementById("error").innerHTML="";
+    clearErrorMessage();
     var inputText = getInputText();
     //make sure input is valid
     if (inputText == null) {
@@ -211,8 +214,8 @@ function textTyped(e){
     else if(inputText.indexOf("/") == 0){
         closeTextArea();
         cancelWaits();
+        //find command
         inputText = inputText.split(" ");
-        //cancel waiting stuff?
         switch (inputText[0]) {
             case("/look"):
                 deactivateActiveLinks();
@@ -226,11 +229,17 @@ function textTyped(e){
                 addHelpText();
                 break;
             case("/put"):
-                if (inputText.indexOf(" in ") == -1) {
-                    addText("please use /put [item] in [container item]");
-                }
-                var items = inputText.replace("/put","").split(" in ");
-                putItemIn(items[0], items[1]);
+                inputText[0] = "";
+                inputText = inputText.join(" ");
+                inputText = inputText.split(" in ");
+                putItemIn(inputText[0].trim(), inputText[1].trim());
+                break;
+            case("/take"):
+                alert("start take");
+                inputText[0] = "";
+                inputText = inputText.join(" ");
+                inputText = inputText.split(" from ");
+                takeItemFrom(inputText[0].trim(), inputText[1].trim());
                 break;
             case("/manage"):
                 getManageSceneText();
@@ -239,21 +248,20 @@ function textTyped(e){
                 quitJobPrompt();
                 break;
             case("/hire"):
-                var name = "";
-                for(var i=1; i<inputText.length; i++){
-                    name+=inputText[i];
-                }
-                hireEmployee(name);
+                inputText[0] = "";
+                inputText = inputText.join("");
+                hireEmployee(inputText);
                 break;
             case("/fire"):
-                var name = "";
-                for(var i=1; i<inputText.length; i++){
-                    name+=inputText[i];
-                }
-                fireEmployee(name);
+                inputText[0] = "";
+                inputText = inputText.join("");
+                fireEmployee(inputText);
+                break;
+            case("/self"):
+                addPlayerInfo();
                 break;
             default:
-                addText(inputText+" ..unknown command");
+                addText(inputText+"..unknown command");
                 break;
         }
     }
@@ -379,6 +387,8 @@ function setNewDescription() {
             closeTextArea();
             //new item, cange description alert
             removeAlert(alertTypes.NEW_ITEM);
+            removeAlert(alertTypes.REMOVED_ITEM);
+            removeAlert(alertTypes.HIDDEN_ITEM);
             waitingForTextArea=textAreaInputs.NOTHING;
         }
     );
@@ -746,6 +756,16 @@ function putItemIn(itemName, containerName) {
     );
 }
 /**
+ *removes an item from a container
+ */
+function takeItemFrom(itemName, containerName){
+    sendRequest("TextCombat.php?function=takeItemFrom&itemName="+itemName+"&containerName="+containerName,
+        function(response){
+            addAlert(alertTypes.NEW_ITEM);
+        }
+    );
+}
+/**
  *pulls up the options to manage a scene if player has the rights
  */
 function getManageSceneText() {
@@ -781,7 +801,7 @@ function quitJob() {
 function hireEmployee(name){
     sendRequest("manage.php?function=hireEmployee&name="+name,
         function(response){
-            //say that a message has been sent
+            addText(name+" has been hired");
         }
     );
 }
@@ -791,7 +811,21 @@ function hireEmployee(name){
 function fireEmployee(name) {
     sendRequest("manage.php?function=fireEmployee&name="+name,
         function(response){
-            //say that they have been fired
+            addText(name+" has been hired");
+        }
+    );
+}
+
+/**
+ *displays some info about the player
+ */
+function addPlayerInfo(){
+    sendRequest("TextCombat.php?function=getPlayerInfo",
+        function(response){
+            response = response.split("<>");
+            for(var i=0; i<response.length; i++){
+                addText(response[i]);
+            }
         }
     );
 }
@@ -896,6 +930,14 @@ function setTextAreaText(text){
  */
 function setErrorMessage(message){
     document.getElementById("error").innerHTML = message;
+    document.getElementById("errorPoint").style.visibility = "visible";
+}
+/**
+ *clears the error message
+ */
+function clearErrorMessage(args) {
+    document.getElementById("error").innerHTML = "";
+    document.getElementById("errorPoint").style.visibility = "hidden";
 }
 /**
  *Returns the text in the text area.
@@ -913,8 +955,7 @@ function getTextAreaText(){
     *looks at waiting stuff
     */
 function textAreaSubmit() {
-    //clear error
-    document.getElementById("error").innerHTML="";
+    clearErrorMessage();
     switch (waitingForTextArea) {
         case(textAreaInputs.PERSONAL_DESCRIPTION):
             setNewDescription();

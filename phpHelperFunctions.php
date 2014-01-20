@@ -183,13 +183,14 @@ function getSpanText($type, $id, $name){
  *replaces the first keyword of the given type.
  *returns false if not found
  */
-function replaceKeywordType($desc, $type){
+function replaceKeywordType($desc, $type, &$IdOut){
     $descArray = explode(" ",$desc);
     $descArrayLength = count($descArray);
     for($i=0; $i<$descArrayLength; $i++){
         $keywordRow = query("select ID from keywordwords where Word=".prepVar($descArray[$i])." and Type=".prepVar($type));
-        if(!is_bool($keywordRow)){
+        if(isset($keywordRow['ID'])){
             $descArray[$i] = getSpanText(spanTypes::KEYWORD,$descArray[$i],$descArray[$i]);
+            $IdOut = $keywordRow['ID'];
             return implode(" ",$descArray);
         }
     }
@@ -220,7 +221,7 @@ function replaceKeywordID($desc, $ID){
  */
 function replacePlayerItems($description){
     //find item names
-    $itemNamesResult = queryMulti("select Name from items where playerID=".prepVar($_SESSION['playerID'])." and insideOf=0");
+    $itemNamesResult = queryMulti("select Name,ID from items where playerID=".prepVar($_SESSION['playerID'])." and insideOf=0");
     //if failed in query
     if(is_bool($itemNamesResult)){
         sendError("could not find item names");
@@ -357,19 +358,21 @@ function addItemNameToPlayer($itemName){
         if(is_bool($idRow)){
             sendError("You do not have that item");
     }
-    return addItemIdToPlayer($idRow['ID']);
+    return addItemIdToPlayer($idRow['ID'],$itemName);
 }
 /**
  *adds an item to the player's inventory
+ *  call addItemNameToPlayer if you don't know the id
+ *adds an alert for a new item
  *checkPlayerCanTakeItem first!
  */
-function addItemIdToPlayer($itemID){
+function addItemIdToPlayer($itemID, $itemName){
     //change playerID for the item
     query("update items set playerID=".prepVar($_SESSION['playerID'])." where ID=".prepVar($itemID));
     //add item to player desc
     $row = query("select Description from playerinfo where ID=".prepVar($_SESSION['playerID']));
     $playerDescription = $row['Description'];
-    $playerDescription .= getSpanText(spanTypes::ITEM,$itemID,$itemName);
+    $playerDescription .= " ".getSpanText(spanTypes::ITEM,$itemID,$itemName);
     query("Update playerinfo set Description=".prepVar($playerDescription)." where ID=".prepVar($_SESSION['playerID']));
     //add an alert for the player
     addAlert(alertTypes::newItem);
@@ -379,17 +382,16 @@ function addItemIdToPlayer($itemID){
  *makes sure the player can take the described item
  *sends error on fail, returns true on success
  */
-function checkPlayerCanTakeItem($itemSize){
-    //check size of item, player room -not done
+function checkPlayerCanTakeItem(){
     //check player has less than max items
     $numItems = query("select count(1) from items where playerID=".prepVar($_SESSION['playerID']));
-    if($numItems >= constants::maxPlayerItems){
-        sendError("You have too many items");
+    if($numItems[0] >= constants::maxPlayerItems){
+        sendError("You have too many items:".$numItems[0]);
     }
     //check player desc length
     $row = query("select Description from playerinfo where ID=".prepVar($_SESSION['playerID']));
     $playerDescription = $row['Description'];
-    checkDescIsUnderMaxLength($playerDescription.maxLength::maxSpanLength);
+    checkDescIsUnderMaxLength($playerDescription,maxLength::maxSpanLength);
     return true;
 }
 /**

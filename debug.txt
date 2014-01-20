@@ -1,25 +1,13 @@
-yoyoyoy
-
-yoyoyoy
-
-yoyoyoy
-
-yoyoyoy
-''
-yoyoyoy
-''
-yoyoyoy
-''
-yoyoyoy
-''
-yoyoyoy
-''
-yoyoyoy
-yoyoyoy
-yoyoyoy
-yoyoyoy
-0
-yoyoyoy
-1
-yoyoyoy
-yoyoyoyArray
+17,1,1
+17,3,2
+start aiitp
+end aiitp
+start aiitp
+emptyness and a <span class='item' onclick='addDesc(0,5)'>sword</span> .Recently, I have come across a cool <span class='item' onclick='addDesc(0,6)'>ball</span> .<span class='item' onclick='addDesc(0,7)'></span><span class='item' onclick='addDesc(0,8)'></span><span class='item' onclick='addDesc(0,12)'></span><span class='item' onclick='addDesc(0,13)'></span><span class='item' onclick='addDesc(0,14)'></span><span class='item' onclick='addDesc(0,16)'></span><span class='item' onclick='addDesc(0,17)'></span><span class='item' onclick='addDesc(0,18)'></span><span class='item' onclick='addDesc(0,19)'></span><span class='item' onclick='addDesc(0,20)'></span>
+end aiitp
+start aiitp
+emptyness and a <span class='item' onclick='addDesc(0,5)'>sword</span> .Recently, I have come across a cool <span class='item' onclick='addDesc(0,6)'>ball</span> .<span class='item' onclick='addDesc(0,21)'>stuff</span>
+end aiitp
+start aiitp
+emptyness and a sword .Recently, I have come across a cool ball .<span class='item' onclick='addDesc(0,21)'>stuff</span><span class='item' onclick='addDesc(0,22)'>flour sack</span>
+end aiitp
