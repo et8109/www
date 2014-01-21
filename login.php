@@ -1,5 +1,11 @@
 
 <?php
+
+session_start();
+if(isset($_SESSION['playerID'])){
+    header("Location: index.php");
+}
+
 $username = "";
 $password = "";
 
@@ -24,8 +30,6 @@ if($result){
     }
     //get id of player
     $row = mysqli_fetch_array($result);
-    //start a session
-    session_start();
     $_SESSION['playerID'] = $row['ID'];
     $_SESSION['playerName'] = $row['Name'];
     $_SESSION['lastChatTime'] = date_timestamp_get(new DateTime());
@@ -57,7 +61,7 @@ function smart_quote($value){
 I am </br>
 <INPUT TYPE = 'TEXT' Name ='username'  value="<?PHP print $username;?>" maxlength=20></br>
 Password: </br>
-<INPUT TYPE = 'TEXT' Name ='password'  value="<?PHP print $password;?>" maxlength=20><br/>
+<INPUT TYPE = 'password' Name ='password'  value="<?PHP print $password;?>" maxlength=20><br/>
 <INPUT TYPE = "Submit" Name = "Submit1"  VALUE = "Login">
     <a href="register.php">Need to register?</a>
         </FORM>

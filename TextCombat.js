@@ -15,18 +15,12 @@ request = new XMLHttpRequest();
 request.onreadystatechange = function(){
     if (this.readyState==4 && this.status==200) {
         var response = this.responseText.split("<>");
-        var adminLevel = parseInt(response[1]);
-        switch(adminLevel){
-            case(1):
-                document.getElementById("hub").innerHTML+="</br><a href='edit.php'>edit</a>";
-                break;
-        }
-        currentScene = parseInt(response[2]);
-        frontLoadAlertText = parseInt(response[3]);
-        frontLoadSceneText = parseInt(response[4]);
-        frontLoadKeywords = parseInt(response[5]);
+        currentScene = parseInt(response[1]);
+        frontLoadAlertText = parseInt(response[2]);
+        frontLoadSceneText = parseInt(response[3]);
+        frontLoadKeywords = parseInt(response[4]);
         //see if alerts button should be gold
-        var numAlerts = parseInt(response[6]);
+        var numAlerts = parseInt(response[5]);
         if (numAlerts > 0) {
             document.getElementById("alert").style.color="gold";
         }
@@ -145,7 +139,12 @@ var spanTypes = {
 var currentLine=0; //17 is max, arbitrary
 var textBox="textBox1";
 var OfftextBox="textBox2";
-
+/**
+ *holds the previous line inputs
+ */
+var maxPrevInputs = 10;
+var prevInputs = [maxPrevInputs];
+var prevInputNum = -1;
 /**
  *current active alerts
  */
@@ -204,12 +203,24 @@ var currentScene;
 *Checks for waiting, commands with /, and talking
 */
 function textTyped(e){
-    //if enter button was not pressed, do nothing
+    if (event.keyCode == 38 && prevInputNum < maxPrevInputs) {
+        //set input to prev input+1
+        setTextLine(prevInputs[++prevInputNum]);
+    }
+    else if (event.keyCode == 40 && prevInputNum > 0) {
+        //set input to prev input-1
+        setTextLine(prevInputs[--prevInputNum]);
+    }
     if(event.keyCode != 13){
+        //if enter button was not pressed, do nothing
         return;
     }
+    //reset prev input index
+    prevInputNum = -1;
     clearErrorMessage();
     var inputText = getInputText();
+    //add input to memory
+    addPrevInput(inputText);
     //make sure input is valid
     if (inputText == null) {
         //nothing, skips to clear input
@@ -723,15 +734,12 @@ document.getElementById("menuMain").style.visibility="hidden";
 function openOptions(){
     var menuInside = document.getElementById("menuMainInside");
     menuInside.innerHTML = "";
-    menuInside.innerHTML += "Options:";
+    menuInside.innerHTML += "Options:</br><input type='checkbox' onclick='toggleFrontLoadAlertText()'";
     //front load alert text
     if (frontLoadAlertText) {
-        menuInside.innerHTML +="</br><input type='checkbox' onclick='toggleFrontLoadAlertText()' checked='checked'>";
+        menuInside.innerHTML +=" checked='checked' ";
     }
-    else{
-        menuInside.innerHTML +="</br><input type='checkbox' onclick='toggleFrontLoadAlertText()'>";
-    }
-    menuInside.innerHTML +="Front load alert text. About 2 lines.</input>";
+    menuInside.innerHTML +=">Front load alert text. About 2 lines.</input></br>Note: refreshing the page still required for some alerts.";
     //front load scene text
     if (frontLoadSceneText) {
         menuInside.innerHTML +="</br><input type='checkbox' onclick='toggleFrontLoadSceneText()' checked='checked'>";
@@ -838,7 +846,21 @@ function addPlayerInfo(){
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////
 //small methods
-
+/**
+*adds the input to the memory, removing the last if needed
+*/
+function addPrevInput(input) {
+    prevInputs.unshift(input);
+    if (prevInputs.length == maxPrevInputs) {
+        prevInputs.pop();
+    }
+}
+/**
+ *sets the text line to the input text
+ */
+function setTextLine(text){
+    document.getElementById("input").value = text;
+}
 /**
  *adds an alert to the list.
  *does not add to the db

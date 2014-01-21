@@ -6,9 +6,7 @@ $con = getConnection();
 $function = $_GET['function'];
 switch($function){
     case('setUp'):
-        $toReturn = "";
         $row = query("select adminLevel,Scene,frontLoadAlerts,frontLoadScenes,frontLoadKeywords from playerinfo where ID=".prepVar($_SESSION['playerID']));
-        echo "<>".$row['adminLevel'];
         echo "<>".$row['Scene'];
         echo "<>".$row['frontLoadAlerts'];
         echo "<>".$row['frontLoadScenes'];
