@@ -1,9 +1,7 @@
 <!--
-Possible helping methods:
-cancel all actions
-
 Useful:
 Js bookmarks!
+del [full path]index.lock
 
 done:
 logging in and logging out

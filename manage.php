@@ -106,16 +106,12 @@ switch($function){
         if($manageRow == false){
             sendError("You have no job");
         }
-        //make sure there is room for them
-        $sceneRow = query("select appshp from scenes where ID=".prepVar($manageRow['locationID']));
-        if($sceneRow['appshp'] == 0){
-            sendError("The location cannot take employees");
-        }
         $playerManageLevel = $manageRow['type'];
         if($playerManageLevel == keywordTypes::APPSHP){
             sendError("You cannot hire anyone to work for you");
         }
         if($playerManageLevel == keywordTypes::MANAGER){
+            checkLocationAcceptsApprentice();
             $startingKeywordID = 7;
             $position = keywordTypes::APPSHP;
             $location = $_SESSION['currentScene'];
@@ -126,17 +122,11 @@ switch($function){
             if($positionRow[0] == 1){
                 sendError("Someone already has that position");
             }
-            //tell the apprentices already there
-            $apprenticesResult = queryMulti("select ID from playerkeywords where type=".keywordTypes::APPSHP." and locationID=".prepVar($_SESSION['currentScene']));
-            while($row = mysqli_fetch_array($apprenticesResult)){
-                addAlert(alertTypes::newManager,$row['ID']);
-            }
             $startingKeywordID = 8;
             $position = keywordTypes::MANAGER;
             $location = $_SESSION['currentScene'];
         }
         if($playerManageLevel == keywordTypes::MONARCH){
-            sendError("Monarchs are being worked on");
             //get id of current town
             $townRow = query("select town from scenes where ID=".prepVar($_SESSION['currentScene'])." limit 1");
             //make sure there is no lord already
@@ -144,18 +134,16 @@ switch($function){
             if($positionRow[0] == 1){
                 sendError("Someone already has that position");
             }
-            //tell managers and apprentices of the town
-            $lowerResult = queryMulti("select ID from playerkeywords where (type=".keywordTypes::APPSHP." or type=".keywordTypes::MANAGER.") and locationID=".prepVar($_SESSION['currentScene']));
-            while($row = mysqli_fetch_array($lowerResult)){
-                addAlert(alertTypes::newLord,$row['ID']);
-            }
             $startingKeywordID = 9;
             $position = keywordTypes::LORD;
             $location = $townRow['town'];
         }
         query("delete from playerkeywords where ID=".prepVar($employeeID)." and (type=".keywordTypes::APPSHP." or type=".keywordTypes::MANAGER." or type=".keywordTypes::LORD." or type=".keywordTypes::MONARCH.")");
         query("insert into playerkeywords (ID,keywordID,locationID,type) values ".prepVar($employeeID).",".$startingKeywordID.",".$location.",".$position);
+        //let employee know
         addAlert(alertTypes::newJob, $employeeID);
+        //let above and below know
+        alertOfNewPosition($position);
         break;
     
     case("fireEmployee"):
@@ -168,7 +156,8 @@ switch($function){
         if($managerRow == false){
             sendError("You have no job");
         }
-        switch($managerRow['type']){
+        $managerLevel = intval($managerRow['type']);
+        switch($managerLevel){
             case(keywordTypes::APPSHP):
                 sendError("You don't have any employees");
                 break;
@@ -180,16 +169,36 @@ switch($function){
                 }
                 break;
             case(keywordTypes::LORD):
-                sendError("You don't have any employees");
+                //find the location ID of the manager
+                $locationRow = query("select locationID from playerkeywords where ID=".prepVar($employeeRow['ID'])." and type =".keywordTypes::MANAGER);
+                if($locationRow == false){
+                    sendError("Player does not work for you");
+                }
+                //make sure they work for you
+                $jobRow = query("select town from scenes where ID=".prepVar($locationRow['locationID']));
+                if(intval($jobRow['town']) != $managerRow['locationID']){
+                    sendError("Player does not work for you");
+                }
                 break;
             case(keywordTypes::MONARCH):
-                sendError("You don't have any employees");
+                //find the location ID of the lord
+                $locationRow = query("select locationID from playerkeywords where ID=".prepVar($employeeRow['ID'])." and type =".keywordTypes::LORD);
+                if($locationRow == false){
+                    sendError("Player does not work for you");
+                }
+                //make sure they work for you
+                $jobRow = query("select land from scenes where ID=".prepVar($locationRow['locationID']));
+                if(intval($jobRow['land']) != $managerRow['locationID']){
+                    sendError("Player does not work for you");
+                }
                 break;
         }
         //on success:
         query("delete from playerkeywords where ID=".$employeeRow['ID']." and type=".keywordTypes::APPSHP." or type=".keywordTypes::MANAGER." or type=".keywordTypes::LORD." or type=".keywordTypes::MONARCH);
         //give alert to fired employee
         addAlert(alertTypes::fired,$employeeRow['ID']);
+        //alert above and below
+        alertOfFiredPosition($managerLevel-1);
         break;
     
     case('quitJob'):
@@ -198,25 +207,12 @@ switch($function){
             sendError("You have no job");
         }
         //get job type and location
-        $jobRow = query("select type,locationID from playerkeywords where ID=".prepVar($_SESSION['playerID'])." and (type=".keywordTypes::APPSHP." or type=".keywordTypes::MANAGER." or type=".keywordTypes::LORD." or type=".keywordTypes::MONARCH.")");
-        $jobType = $jobRow['type'];
-        switch($jobType){
-            case(keywordTypes::APPSHP):
-                //find manager's ID
-                $managerRow = query("select ID from playerkeywords where type=".keywordTypes::MANAGER." and locationID=".prepVar($jobRow['locationID']));
-                addAlert(alertTypes::employeeQuit, $managerRow['ID']);
-                break;
-            case(keywordTypes::MANAGER):
-                //find lord's ID
-                /*$managerRow = query("select ID from playerkeywords where type=".keywordTypes::LORD." and locationID=".prepVar($jobRow['locationID']));
-                addAlert(alertTypes::employeeQuit, $managerRow['ID']);*/
-                break;
-            case(keywordTypes::MANAGER):
-                break;
-            case(keywordTypes::MONARCH):
-                break;
-        }
+        $jobRow = query("select type from playerkeywords where ID=".prepVar($_SESSION['playerID'])." and (type=".keywordTypes::APPSHP." or type=".keywordTypes::MANAGER." or type=".keywordTypes::LORD." or type=".keywordTypes::MONARCH.")");
+        $jobType = intval($jobRow['type']);
+        //remove job
         query("delete from playerkeywords where ID=".prepVar($_SESSION['playerID'])." and type=".$jobRow['type']);
+        //let above and below know
+        alertOfQuitPosition($jobType);
         break;
 }
 
@@ -257,6 +253,97 @@ function sendEmail($playerID, $header, $body){
     
     //send email
     mail($playerID, $headerSubject.$header, $headerBody.$body.$footnoteBody);
+    
+}
+
+/**
+ *lets those above and below the new worker know of the change
+ */
+function alertOfNewPosition($keywordType){
+    $lowerResult;
+    $higherResult;
+    setLadderPositions($keywordType,$lowerResult,$higherResult);
+    
+    if($keywordType != keywordTypes::APPSHP){
+        while($row = mysqli_fetch_array($lowerResult)){
+            addAlert(alertTypes::newManager,$row['ID']);
+        }
+        mysqli_free_result($lowerResult);
+    }
+    if($keywordType != keywordTypes::MONARCH){
+        while($row = mysqli_fetch_array($higherResult)){
+            addAlert(alertTypes::newEmployee,$row['ID']);
+        }
+        mysqli_free_result($higherResult);
+    }   
+}
+/**
+ *lets those above and below the quit worker know of the change
+ */
+function alertOfQuitPosition($keywordType){
+    $lowerResult;
+    $higherResult;
+    setLadderPositions($keywordType,$lowerResult,$higherResult);
+    
+    if($keywordType != keywordTypes::APPSHP){
+        while($row = mysqli_fetch_array($lowerResult)){
+            addAlert(alertTypes::managerQuit,$row['ID']);
+        }
+        mysqli_free_result($lowerResult);
+    }
+    if($keywordType != keywordTypes::MONARCH){
+        while($row = mysqli_fetch_array($higherResult)){
+            addAlert(alertTypes::employeeQuit,$row['ID']);
+        }
+        mysqli_free_result($higherResult);
+    }   
+}
+/**
+ *lets those above and below the fired worker know of the change
+ */
+function alertOfFiredPosition($keywordType){
+    $lowerResult;
+    $higherResult;
+    setLadderPositions($keywordType,$lowerResult,$higherResult);
+    
+    if($keywordType != keywordTypes::APPSHP){
+        while($row = mysqli_fetch_array($lowerResult)){
+            addAlert(alertTypes::managerFired,$row['ID']);
+        }
+        mysqli_free_result($lowerResult);
+    }
+    if($keywordType != keywordTypes::MONARCH){
+        while($row = mysqli_fetch_array($higherResult)){
+            addAlert(alertTypes::employeeFired,$row['ID']);
+        }
+        mysqli_free_result($higherResult);
+    }   
+}
+/**
+ *sets the params as the two lists of playerIDs above and below the player
+ */
+function setLadderPositions($keywordType,&$lowerResult,&$higherResult){
+    $townQuery = "(select town from scenes where ID=".prepVar($_SESSION['currentScene']);
+    switch($keywordType){
+        case(keywordTypes::APPSHP):
+            $higherResult = queryMulti("select ID from playerkeywords where type =".keywordTypes::MANAGER." and locationID=".prepVar($_SESSION['currentScene']));
+            break;
+        case(keywordTypes::MANAGER):
+            $lowerResult = queryMulti("select ID from playerkeywords where type=".keywordTypes::APPSHP." and locationID=".prepVar($_SESSION['currentScene']));
+            
+            $higherResult = queryMulti("select ID from playerkeywords where type =".keywordTypes::LORD." and locationID=".$townQuery);
+            break;
+        case(keywordTypes::LORD):
+            $IdFromTownQuery = "(select ID from scenes where town=".$townQuery.")";
+            $lowerResult = queryMulti("select ID from playerkeywords where type=".keywordTypes::MANAGER." and locationID=".$IdFromTownQuery);
+            
+            $landQuery = "(select land from scenes where ID=".prepVar($_SESSION['currentScene']);
+            $higherResult = queryMulti("select ID from playerkeywords where type =".keywordTypes::MONARCH." and locationID=".$landQuery);
+            break;
+        case(keywordTypes::MONARCH):
+            $lowerResult = queryMulti("select ID from playerkeywords where type=".keywordTypes::LORD." and locationID=".$townQuery);
+            break;
+    }
     
 }
 ?>

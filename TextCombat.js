@@ -162,7 +162,11 @@ var alertTypes ={
     FIRED : 5,
     EMPLOYEE_QUIT : 6,
     NEW_MANAGER : 7,
-    NEW_LORD : 8
+    NEW_LORD : 8,
+    NEW_EMPLOYEE : 9,
+    MANAGER_QUIT : 10,
+    EMPLOYEE_FIRED : 11,
+    MANAGER_FIRED : 12
 }
 
 /**

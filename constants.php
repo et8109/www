@@ -30,7 +30,10 @@ final class alertTypes{
     const employeeQuit = 6;
     const newManager = 7;
     const newLord = 8;
-}
+    const newEmployee = 9;
+    const managerQuit = 10;
+    const employeeFired = 11;
+    const managerFired = 12;
 
 /**
  *the possible actions that are visible in chat.
