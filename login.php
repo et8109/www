@@ -1,6 +1,5 @@
-
 <?php
-
+ob_start();
 session_start();
 if(isset($_SESSION['playerID'])){
     header("Location: index.php");
@@ -15,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST'){
         $quotedUsername=smart_quote($username);
         $quotedPassword=smart_quote($password);
         
-$con = mysqli_connect("Localhost","root","","game");
+$con = mysqli_connect("Localhost","ignatymc_admin","1Gn4tym","ignatymc_game");
 //check connection
 if (mysqli_connect_errno()){
     //failed to connect
@@ -23,10 +22,11 @@ if (mysqli_connect_errno()){
     $SQL = "select * from playerinfo where Name=$quotedUsername and Password=$quotedPassword";
     $result=mysqli_query($con, $SQL);
 }
+
 //check result of search
 if($result){
     if(mysqli_num_rows($result) != 1){
-        //this should not happen
+        //this is where an error message would be
     }
     //get id of player
     $row = mysqli_fetch_array($result);
@@ -65,5 +65,11 @@ Password: </br>
 <INPUT TYPE = "Submit" Name = "Submit1"  VALUE = "Login">
     <a href="register.php">Need to register?</a>
         </FORM>
+        <div id="info">
+            <a>forums will be found soon</a></br></br>
+            Updates:</br>
+            -v1 :)</br>
+            Welcome to the alpha!
+        </div>
     </body>
 </html>

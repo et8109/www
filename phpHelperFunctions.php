@@ -17,7 +17,7 @@ function printDebug($word){
  *set the global connection, if applicable, to this
  */
 function getConnection(){
-    $con = mysqli_connect("Localhost","root","","game");
+    $con = mysqli_connect("Localhost","ignatymc_admin","1Gn4tym","ignatymc_game");
     //check connection
     if (mysqli_connect_errno()){
         sendError("could not connect");

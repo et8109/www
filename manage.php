@@ -111,12 +111,20 @@ switch($function){
             sendError("You cannot hire anyone to work for you");
         }
         if($playerManageLevel == keywordTypes::MANAGER){
+            if($manageRow['locationID'] != $_SESSION['currentScene']){
+                sendError("You don't work here");
+            }
             checkLocationAcceptsApprentice();
             $startingKeywordID = 7;
             $position = keywordTypes::APPSHP;
             $location = $_SESSION['currentScene'];
         }
         if($playerManageLevel == keywordTypes::LORD){
+            //make sure they work here
+            $townRow = query("select town from scenes where ID=".prepVar($_SESSION['currentScene']));
+            if($manageRow['locationID'] != $townRow['town']){
+                sendError("You don't rule this town");
+            }
             //make sure there is no manager already
             $positionRow = query("select count(1) from playerkeywords where type=".keywordTypes::MANAGER." and locationID=".prepVar($_SESSION['currentScene']));
             if($positionRow[0] == 1){
@@ -127,8 +135,12 @@ switch($function){
             $location = $_SESSION['currentScene'];
         }
         if($playerManageLevel == keywordTypes::MONARCH){
-            //get id of current town
-            $townRow = query("select town from scenes where ID=".prepVar($_SESSION['currentScene'])." limit 1");
+            //get id of current town,land
+            $townRow = query("select town,land from scenes where ID=".prepVar($_SESSION['currentScene']));
+            //make sure they work here
+            if($manageRow['locationID'] != $townRow['land']){
+                sendError("You don't rule this land");
+            }
             //make sure there is no lord already
             $positionRow = query("select count(1) from playerkeywords where type=".keywordTypes::LORD." and locationID=".prepVar($townRow['town']));
             if($positionRow[0] == 1){
@@ -152,7 +164,7 @@ switch($function){
         if($employeeRow == false){
             sendError("Player not found");
         }
-        $managerRow = query("select type, locationID from playerkeywords where type=".keywordTypes::APPSHP." or type=".keywordTypes::MANAGER." or type=".keywordTypes::LORD." or type=".keywordTypes::MONARCH);
+        $managerRow = query("select type, locationID from playerkeywords where ID=".prepVar($_SESSION['playerID'])." and (type=".keywordTypes::APPSHP." or type=".keywordTypes::MANAGER." or type=".keywordTypes::LORD." or type=".keywordTypes::MONARCH.")");
         if($managerRow == false){
             sendError("You have no job");
         }

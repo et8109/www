@@ -139,12 +139,7 @@ var spanTypes = {
 var currentLine=0; //17 is max, arbitrary
 var textBox="textBox1";
 var OfftextBox="textBox2";
-/**
- *holds the previous line inputs
- */
-var maxPrevInputs = 10;
-var prevInputs = [maxPrevInputs];
-var prevInputNum = -1;
+
 /**
  *current active alerts
  */
@@ -203,24 +198,13 @@ var currentScene;
 *Checks for waiting, commands with /, and talking
 */
 function textTyped(e){
-    if (event.keyCode == 38 && prevInputNum < maxPrevInputs) {
-        //set input to prev input+1
-        setTextLine(prevInputs[++prevInputNum]);
-    }
-    else if (event.keyCode == 40 && prevInputNum > 0) {
-        //set input to prev input-1
-        setTextLine(prevInputs[--prevInputNum]);
-    }
     if(event.keyCode != 13){
         //if enter button was not pressed, do nothing
         return;
     }
     //reset prev input index
-    prevInputNum = -1;
     clearErrorMessage();
     var inputText = getInputText();
-    //add input to memory
-    addPrevInput(inputText);
     //make sure input is valid
     if (inputText == null) {
         //nothing, skips to clear input
@@ -847,15 +831,6 @@ function addPlayerInfo(){
 ////////////////////////////////////////////////////
 //small methods
 /**
-*adds the input to the memory, removing the last if needed
-*/
-function addPrevInput(input) {
-    prevInputs.unshift(input);
-    if (prevInputs.length == maxPrevInputs) {
-        prevInputs.pop();
-    }
-}
-/**
  *sets the text line to the input text
  */
 function setTextLine(text){
@@ -1152,6 +1127,12 @@ function validateInput(text){
         return "that was an empty input";
     }
     return true;
+}
+/**
+ *removes the player from the sceneplayers list
+ */
+function logout() {
+    alert("logging out");
 }
 /**
  *sends a request to the server

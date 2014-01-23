@@ -1,3 +1,11 @@
+<?php
+    ob_start();
+    session_start();
+    if(!isset($_SESSION['playerID'])){
+        header("Location: login.php");
+    }
+?>
+
 <!--
 Useful:
 Js bookmarks!
@@ -86,6 +94,10 @@ think about item sizes/weights and bags again
             recieve an alert when you are accepted, told to update email
 
     make a library
+    
+can't log in if already logged in
+move chat to db
+error on wrong password
 
 look over later list
 
@@ -125,7 +137,6 @@ add options for each command, custom commands
 landmark scenes(essentially seach by scene keyword)
 testing
 edit produces a log of changes
-move chat to db?
 weather/light and darknes/time
 more container words than bag
 variable room/sizes for container items
@@ -165,7 +176,6 @@ BAD CHARS: #,&, more?
 loading screen
 make sure everything is searching by ID
 store textBox object in js memory?
-put chat into db rather than text file?
 dynamically change max length of inputs when listening
 don't completely trust js saved variables, like namItems. have a db lookup too
 check to make sure cookies were not changed
@@ -176,15 +186,8 @@ login and password for database
 change gets to posts
 remove \r\n from all input text
 -->
-
 <html>
     <head>
-        <?php
-        session_start();
-        if(!isset($_SESSION['playerID'])){
-            header("Location: login.php");
-        }
-        ?>
 <link rel="stylesheet" type="text/css" href="TextCombat.css" />
 <!--//////////////////////////////////remove testing///////////////////////////////////////////////////-->
 <!--<script src="testing.js"></script>-->
@@ -204,7 +207,7 @@ remove \r\n from all input text
         <div id="hub">
         <img id="errorPoint" src="images/errorPoint.png"><span id="error"></span></br>
         <input id="input" disabled="true" type="text" id="input" maxlength="100" onkeypress="textTyped(event)"></input></br>
-        <span id="logout"><a href="logout.php">log out</a></span>
+        <span id="logout" onclick="logout()"><a href="logout.php">log out</a></span>
         <span id="hubName" onclick="displayMyDesc()"><?php echo $_SESSION['playerName']; ?></span>
         <span id="id"><?php echo $_SESSION['playerID']; ?></span>
         <span id="alert" onclick="openMenu()">alerts</span>
