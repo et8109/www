@@ -8,6 +8,9 @@ if(isset($_SESSION['playerID'])){
 
 <html>
     <head>
+        <!-- shared favicon code -->
+        <link rel="icon" href="images/favicon.ico" type="image/x-icon"/>
+        <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon"/>
         <script src="login.js"></script>
         <link rel="stylesheet" type="text/css" href="login.css" />
     </head>

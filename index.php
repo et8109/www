@@ -192,6 +192,9 @@ remove \r\n from all input text
 -->
 <html>
     <head>
+        <!-- shared favicon code -->
+        <link rel="icon" href="images/favicon.ico" type="image/x-icon"/>
+        <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon"/>
 <link rel="stylesheet" type="text/css" href="TextCombat.css" />
 <!--//////////////////////////////////remove testing///////////////////////////////////////////////////-->
 <!--<script src="testing.js"></script>-->
