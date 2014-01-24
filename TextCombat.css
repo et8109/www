@@ -6,7 +6,8 @@
  */
 
 body{
-background-color:#A89423;
+/* background-color:#A89423; old background */
+background-color:#624A0A;
 overflow: hidden;
 }
 
@@ -149,10 +150,4 @@ text-decoration:underline;
 #optionsMenuButton{
     background-image: url("images/gear.png");
     top:35px;
-}
-#error{
-    color: black;
-}
-#errorPoint{
-    visibility: hidden;
 }

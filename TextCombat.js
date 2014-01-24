@@ -926,20 +926,7 @@ function openTextArea() {
 function setTextAreaText(text){
     document.getElementById("textArea").value=text;
 }
-/**
- *sets the message of the text area. does not open it.
- */
-function setErrorMessage(message){
-    document.getElementById("error").innerHTML = message;
-    document.getElementById("errorPoint").style.visibility = "visible";
-}
-/**
- *clears the error message
- */
-function clearErrorMessage(args) {
-    document.getElementById("error").innerHTML = "";
-    document.getElementById("errorPoint").style.visibility = "hidden";
-}
+
 /**
  *Returns the text in the text area.
  *returns null and gives an error message if the text area contained < or >
@@ -1133,25 +1120,4 @@ function validateInput(text){
  */
 function logout() {
     alert("logging out");
-}
-/**
- *sends a request to the server
- */
-function sendRequest(url, returnFunction){
-    request = new XMLHttpRequest();
-    request.onreadystatechange = function(){
-        if (this.readyState==4 && this.status==200) {
-            var response = this.responseText;
-            //if an error
-            if (response.indexOf("<<") == 0) {
-                setErrorMessage(response.replace("<<",""));
-            }
-            else{
-                //success, call function
-                returnFunction(response);
-            }
-        }
-    }
-    request.open("GET", url, true);
-    request.send();
 }

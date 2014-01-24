@@ -249,5 +249,48 @@ switch($function){
         }
         mysqli_free_result($result);
         break;
+    
+    case('login'):
+        //sanitize
+        $uname = $_GET['uname'];
+        $pass = $_GET['pass'];
+        if($uname == null || $uname == ""){
+            sendError("Enter a valid username");
+        }
+        if($pass == null || $pass == ""){
+            sendError("Enter a valid password");
+        }
+        //get username, password
+        $playerRow = query("select ID,Name,Scene from playerinfo where Name=".prepVar($_GET['uname'])." and password=".prepVar($_GET['pass']));
+        //select needed info from playerinfo
+        $_SESSION['playerID'] = $row['ID'];
+        $_SESSION['playerName'] = $row['Name'];
+        $_SESSION['lastChatTime'] = date_timestamp_get(new DateTime());
+        $_SESSION['currentScene'] = $row['Scene'];
+        mysqli_free_result($result);
+        header("Location: index.php");
+        break;
+    
+    case('register'):
+        //sanitize
+        $uname = $_GET['uname'];
+        $pass = $_GET['pass'];
+        $pass2 = $_GET['pass2'];
+        //check password similarity
+        if($pass != $pass2){
+            sendError("Your passwords don't match");
+        }
+        //check players for name
+        $sharedNameRow = query("select count(1) from playerinfo where Name=".prepVar($uname));
+        if($sharedNameRow[0] > 0){
+            sendError("Someone already has that name");
+        }
+        //add player
+        $playerID = lastIDQuery("insert into playerinfo (Name,Password,Description,Scene)values(".prepVar($uname).",".prepVar($pass).",".prepVar("I'm new, so be nice to me!").",".constants::startSceneID.")");
+        $_SESSION['playerID'] = $playerID;
+        $_SESSION['playerName'] = $uname;
+        $_SESSION['lastChatTime'] = date_timestamp_get(new DateTime());
+        $_SESSION['currentScene'] = constants::startSceneID;
+        break;
 }
 ?>

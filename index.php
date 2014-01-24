@@ -94,7 +94,11 @@ think about item sizes/weights and bags again
             recieve an alert when you are accepted, told to update email
 
     make a library
-    
+
+make a php header
+    db login info
+    copyright info
+    contact info
 can't log in if already logged in
 move chat to db
 error on wrong password
@@ -189,6 +193,7 @@ remove \r\n from all input text
 <html>
     <head>
 <link rel="stylesheet" type="text/css" href="TextCombat.css" />
+<link rel="stylesheet" type="text/css" href="shared.css" />
 <!--//////////////////////////////////remove testing///////////////////////////////////////////////////-->
 <!--<script src="testing.js"></script>-->
 <audio id="anvil">
@@ -228,5 +233,6 @@ remove \r\n from all input text
         <span id="menuMainMute" onclick="toggleMute()">Mute</span>
         </div>
 </body>
+<script src="jsHelperFunctions.js"></script>
 <script src="TextCombat.js"></script>
 </html>

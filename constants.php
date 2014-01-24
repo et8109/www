@@ -3,6 +3,11 @@
 final class constants {
     const maxPlayerItems = 4;
     const maxSceneItems = 4;
+    const dbhostName = "localhost";
+    const dbusername = "ignatymc_admin";
+    const dbpassword = "1Gn4tym";
+    const dbname = "ignatymc_game";
+    const startSceneID = 101;
 }
 /**
  *the maximum text size in the db
@@ -15,6 +20,8 @@ final class maxLength {
     const alertDesc = 100;
     const maxSpanLength = 110;
     const maxEmailLength = 35;
+    const username = 20;
+    const password = 20;
 }
 
 /**

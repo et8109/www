@@ -17,7 +17,7 @@ function printDebug($word){
  *set the global connection, if applicable, to this
  */
 function getConnection(){
-    $con = mysqli_connect("Localhost","ignatymc_admin","1Gn4tym","ignatymc_game");
+    $con = mysqli_connect(constants::dbhostName,constants::dbusername,constants::dbpassword,constants::dbname);
     //check connection
     if (mysqli_connect_errno()){
         sendError("could not connect");
@@ -36,6 +36,10 @@ function query($sql){
     $result = mysqli_query($GLOBALS['con'], $sql);
     if(is_bool($result)){
         return false;
+    }
+    $numRows = mysqli_num_rows($result);
+    if($numRows > 1){
+        sendError("result error");
     }
     $row = mysqli_fetch_array($result);
     mysqli_free_result($result);
@@ -68,14 +72,22 @@ function lastIDQuery($sql){
  */
 function prepVar($var){
     //replace ' with ''
-    $var = str_replace("'", "''", $var);
+    /*$var = str_replace("'", "''", $var);
     //if not a number, surround in quotes
     if(!is_numeric($var)){
         $var = "'".$var."'";
     }
+    */
+    $var = mysqli_real_escape_string($var);
     return $var;
 }
-
+/**
+ *makes sure an input is clean
+ *throws error if not
+ */
+function checkInputIsClean(){
+    
+}
 /**
  *sends the error to the client
  *terminates all php
