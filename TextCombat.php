@@ -261,13 +261,16 @@ switch($function){
             sendError("Enter a valid password");
         }
         //get username, password
-        $playerRow = query("select ID,Name,Scene from playerinfo where Name=".prepVar($_GET['uname'])." and password=".prepVar($_GET['pass']));
+        $playerRow = query("select ID,Name,Scene from playerinfo where Name=".prepVar($uname)." and password=".prepVar($pass));
+        if($playerRow == false){
+            sendError("Incorrect username or password");
+        }
+        sendError($pass);
         //select needed info from playerinfo
-        $_SESSION['playerID'] = $row['ID'];
-        $_SESSION['playerName'] = $row['Name'];
+        $_SESSION['playerID'] = $playerRow['ID'];
+        $_SESSION['playerName'] = $playerRow['Name'];
         $_SESSION['lastChatTime'] = date_timestamp_get(new DateTime());
-        $_SESSION['currentScene'] = $row['Scene'];
-        mysqli_free_result($result);
+        $_SESSION['currentScene'] = $playerRow['Scene'];
         header("Location: index.php");
         break;
     
@@ -281,12 +284,12 @@ switch($function){
             sendError("Your passwords don't match");
         }
         //check players for name
-        $sharedNameRow = query("select count(1) from playerinfo where Name=".prepVar($uname));
-        if($sharedNameRow[0] > 0){
+        $sharedNameRow = query("select ID from playerinfo where Name=".prepVar($uname));
+        if($sharedNameRow != false){
             sendError("Someone already has that name");
         }
         //add player
-        $playerID = lastIDQuery("insert into playerinfo (Name,Password,Description,Scene)values(".prepVar($uname).",".prepVar($pass).",".prepVar("I'm new, so be nice to me!").",".constants::startSceneID.")");
+        $playerID = lastIDQuery("insert into playerinfo (Name,Password,Description,Scene)values(".prepVar($uname).",".prepVar($pass).",".prepVar("I am new, so be nice to me!").",".constants::startSceneID.")");
         $_SESSION['playerID'] = $playerID;
         $_SESSION['playerName'] = $uname;
         $_SESSION['lastChatTime'] = date_timestamp_get(new DateTime());

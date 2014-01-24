@@ -8,20 +8,18 @@ if(isset($_SESSION['playerID'])){
 
 <html>
     <head>
-        <link rel="stylesheet" type="text/css" href="login.css" />
-        <link rel="stylesheet" type="text/css" href="shared.css" />
-        <script src="jsHelperFunctions.js"></script>
         <script src="login.js"></script>
+        <link rel="stylesheet" type="text/css" href="login.css" />
     </head>
     <body>
-        <FORM NAME ="loginForm" onsubmit="login()">
 I am </br>
-<INPUT TYPE = 'TEXT' Name ='username' maxlength=20></br>
+<INPUT TYPE = 'TEXT' id="username" maxlength=20></br>
 Password: </br>
-<INPUT TYPE = 'password' Name ='password' maxlength=20><br/>
-<INPUT TYPE = "Submit" Name = "Submit1">
-    <a href="register.php">Need to register?</a>
-        </FORM>
+<INPUT TYPE = 'password' id="password" maxlength=20><br/>
+<input type="button" value="login" onclick="login();">
+    <a href="register.php">Need to register?</a></br>
+        <!-- shared error message -->
+        <img id="errorPoint" src="images/errorPoint.png" style="visibility: hidden"><span id="error" style="color: black"></span></br>
         <div id="info">
             <a>forums will be found soon</a></br></br>
             Updates:</br>

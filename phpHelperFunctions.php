@@ -71,14 +71,13 @@ function lastIDQuery($sql){
  *sanatizes a variable
  */
 function prepVar($var){
+    $var = mysqli_real_escape_string($GLOBALS['con'],$var);
     //replace ' with ''
-    /*$var = str_replace("'", "''", $var);
+    $var = str_replace("'", "''", $var);
     //if not a number, surround in quotes
     if(!is_numeric($var)){
         $var = "'".$var."'";
     }
-    */
-    $var = mysqli_real_escape_string($var);
     return $var;
 }
 /**
@@ -96,7 +95,12 @@ function sendError($message){
     echo "<<".$message;
     die();
 }
-$fileName = "chats/".$_SESSION['currentScene']."Chat.txt";
+
+$fileName="";
+if(isset($_SESSION['currentScene'])){
+ $fileName = "chats/".$_SESSION['currentScene']."Chat.txt";   
+}
+
 /**
  *adds the given text to the current chat file
  */

@@ -193,7 +193,6 @@ remove \r\n from all input text
 <html>
     <head>
 <link rel="stylesheet" type="text/css" href="TextCombat.css" />
-<link rel="stylesheet" type="text/css" href="shared.css" />
 <!--//////////////////////////////////remove testing///////////////////////////////////////////////////-->
 <!--<script src="testing.js"></script>-->
 <audio id="anvil">
@@ -210,7 +209,8 @@ remove \r\n from all input text
         <br/>
         <!-- holds the input, buttons, and text area -->
         <div id="hub">
-        <img id="errorPoint" src="images/errorPoint.png"><span id="error"></span></br>
+        <!-- shared error message -->
+        <img id="errorPoint" src="images/errorPoint.png" style="visibility: hidden"><span id="error" style="color: black"></span></br>
         <input id="input" disabled="true" type="text" id="input" maxlength="100" onkeypress="textTyped(event)"></input></br>
         <span id="logout" onclick="logout()"><a href="logout.php">log out</a></span>
         <span id="hubName" onclick="displayMyDesc()"><?php echo $_SESSION['playerName']; ?></span>
@@ -233,6 +233,5 @@ remove \r\n from all input text
         <span id="menuMainMute" onclick="toggleMute()">Mute</span>
         </div>
 </body>
-<script src="jsHelperFunctions.js"></script>
 <script src="TextCombat.js"></script>
 </html>
