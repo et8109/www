@@ -275,6 +275,11 @@ switch($function){
         break;
     
     case('register'):
+        //check amount of players
+        $numPlayers = query("select count(1) from playerinfo");
+        if($numPlayers[0] > 2){
+            sendError("Sorry, max amount of players reached. Check the updates for when we can let more in.");
+        }
         //sanitize
         $uname = $_GET['uname'];
         $pass = $_GET['pass'];
