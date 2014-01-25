@@ -84,13 +84,6 @@ final class keywordTypes {
 //final class requiredPlayerKeywordTypes {};
 
 /**
- *scene keyword ID => player job keyword ID
- */
-$sceneKeywordToPlayerJob = array(
-    6 => 7
-);
-
-/**
  *the names asocciated with each keyword type
  */
 $keywordTypeNames = array(

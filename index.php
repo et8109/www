@@ -120,8 +120,6 @@ alpha begins!
 later:
 ********************************************
 combine multiple querys into one in long functions
-when hiring, say what position people were hired to on success and error 
-replacing keywords must take into account crafting level restictions
 a way to remove certain alerts
 remove admin level from playerInfo
 ability to view players from the home page

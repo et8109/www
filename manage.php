@@ -114,7 +114,9 @@ switch($function){
             if($manageRow['locationID'] != $_SESSION['currentScene']){
                 sendError("You don't work here");
             }
-            checkLocationAcceptsApprentice();
+            if(!checkLocationAcceptsApprentice()){
+               sendError("There are no jobs here"); 
+            }
             $startingKeywordID = 7;
             $position = keywordTypes::APPSHP;
             $location = $_SESSION['currentScene'];
@@ -124,6 +126,9 @@ switch($function){
             $townRow = query("select town from scenes where ID=".prepVar($_SESSION['currentScene']));
             if($manageRow['locationID'] != $townRow['town']){
                 sendError("You don't rule this town");
+            }
+            if(!checkLocationAcceptsApprentice()){
+               sendError("There are no jobs here"); 
             }
             //make sure there is no manager already
             $positionRow = query("select count(1) from playerkeywords where type=".keywordTypes::MANAGER." and locationID=".prepVar($_SESSION['currentScene']));

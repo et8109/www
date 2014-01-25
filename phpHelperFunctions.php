@@ -97,6 +97,9 @@ function checkInputIsClean(){
     );
     $numRestricted = sizeof($restrictedInputs);
     foreach ($_GET as $key => $value) {
+        if($value == null || $value==""){
+            sendError("restricted char/string in input");
+        }
         for($i=0; $i<$numRestricted; $i++){
             //php said to use ===
             if(strpos($value,$restrictedInputs[$i]) === true){
@@ -218,10 +221,33 @@ function getSpanText($type, $id, $name){
  *returns false if not found
  */
 function replaceKeywordType($desc, $type, &$IdOut){
+    //find prerequisites
+    $prerequisite = "";
+    switch($type){
+        case(keywordTypes::QUALITY):
+            $row = query("select craftSkill from playerinfo where ID = ".prepVar($_SESSION['playerID']));
+            if($row == false){
+                sendError("error finding craft level");
+            }
+            switch($row['craftSkill']){
+                case(0):
+                    $prerequisite = "ID<=3";
+                    break;
+                case(1):
+                    $prerequisite = "ID<=4";
+                    break;
+            }
+            break;
+    }
+    //find and replace the word
     $descArray = explode(" ",$desc);
     $descArrayLength = count($descArray);
     for($i=0; $i<$descArrayLength; $i++){
-        $keywordRow = query("select ID from keywordwords where Word=".prepVar($descArray[$i])." and Type=".prepVar($type));
+        $query = "select ID from keywordwords where Word=".prepVar($descArray[$i])." and Type=".prepVar($type);
+        if($prerequisite != ""){
+            $query.=" and ".$prerequisite;
+        }
+        $keywordRow = query($query);
         if(isset($keywordRow['ID'])){
             $descArray[$i] = getSpanText(spanTypes::KEYWORD,$descArray[$i],$descArray[$i]);
             $IdOut = $keywordRow['ID'];
