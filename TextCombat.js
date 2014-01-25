@@ -718,12 +718,16 @@ document.getElementById("menuMain").style.visibility="hidden";
 function openOptions(){
     var menuInside = document.getElementById("menuMainInside");
     menuInside.innerHTML = "";
-    menuInside.innerHTML += "Options:</br><input type='checkbox' onclick='toggleFrontLoadAlertText()'";
+    menuInside.innerHTML += "Options:";
     //front load alert text
     if (frontLoadAlertText) {
-        menuInside.innerHTML +=" checked='checked' ";
+        menuInside.innerHTML +="</br><input type='checkbox' onclick='toggleFrontLoadAlertText()' checked='checked' >";
     }
-    menuInside.innerHTML +=">Front load alert text. About 2 lines.</input></br>Note: refreshing the page still required for some alerts.";
+    else{
+        menuInside.innerHTML +="</br><input type='checkbox' onclick='toggleFrontLoadAlertText()'>";
+
+    }
+    menuInside.innerHTML +="Front load alert text. About 2 lines.</input></br>Note: refreshing the page still required for some alerts.";
     //front load scene text
     if (frontLoadSceneText) {
         menuInside.innerHTML +="</br><input type='checkbox' onclick='toggleFrontLoadSceneText()' checked='checked'>";

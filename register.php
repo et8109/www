@@ -1,3 +1,11 @@
+<?php
+ob_start();
+session_start();
+if(isset($_SESSION['playerID'])){
+    header("Location: index.php");
+}
+?>
+
 <html>
     <head>
 	<!-- shared favicon code -->
@@ -13,7 +21,7 @@ Password: <INPUT TYPE = 'password' id ='password2' maxlength="20"></br>
 <input type="button" onclick="register()" value="submit">
 	<a href="login.php">back</a></br>
 	<!-- shared error message -->
-        <img id="errorPoint" src="images/errorPoint.png" style="visibility: hidden"><span id="error" style="color: black"></span></br>
+        <img id="errorPoint" src="images/errorPoint.png" style="visibility: hidden"><span id="error"></span></br>
 	<span id="message"></span>
     </body>
 </html>

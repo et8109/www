@@ -251,6 +251,10 @@ switch($function){
         break;
     
     case('login'):
+        //make sure they are not logged in
+        if(isset($_SESSION['playerID'])){
+            sendError("You already logged in. Try refreshing the page.");
+        }
         //sanitize
         $uname = $_GET['uname'];
         $pass = $_GET['pass'];
@@ -274,6 +278,10 @@ switch($function){
         break;
     
     case('register'):
+        //make sure they are not logged in
+        if(isset($_SESSION['playerID'])){
+            sendError("You already logged in. Try refreshing the page.");
+        }
         //check amount of players
         $numPlayers = query("select count(1) from playerinfo");
         if($numPlayers[0] > 2){
