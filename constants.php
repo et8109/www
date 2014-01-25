@@ -94,22 +94,13 @@ $sceneKeywordToPlayerJob = array(
  *the names asocciated with each keyword type
  */
 $keywordTypeNames = array(
-  "container",
-  "material",
-  "quality",
-  "sceneAction",
-  "apprenticeship",
-  "manager",
-  "lord",
-  "monarch"
+  0 => "container",
+  1 => "material",
+  2 => "quality",
+  3 => "sceneAction",
+  4 => "apprenticeship",
+  5 => "manager",
+  6 => "lord",
+  7 => "monarch"
 );
-
-/**
- *the characters or strings not allowed in inputs
- */
-$restrictedInputs = array{
-    "<",
-    ">",
-    "<?php"
-}
 ?>

@@ -87,7 +87,15 @@ function prepVar($var){
  *assumes inputs are all get
  */
 function checkInputIsClean(){
-    $numRestricted = $restrictedInputs.length;
+    /**
+    *the characters or strings not allowed in inputs
+    */
+    $restrictedInputs = array(
+       "<",
+       ">",
+       "<?php"
+    );
+    $numRestricted = sizeof($restrictedInputs);
     foreach ($_GET as $key => $value) {
         for($i=0; $i<$numRestricted; $i++){
             //php said to use ===
