@@ -6,9 +6,9 @@
  */
 
 body{
-/* background-color:#A89423; old background */
-background-color:#624A0A;
-overflow: hidden;
+background-color:#A89423; /*old background*/
+/*background-color:#624A0A;*/
+overflow: scroll;
 }
 
 #main{

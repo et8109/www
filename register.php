@@ -8,8 +8,8 @@
     </head>
     <body>
 Username: <INPUT TYPE = 'TEXT' id ='username' maxlength="20"></br>
-Password: <INPUT TYPE = 'TEXT' id ='password' maxlength="20"></br>
-Password: <INPUT TYPE = 'TEXT' id ='password2' maxlength="20"></br>
+Password: <INPUT TYPE = 'password' id ='password' maxlength="20"></br>
+Password: <INPUT TYPE = 'password' id ='password2' maxlength="20"></br>
 <input type="button" onclick="register()" value="submit">
 	<a href="login.php">back</a></br>
 	<!-- shared error message -->

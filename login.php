@@ -22,11 +22,9 @@ Password: </br>
 <input type="button" value="login" onclick="login();">
     <a href="register.php">Need to register?</a></br>
         <!-- shared error message -->
-        <img id="errorPoint" src="images/errorPoint.png" style="visibility: hidden"><span id="error" style="color: black"></span></br>
+        <img id="errorPoint" src="images/errorPoint.png" style="visibility: hidden"><span id="error"></span></br>
         <div id="info">
-            <a>forums will be found soon</a></br></br>
-            Updates:</br>
-            -v1 :)</br>
+            <a href="http://ignatym.freeforums.net/">Forums</a></br></br>
             Welcome to the alpha!
         </div>
     </body>

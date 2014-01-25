@@ -1,7 +1,7 @@
 /**
  *sends a request to the server
  */
-function sendRequest(url){
+function sendRequest(url, returnFunction){
     request = new XMLHttpRequest();
     request.onreadystatechange = function(){
         if (this.readyState==4 && this.status==200) {
@@ -9,6 +9,10 @@ function sendRequest(url){
             //if an error
             if (response.indexOf("<<") == 0) {
                 setErrorMessage(response.replace("<<",""));
+            }
+            else{
+                //success, call function
+                returnFunction(response);
             }
         }
     }
@@ -39,6 +43,11 @@ function login() {
     clearErrorMessage();
     uname = document.getElementById("username").value;
     pass = document.getElementById("password").value;
-    sendRequest("TextCombat.php?function=login&uname="+uname+"&pass="+pass);
+    sendRequest("TextCombat.php?function=login&uname="+uname+"&pass="+pass,
+        function(response){
+        //window.location = "index.php"; remove
+        window.location.replace("index.php");
+        }
+    );
 }
 //get updates function, later

@@ -73,7 +73,7 @@ function lastIDQuery($sql){
 function prepVar($var){
     $var = mysqli_real_escape_string($GLOBALS['con'],$var);
     //replace ' with ''
-    $var = str_replace("'", "''", $var);
+    //$var = str_replace("'", "''", $var);
     //if not a number, surround in quotes
     if(!is_numeric($var)){
         $var = "'".$var."'";
@@ -132,8 +132,8 @@ function updateChatTime(){
  *Does not add it to their page,this list is only checked during setup
  *optional second param is playerID
  */
-function addAlert($alertNum, $optionalPlayerID){
-    if(!isset($optionalPlayerID)){
+function addAlert($alertNum, $optionalPlayerID = -1){
+    if($optionalPlayerID == -1){
         $optionalPlayerID = $_SESSION['playerID'];
     }
     query("insert into playeralerts (alertID, playerID) values (".$alertNum.",".prepVar($optionalPlayerID).")");

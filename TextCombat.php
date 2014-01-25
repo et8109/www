@@ -265,7 +265,6 @@ switch($function){
         if($playerRow == false){
             sendError("Incorrect username or password");
         }
-        sendError($pass);
         //select needed info from playerinfo
         $_SESSION['playerID'] = $playerRow['ID'];
         $_SESSION['playerName'] = $playerRow['Name'];
