@@ -1,5 +1,6 @@
 <?php
-
+//check inputs
+checkInputIsClean();
 include_once 'constants.php';
 
 /**
@@ -83,9 +84,18 @@ function prepVar($var){
 /**
  *makes sure an input is clean
  *throws error if not
+ *assumes inputs are all get
  */
 function checkInputIsClean(){
-    
+    $numRestricted = $restrictedInputs.length;
+    foreach ($_GET as $key => $value) {
+        for($i=0; $i<$numRestricted; $i++){
+            //php said to use ===
+            if(strpos($value,$restrictedInputs[$i]) === true){
+                sendError("restricted char/string in input");
+            }
+        }
+    }
 }
 /**
  *sends the error to the client
