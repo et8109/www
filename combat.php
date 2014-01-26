@@ -11,17 +11,17 @@ session_start();
 include 'phpHelperFunctions.php';
 //set connection
 $con = getConnection();
-$function = $_GET['function'];
+$function = $_POST['function'];
 switch($function){
     case('attack'):        
         //see if player is there
-        $row = query("SELECT playerID FROM sceneplayers WHERE SceneID =".prepVar($_SESSION['currentScene'])." AND playerName = ".prepVar($_GET['Name']));
+        $row = query("SELECT playerID FROM sceneplayers WHERE SceneID =".prepVar($_SESSION['currentScene'])." AND playerName = ".prepVar($_POST['Name']));
         if($row['playerID']){
-            speakAction(actionTypes::ATTACK, $_GET['Name'], $row['playerID']);
+            speakAction(actionTypes::ATTACK, $_POST['Name'], $row['playerID']);
             //no need to echo, it's in chat
         }
         else{
-            sendError($_GET['Name']." is not nearby");
+            sendError($_POST['Name']." is not nearby");
         }
         break;
 }

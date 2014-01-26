@@ -4,7 +4,7 @@ session_start();
 include 'phpHelperFunctions.php';
 //set connection
 $con = getConnection();
-$function = $_GET['function'];
+$function = $_POST['function'];
 switch($function){
     case('addItemToScene'):
         //must be at least an apprentice
@@ -12,7 +12,7 @@ switch($function){
             sendError("You don't have permission");
         }
         //get item id,size
-        $idRow = query("select ID, size from items where playerID=".prepVar($_SESSION['playerID'])." and Name=".prepVar($_GET['Name']));
+        $idRow = query("select ID, size from items where playerID=".prepVar($_SESSION['playerID'])." and Name=".prepVar($_POST['Name']));
         if(is_bool($idRow)){
             sendError("You do not have that item");
         }
@@ -24,7 +24,7 @@ switch($function){
         //remove item from player
         removeItemIdFromPlayer($idRow['ID']);
         //add item to items in scenes, along with note
-        query("insert into itemsinscenes (sceneID,itemID,note) values (".prepVar($_SESSION['currentScene']).",".prepVar($idRow['ID']).",".prepVar($_GET['Note']).")");
+        query("insert into itemsinscenes (sceneID,itemID,note) values (".prepVar($_SESSION['currentScene']).",".prepVar($idRow['ID']).",".prepVar($_POST['Note']).")");
         break;
     
     case('removeItemFromScene'):
@@ -33,7 +33,7 @@ switch($function){
             sendError("You don't have permission");
         }
         //get item id,size
-        $idRow = query("select ID from items where Name=".prepVar($_GET['Name']));
+        $idRow = query("select ID from items where Name=".prepVar($_POST['Name']));
         if(is_bool($idRow)){
             sendError("That item does not exist");
         }
@@ -41,7 +41,7 @@ switch($function){
         checkPlayerCanTakeItem();
         //remove item from scene list
         $removeRow = query("delete from itemsInScenes where sceneID=".prepVar($_SESSION['currentScene'])." and itemID=".prepVar($idRow['ID']));
-        addItemIdToPlayer($idRow['ID'], $_GET['Name']);
+        addItemIdToPlayer($idRow['ID'], $_POST['Name']);
         break;
     
     case('changeItemNote'):
@@ -50,11 +50,11 @@ switch($function){
             sendError("You don't have permission");
         }
         //get item id
-        $idRow = query("select ID from items where playerID=".prepVar($_SESSION['playerID'])." and Name=".prepVar($_GET['Name']));
+        $idRow = query("select ID from items where playerID=".prepVar($_SESSION['playerID'])." and Name=".prepVar($_POST['Name']));
         if(is_bool($idRow)){
             sendError("Item not found");
         }
-        query("update itemsinscenes set note=".prepVar($_GET['Note'])." where itemID=".$idRow['ID']);
+        query("update itemsinscenes set note=".prepVar($_POST['Note'])." where itemID=".$idRow['ID']);
         break;
     
     case('changeSceneDesc'):
@@ -62,7 +62,7 @@ switch($function){
         if(getPlayerManageLevel() < 3){
             sendError("You don't have permission");
         }
-        updateDescription($_SESSION['currentScene'],$_GET['desc'],spanTypes::SCENE);
+        updateDescription($_SESSION['currentScene'],$_POST['desc'],spanTypes::SCENE);
         break;
     
     case('getManageSceneText'):
@@ -92,9 +92,9 @@ switch($function){
     
     case("hireEmployee"):
         //get employeeID
-        $IdRow = query("select ID from playerinfo where Name=".prepVar($_GET['name']));
+        $IdRow = query("select ID from playerinfo where Name=".prepVar($_POST['name']));
         if($IdRow == false){
-            sendError($_GET['name']." was not found");
+            sendError($_POST['name']." was not found");
         }
         $employeeID = $IdRow['ID'];
         $employeeKeywordRow = query("select type,locationID from playerkeywords where ID=".prepVar($employeeID)." and (type=".keywordTypes::APPSHP." or type=".keywordTypes::MANAGER." or type=".keywordTypes::LORD." or type=".keywordTypes::MONARCH.")");
@@ -165,7 +165,7 @@ switch($function){
     
     case("fireEmployee"):
         //get employee ID
-        $employeeRow = ("select ID from playerinfo where Name=".prepVar($_GET['name']));
+        $employeeRow = ("select ID from playerinfo where Name=".prepVar($_POST['name']));
         if($employeeRow == false){
             sendError("Player not found");
         }

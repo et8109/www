@@ -13,7 +13,7 @@ $itemKeywordTypes = array(
 
 //set connection
 $con = getConnection();
-$function = $_GET['function'];
+$function = $_POST['function'];
 switch($function){
         /**
          *adds the item to the item list
@@ -27,7 +27,7 @@ switch($function){
         $keywordIDs = array();
         $IdOut = -1;
         //make sure all required keyword types were replaced
-        $desc = $_GET['Description'];
+        $desc = $_POST['Description'];
         $numTypes = sizeof($itemKeywordTypes);
         for($i=0; $i<$numTypes; $i++){
             $type = $itemKeywordTypes[$i];
@@ -50,7 +50,7 @@ switch($function){
         //make sure desc length is less than max
         checkDescIsUnderMaxLength($desc, spanTypes::ITEM);
         //add the item into db
-        $lastID = lastIDquery("insert into items (playerID, Name, Description) values (".prepVar($_SESSION['playerID']).",".prepVar($_GET['Name']).",".prepVar($desc).")");
+        $lastID = lastIDquery("insert into items (playerID, Name, Description) values (".prepVar($_SESSION['playerID']).",".prepVar($_POST['Name']).",".prepVar($desc).")");
         //if item is a container, give it room
         if($isContainer){
             query("Update items set room=2 where ID=".$lastID);
@@ -60,7 +60,7 @@ switch($function){
         foreach ($itemKeywordTypes as $t){
             query("insert into itemkeywords (ID, keywordID, type) values (".$lastID.",".$keywordIDs[$t].",".$t.")");
         }
-        addItemIdToPlayer($lastID, $_GET['Name']);
+        addItemIdToPlayer($lastID, $_POST['Name']);
         break;
     
     case('getCraftInfo'):

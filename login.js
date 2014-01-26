@@ -1,8 +1,13 @@
 /**
  *sends a request to the server
+ *repeated
  */
-function sendRequest(url, returnFunction){
-    request = new XMLHttpRequest();
+function sendRequest(url,params,returnFunction){
+    var request = new XMLHttpRequest();
+    request.open("POST",url);
+    request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    request.setRequestHeader("Content-length", params.length);
+    request.setRequestHeader("Connection", "close");
     request.onreadystatechange = function(){
         if (this.readyState==4 && this.status==200) {
             var response = this.responseText;
@@ -16,8 +21,7 @@ function sendRequest(url, returnFunction){
             }
         }
     }
-    request.open("GET", url, true);
-    request.send();
+    request.send(params);
 }
 /**
  *sets the error message.
@@ -43,7 +47,8 @@ function login() {
     clearErrorMessage();
     uname = document.getElementById("username").value;
     pass = document.getElementById("password").value;
-    sendRequest("TextCombat.php?function=login&uname="+uname+"&pass="+pass,
+    sendRequest("TextCombat.php",
+                "function=login&uname="+uname+"&pass="+pass,
         function(response){
         //window.location = "index.php"; remove
         window.location.replace("index.php");

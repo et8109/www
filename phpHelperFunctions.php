@@ -93,10 +93,12 @@ function checkInputIsClean(){
     $restrictedInputs = array(
        "<",
        ">",
-       "<?php"
+       "<?php",
+       "\r",
+       "\n"
     );
     $numRestricted = sizeof($restrictedInputs);
-    foreach ($_GET as $key => $value) {
+    foreach ($_POST as $key => $value) {
         if($value == null || $value==""){
             sendError("restricted char/string in input");
         }
@@ -179,7 +181,7 @@ function speakAction($type, $targetName, $targetID){
             break;
         case(actionTypes::ATTACK):
             $playerCombatLevel = getCombatLevel($_SESSION['playerID']);
-            $opponentCombatLevel = getCombatLevel($_GET['Name']);
+            $opponentCombatLevel = getCombatLevel($_POST['Name']);
             if($playerCombatLevel > $opponentCombatLevel){
                 $actionWords = " attacked ";
             }
@@ -414,7 +416,7 @@ function getTableKeywords($spanTypesType){
  */
 function addItemNameToPlayer($itemName){
     //get item ID
-    $idRow = query("select ID from items where playerID=".prepVar($_SESSION['playerID'])." and Name=".prepVar($_GET['Name']));
+    $idRow = query("select ID from items where playerID=".prepVar($_SESSION['playerID'])." and Name=".prepVar($_POST['Name']));
         if(is_bool($idRow)){
             sendError("You do not have that item");
     }

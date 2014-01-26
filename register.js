@@ -1,8 +1,13 @@
 /**
  *sends a request to the server
+ *repeated
  */
-function sendRequest(url, returnFunction){
-    request = new XMLHttpRequest();
+function sendRequest(url,params,returnFunction){
+    var request = new XMLHttpRequest();
+    request.open("POST",url);
+    request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    request.setRequestHeader("Content-length", params.length);
+    request.setRequestHeader("Connection", "close");
     request.onreadystatechange = function(){
         if (this.readyState==4 && this.status==200) {
             var response = this.responseText;
@@ -16,8 +21,7 @@ function sendRequest(url, returnFunction){
             }
         }
     }
-    request.open("GET", url, true);
-    request.send();
+    request.send(params);
 }
 /**
  *sets the error message.
@@ -46,7 +50,8 @@ function register() {
     if (pass != pass2) {
         setErrorMessage("Your passwords don't match");
     }
-    sendRequest("TextCombat.php?function=register&uname="+uname+"&pass="+pass+"&pass2="+pass2,
+    sendRequest("TextCombat.php",
+                "function=register&uname="+uname+"&pass="+pass+"&pass2="+pass2,
         function (response) {
             document.getElementById("message").innerHTML = "Welcome, "+uname+". <a href='index.php'>Begin!</a>";
         }

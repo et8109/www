@@ -11,10 +11,11 @@ var frontLoadKeywords;
  *Set up, needed
  */
 (function(){
-request = new XMLHttpRequest();
-request.onreadystatechange = function(){
-    if (this.readyState==4 && this.status==200) {
-        var response = this.responseText.split("<>");
+   sendRequest(
+        "setup.php",
+        "function=setUp",
+        function(response){
+        response = response.split("<>");
         currentScene = parseInt(response[1]);
         frontLoadAlertText = parseInt(response[2]);
         frontLoadSceneText = parseInt(response[3]);
@@ -26,21 +27,19 @@ request.onreadystatechange = function(){
         }
         //allow input
         document.getElementById("input").disabled=false;
-    }
-}
-request.open("GET", "setup.php?function=setUp", false);
-request.send();
+        }
+    ); 
 }());
 var alertText ={};
 if (frontLoadAlertText) {
-(function(){
-    request = new XMLHttpRequest();
-    request.onreadystatechange = function(){
-        if (this.readyState==4 && this.status==200) {
-            var response = this.responseText.split("<<>>");
+    sendRequest(
+        "setup.php",
+        "function=frontLoadAlerts",
+        function(response){
+            response = response.split("<<>>");
             //ids and thier text
             var alertTextsAndIDs = response[0].split("<>");
-            for(var i=1; i<alertTextsAndIDs.length; i+=2){;
+            for(var i=1; i<alertTextsAndIDs.length; i+=2){
                 alertText[parseInt(alertTextsAndIDs[i])] = alertTextsAndIDs[i+1];
             }
             //the player's alerts
@@ -49,48 +48,39 @@ if (frontLoadAlertText) {
                 addAlert(playerAlerts[i]);
             }
         }
-    }
-    request.open("GET", "setup.php?function=frontLoadAlerts", true);
-    request.send();
-    }());
+    );
 }
 
 //[id][0:name, 1:description]
 var sceneText={};
 if (frontLoadSceneText) {
-    (function(){
-    request = new XMLHttpRequest();
-    request.onreadystatechange = function(){
-        if (this.readyState==4 && this.status==200) {
-            var sceneTextsAndIDs = this.responseText.split("<>");
-            for(var i=1; i<sceneTextsAndIDs.length; i+=3){;
-            sceneText[parseInt(sceneTextsAndIDs[i])] = [sceneTextsAndIDs[i+1],sceneTextsAndIDs[i+2]]
+    sendRequest(
+        "setup.php",
+        "function=frontLoadScenes",
+        function(response){
+            var sceneTextsAndIDs = response.split("<>");
+            for(var i=1; i<sceneTextsAndIDs.length; i+=3){
+                sceneText[parseInt(sceneTextsAndIDs[i])] = [sceneTextsAndIDs[i+1],sceneTextsAndIDs[i+2]];
             }
         }
-    }
-    request.open("GET", "setup.php?function=frontLoadScenes", false);
-    request.send();
-    }());
+    );
 }
 
 //[word][0: span text 1: desc] //keyword type not needed
 var keywordText={};
 if (frontLoadKeywords) {
-    (function(){
-    request = new XMLHttpRequest();
-    request.onreadystatechange = function(){
-        if (this.readyState==4 && this.status==200) {
-            var keywordTextAndDesc = this.responseText.split("<>");
-            for(var i=1; i<keywordTextAndDesc.length; i+=3){;
-            keywordText[keywordTextAndDesc[i]] = [keywordTextAndDesc[i+1], keywordTextAndDesc[i+2]];
+    sendRequest(
+        "setup.php",
+        "function=frontLoadKeywords",
+        function(response) {
+            var keywordTextAndDesc = response.split("<>");
+            for(var i=1; i<keywordTextAndDesc.length; i+=3){
+                keywordText[keywordTextAndDesc[i]] = [keywordTextAndDesc[i+1], keywordTextAndDesc[i+2]];
                 //keywordText[keywordTextAndDesc[i]][0] = keywordTextAndDesc[i+1];
                 //keywordText[keywordTextAndDesc[i]][1] = keywordTextAndDesc[i+2];
             }
         }
-    }
-    request.open("GET", "setup.php?function=frontLoadKeywords", false);
-    request.send();
-    }());
+    );
 }
 
 /**
@@ -306,7 +296,7 @@ function textTyped(e){
 *adds the lines to the text box
 */
 function updateChat(){
-    sendRequest("FilesBack.php?function=updateChat",
+    sendRequest("FilesBack.php","function=updateChat",
         function(response){
             if (response=="") {
                 //nothing
@@ -362,7 +352,7 @@ function addDesc(type, id) {
             }
             break;
     }
-    sendRequest("TextCombat.php?function=getDesc&type="+type+"&ID="+id,
+    sendRequest("TextCombat.php","function=getDesc&type="+type+"&ID="+id,
         function(response) {
             response = response.split("<>");
             addText(response[0]);
@@ -381,7 +371,7 @@ function setNewDescription() {
     if (null == newDescription) {
         return;
     }
-    sendRequest("TextCombat.php?function=updateDescription&Description="+newDescription,
+    sendRequest("TextCombat.php","function=updateDescription&Description="+newDescription,
         function(response) {
             closeTextArea();
             //new item, cange description alert
@@ -405,7 +395,7 @@ function walk(newSceneId) {
     if (frontLoadSceneText) {
         addDesc(spanTypes.SCENE, newSceneId);
     }
-    sendRequest("TextCombat.php?function=moveScenes&newScene="+newSceneId,
+    sendRequest("TextCombat.php","function=moveScenes&newScene="+newSceneId,
         function(response){
             if (!frontLoadSceneText) {
                 addDesc(spanTypes.SCENE, newSceneId);
@@ -421,7 +411,7 @@ function walk(newSceneId) {
     */
 function displayMyDesc() {
     openTextArea("enter a new description");
-    sendRequest("TextCombat.php?function=getDesc&type="+spanTypes.PLAYER,
+    sendRequest("TextCombat.php","function=getDesc&type="+spanTypes.PLAYER,
         function(response){
             //first is name, second id desc
             response = response.split("<>");
@@ -456,7 +446,7 @@ function addCraftName(){
     }
     openTextArea(itemName+"'s description");
     //has a name, need a description
-    sendRequest("crafting.php?function=getCraftInfo",
+    sendRequest("crafting.php","function=getCraftInfo",
         function(response){
             waitingForTextLine = textLineInputs.NOTHING;
             cancelWaits();
@@ -480,7 +470,7 @@ function addCraftDescription(){
         return;
     }
     //input into database
-    sendRequest("crafting.php?function=craftItem&Name="+itemName+"&Description="+itemDescription,
+    sendRequest("crafting.php","function=craftItem&Name="+itemName+"&Description="+itemDescription,
         function(response){
             addText("You make a "+itemName);
             closeTextArea();
@@ -516,7 +506,7 @@ function startWaiter(){
  *prints empty text if nothing was found
  */
 function getItemsInScene(onEmptyText){
-    sendRequest("TextCombat.php?function=getItemsInScene",
+    sendRequest("TextCombat.php","function=getItemsInScene",
         function(response) {
             if (response == "") {
                 onEmptyText ? addText(onEmptyText) : addText('Nothing here.');
@@ -567,7 +557,7 @@ function addItemToScene(){
        return; 
     }
     cancelWaits();
-    sendRequest("manage.php?function=addItemToScene&Name="+itemName+"&Note="+noteText,
+    sendRequest("manage.php","function=addItemToScene&Name="+itemName+"&Note="+noteText,
         function(response){
             addText("added "+itemName);
             addAlert(alertTypes.REMOVED_ITEM);
@@ -584,7 +574,7 @@ function removeItemFromScene(){
        return; 
     }
     cancelWaits();
-    sendRequest("manage.php?function=removeItemFromScene&Name="+itemName,
+    sendRequest("manage.php","function=removeItemFromScene&Name="+itemName,
         function(response){
             addText("you take the "+itemName);
             addAlert(alertTypes.NEW_ITEM);
@@ -619,7 +609,7 @@ function newSceneDescPrompt() {
     addText("Edit the description below.");
     cancelWaits();
     //get scene desc
-    sendRequest("TextCombat.php?function=getDesc&type="+spanTypes.SCENE,
+    sendRequest("TextCombat.php","function=getDesc&type="+spanTypes.SCENE,
         function(response){
             openTextArea();
             //first is name, second is desc
@@ -638,7 +628,7 @@ function changeItemNote(){
        return; 
     }
     cancelWaits();
-    sendRequest("manage.php?function=changeItemNote&Name="+itemName+"&Note="+noteText,
+    sendRequest("manage.php","function=changeItemNote&Name="+itemName+"&Note="+noteText,
         function(response){
             addText("changed note for "+itemName);
             return;
@@ -655,7 +645,7 @@ function editSceneDesc(){
         return;
     }
     cancelWaits();
-    sendRequest("manage.php?function=changeSceneDesc&desc="+desc,
+    sendRequest("manage.php","function=changeSceneDesc&desc="+desc,
         function(response){
            addText("changed scene description"); 
         }
@@ -671,7 +661,7 @@ function attack() {
     if (name == null) {
         return;
     }  
-    sendRequest("combat.php?function=attack&Name="+name,
+    sendRequest("combat.php","function=attack&Name="+name,
         function(){}
     );
 }
@@ -692,16 +682,14 @@ function openAlerts(){
         }
     }
     else{
-        document.getElementById("menuMainInside").innerHTML = "Loading..";
-        request = new XMLHttpRequest();
-        request.onreadystatechange = function(){
-            if (this.readyState==4 && this.status==200) {
+        sendRequest(
+            "TextCombat.php",
+            "function=getAlertMessages",
+            function(response){
                 document.getElementById("menuMainInside").innerHTML = "Alerts:";
-                document.getElementById("menuMainInside").innerHTML += this.responseText;
+                document.getElementById("menuMainInside").innerHTML += response;
             }
-        }
-        request.open("GET", "TextCombat.php?function=getAlertMessages", true);
-        request.send();
+        );
     }
 }
 /**
@@ -749,7 +737,7 @@ function openOptions(){
  *puts an item into a container item
  */
 function putItemIn(itemName, containerName) {
-    sendRequest("TextCombat.php?function=putItemIn&itemName="+itemName+"&containerName="+containerName,
+    sendRequest("TextCombat.php","function=putItemIn&itemName="+itemName+"&containerName="+containerName,
         function(response){
             addAlert(alertTypes.HIDDEN_ITEM);
         }
@@ -759,7 +747,7 @@ function putItemIn(itemName, containerName) {
  *removes an item from a container
  */
 function takeItemFrom(itemName, containerName){
-    sendRequest("TextCombat.php?function=takeItemFrom&itemName="+itemName+"&containerName="+containerName,
+    sendRequest("TextCombat.php","function=takeItemFrom&itemName="+itemName+"&containerName="+containerName,
         function(response){
             addAlert(alertTypes.NEW_ITEM);
         }
@@ -769,7 +757,7 @@ function takeItemFrom(itemName, containerName){
  *pulls up the options to manage a scene if player has the rights
  */
 function getManageSceneText() {
-    sendRequest("manage.php?function=getManageSceneText",
+    sendRequest("manage.php","function=getManageSceneText",
         function(response){
             addText(response);
         }
@@ -789,7 +777,7 @@ function quitJobPrompt(){
  *removes the player's current job
  */
 function quitJob() {
-    sendRequest("manage.php?function=quitJob",
+    sendRequest("manage.php","function=quitJob",
         function(response){
             addText("You have quit your job");
         }
@@ -799,7 +787,7 @@ function quitJob() {
  *hires someone to the rank below you with the given name
  */
 function hireEmployee(name){
-    sendRequest("manage.php?function=hireEmployee&name="+name,
+    sendRequest("manage.php","function=hireEmployee&name="+name,
         function(response){
             addText(name+" has been hired");
         }
@@ -809,7 +797,7 @@ function hireEmployee(name){
  *fires someone who works for you so they loose thier job
  */
 function fireEmployee(name) {
-    sendRequest("manage.php?function=fireEmployee&name="+name,
+    sendRequest("manage.php","function=fireEmployee&name="+name,
         function(response){
             addText(name+" has been hired");
         }
@@ -820,7 +808,7 @@ function fireEmployee(name) {
  *displays some info about the player
  */
 function addPlayerInfo(){
-    sendRequest("TextCombat.php?function=getPlayerInfo",
+    sendRequest("TextCombat.php","function=getPlayerInfo",
         function(response){
             response = response.split("<>");
             for(var i=0; i<response.length; i++){
@@ -899,7 +887,7 @@ function deactivateActiveLinks(){
  *adds to the chat file
  */
 function speak(inputText){
-    sendRequest("FilesBack.php?function=speak&inputText="+inputText,
+    sendRequest("FilesBack.php","function=speak&inputText="+inputText,
         function() {}
     );
 }
@@ -1065,7 +1053,7 @@ function toggleFrontLoadAlertText() {
     else{
         frontLoad = 0;
     }
-    sendRequest("TextCombat.php?function=setFrontLoadAlerts&load="+frontLoad,
+    sendRequest("TextCombat.php","function=setFrontLoadAlerts&load="+frontLoad,
         function(){}
     );
 }
@@ -1082,7 +1070,7 @@ function toggleFrontLoadSceneText(){
     else{
         frontLoad = 0;
     }
-    sendRequest("TextCombat.php?function=setFrontLoadScenes&load="+frontLoad,
+    sendRequest("TextCombat.php","function=setFrontLoadScenes&load="+frontLoad,
         function(){}
     );
 }
@@ -1099,7 +1087,7 @@ function toggleFrontLoadKeywords(){
     else{
         frontLoad = 0;
     }
-    sendRequest("TextCombat.php?function=setFrontLoadKeywords&load="+frontLoad,
+    sendRequest("TextCombat.php","function=setFrontLoadKeywords&load="+frontLoad,
         function(){}
     );
 }
@@ -1128,8 +1116,12 @@ function logout() {
 /**
  *sends a request to the server
  */
-function sendRequest(url, returnFunction){
-    request = new XMLHttpRequest();
+function sendRequest(url,params,returnFunction){
+    var request = new XMLHttpRequest();
+    request.open("POST",url);
+    request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    request.setRequestHeader("Content-length", params.length);
+    request.setRequestHeader("Connection", "close");
     request.onreadystatechange = function(){
         if (this.readyState==4 && this.status==200) {
             var response = this.responseText;
@@ -1143,8 +1135,7 @@ function sendRequest(url, returnFunction){
             }
         }
     }
-    request.open("GET", url, true);
-    request.send();
+    request.send(params);
 }
 /**
  *sets the error message.

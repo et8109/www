@@ -3,7 +3,7 @@ session_start();
 include 'phpHelperFunctions.php';
 //set connection
 $con = getConnection();
-$function = $_GET['function'];
+$function = $_POST['function'];
 switch($function){
     case('setUp'):
         $row = query("select Scene,frontLoadAlerts,frontLoadScenes,frontLoadKeywords from playerinfo where ID=".prepVar($_SESSION['playerID']));

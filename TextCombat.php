@@ -4,29 +4,29 @@ session_start();
 include 'phpHelperFunctions.php';
 //set connection
 $con = getConnection();
-$function = $_GET['function'];
+$function = $_POST['function'];
 switch($function){
     
     case('getDesc'):
-        switch($_GET['type']){
+        switch($_POST['type']){
             case(spanTypes::ITEM):
-                $row = query("select Name, Description from items where ID=".prepVar($_GET['ID']));
-                echo getSpanText(spanTypes::ITEM,$_GET['ID'],$row["Name"])."<>".$row["Description"];
+                $row = query("select Name, Description from items where ID=".prepVar($_POST['ID']));
+                echo getSpanText(spanTypes::ITEM,$_POST['ID'],$row["Name"])."<>".$row["Description"];
                 break;
             case(spanTypes::KEYWORD):
-                $row2 = query("select ID from keywordwords where Word=".prepVar($_GET['ID']));
+                $row2 = query("select ID from keywordwords where Word=".prepVar($_POST['ID']));
                 $row = query("select Description from keywords where ID=".$row2['ID']);
-                echo getSpanText(spanTypes::KEYWORD,$_GET['ID'],$_GET['ID'])."<>".$row["Description"];
+                echo getSpanText(spanTypes::KEYWORD,$_POST['ID'],$_POST['ID'])."<>".$row["Description"];
                 break;
             case(spanTypes::PLAYER):
                 //if no id is set, make it the player
-                $ID = isset($_GET['ID']) ? $_GET['ID'] : $_SESSION['playerID'];
+                $ID = isset($_POST['ID']) ? $_POST['ID'] : $_SESSION['playerID'];
                 $row = query("select Name, Description from playerinfo where ID=".prepVar($ID));
                 echo getSpanText(spanTypes::PLAYER,$ID,$row["Name"])."<>".$row["Description"];
                 break;
             case(spanTypes::SCENE):
                 //if no id set, it's the current scene
-                $ID = isset($_GET['ID']) ? $_GET['ID'] : $_SESSION['currentScene'];
+                $ID = isset($_POST['ID']) ? $_POST['ID'] : $_SESSION['currentScene'];
                 $row = query("select Name, Description, appshp from scenes where ID=".prepVar($ID));
                 echo getSpanText(spanTypes::SCENE,$ID,$row["Name"])."<>".$row["Description"];
                 //managing the scene
@@ -43,7 +43,7 @@ switch($function){
         break;
     
     case('updateDescription'):
-        $success = updateDescription($_SESSION['playerID'], $_GET['Description'], spanTypes::PLAYER);
+        $success = updateDescription($_SESSION['playerID'], $_POST['Description'], spanTypes::PLAYER);
         if($success){
             removeAlert(alertTypes::newItem);
             removeAlert(alertTypes::removedItem);
@@ -55,18 +55,18 @@ switch($function){
         //remove player from last scene list
         query("delete from sceneplayers where sceneID=".prepVar($_SESSION['currentScene'])." and playerID=".prepVar($_SESSION['playerID']));
         //recieve id or name of scene, update this players location in cookie and db
-        $_SESSION['currentScene'] = $_GET['newScene'];
-        query("Update playerinfo set Scene=".prepVar($_GET['newScene'])." where ID=".prepVar($_SESSION['playerID']));
-        $row = query("select Name from scenes where ID=".$_GET['newScene']);
-        speakAction(actionTypes::WALKING, $row['Name'], $_GET['newScene']);
+        $_SESSION['currentScene'] = $_POST['newScene'];
+        query("Update playerinfo set Scene=".prepVar($_POST['newScene'])." where ID=".prepVar($_SESSION['playerID']));
+        $row = query("select Name from scenes where ID=".$_POST['newScene']);
+        speakAction(actionTypes::WALKING, $row['Name'], $_POST['newScene']);
         updateChatTime();
         //add player to new scene list
         query("insert into sceneplayers (sceneID,playerID,playerName) values(".prepVar($_SESSION['currentScene']).",".prepVar($_SESSION['playerID']).",".prepVar($_SESSION['playerName']).")");
         break;
     
     case('putItemIn'):
-        $itemName = prepVar($_GET['itemName']);
-        $containerName = prepVar($_GET['containerName']);
+        $itemName = prepVar($_POST['itemName']);
+        $containerName = prepVar($_POST['containerName']);
         //get item and container info
         $itemRow = query("select ID,insideOf from items where playerID=".prepVar($_SESSION['playerID'])." and Name=".$itemName);
         $containerRow = query("select room,ID from items where playerID=".prepVar($_SESSION['playerID'])." and Name=".$containerName);
@@ -94,23 +94,23 @@ switch($function){
         break;
     
     case('takeItemFrom'):
-        $itemRow = query("select ID,insideOf from items where playerID=".prepVar($_SESSION['playerID'])." and Name=".prepVar($_GET['itemName']));
-        $containerRow = query("select room,ID from items where playerID=".prepVar($_SESSION['playerID'])." and Name=".prepVar($_GET['containerName']));
+        $itemRow = query("select ID,insideOf from items where playerID=".prepVar($_SESSION['playerID'])." and Name=".prepVar($_POST['itemName']));
+        $containerRow = query("select room,ID from items where playerID=".prepVar($_SESSION['playerID'])." and Name=".prepVar($_POST['containerName']));
         if($itemRow == false){
-            sendError("could not find ".$_GET['itemName']);
+            sendError("could not find ".$_POST['itemName']);
         }
         if($containerRow == false){
-            sendError("could not find ".$_GET['containerName']);
+            sendError("could not find ".$_POST['containerName']);
         }
         //make sure item is in the container
         if($itemRow['insideOf'] != $containerRow['ID']){
-            sendError("The ".$_GET['itemName']." is not in the ".$_GET['containerName']);
+            sendError("The ".$_POST['itemName']." is not in the ".$_POST['containerName']);
         }
         //take out
         query("update items set insideOf=0 where ID=".prepVar($itemRow['ID']));
         query("update items set room=".prepVar(intval($containerRow['room'])+1)." where ID=".prepVar($containerRow['ID']));
         //add name to desc
-        addItemIdToPlayer($itemRow['ID'],$_GET['itemName']);
+        addItemIdToPlayer($itemRow['ID'],$_POST['itemName']);
         break;
     
     case('getItemsInScene'):
@@ -145,7 +145,7 @@ switch($function){
     
     //gets the id of any player from the same scene. scene is indexed in mysql
     case('getPlayerIDFromScene'):
-        $row = query("SELECT ID FROM playerinfo WHERE Scene =".prepVar($_SESSION['currentScene'])." AND Name = ".prepVar($_GET['Name']));
+        $row = query("SELECT ID FROM playerinfo WHERE Scene =".prepVar($_SESSION['currentScene'])." AND Name = ".prepVar($_POST['Name']));
         echo $row['ID'];
         break;
     
@@ -228,15 +228,15 @@ switch($function){
         break;
     
     case('setFrontLoadAlerts'):
-        query("update playerinfo set frontLoadAlerts=".$_GET['load']." where ID=".prepVar($_SESSION['playerID']));
+        query("update playerinfo set frontLoadAlerts=".$_POST['load']." where ID=".prepVar($_SESSION['playerID']));
         break;
     
     case('setFrontLoadScenes'):
-        query("update playerinfo set frontLoadScenes=".$_GET['load']." where ID=".prepVar($_SESSION['playerID']));
+        query("update playerinfo set frontLoadScenes=".$_POST['load']." where ID=".prepVar($_SESSION['playerID']));
         break;
     
     case('setFrontLoadKeywords'):
-        query("update playerinfo set frontLoadKeywords=".$_GET['load']." where ID=".prepVar($_SESSION['playerID']));
+        query("update playerinfo set frontLoadKeywords=".$_POST['load']." where ID=".prepVar($_SESSION['playerID']));
         break;
     
     case('getAlertMessages'):
@@ -256,8 +256,8 @@ switch($function){
             sendError("You already logged in. Try refreshing the page.");
         }
         //sanitize
-        $uname = $_GET['uname'];
-        $pass = $_GET['pass'];
+        $uname = $_POST['uname'];
+        $pass = $_POST['pass'];
         if($uname == null || $uname == ""){
             sendError("Enter a valid username");
         }
@@ -288,9 +288,9 @@ switch($function){
             sendError("Sorry, max amount of players reached. Check the updates for when we can let more in.");
         }
         //sanitize
-        $uname = $_GET['uname'];
-        $pass = $_GET['pass'];
-        $pass2 = $_GET['pass2'];
+        $uname = $_POST['uname'];
+        $pass = $_POST['pass'];
+        $pass2 = $_POST['pass2'];
         //check password similarity
         if($pass != $pass2){
             sendError("Your passwords don't match");
