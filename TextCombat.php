@@ -152,7 +152,7 @@ switch($function){
     //used for /self
     case('getPlayerInfo'):
         //info
-        $playerRow = query("select Name,craftSkill from playerInfo where ID=".prepVar($_SESSION['playerID']));
+        $playerRow = query("select Name,craftSkill from playerinfo where ID=".prepVar($_SESSION['playerID']));
         if($playerRow == false){
             sendError("Error finding your stats.");
         }

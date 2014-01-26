@@ -157,7 +157,6 @@ when text wraps due to small screen width, the text box can go below the page
 make sure everything is searching by ID
 check to make sure cookies were not changed
 looks for upper case and lower case items in description
-change gets to posts
 -->
 <html>
     <head>
