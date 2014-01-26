@@ -257,15 +257,14 @@ function checkLocationAcceptsApprentice(){
 function sendEmail($playerID, $header, $body){
     //check email settings**
     //headers
-    $headerSubject = "TextGame: ";
+    $headerSubject = "Ignatym: ";
     $headerBody = "**If you do not know where this email came from, please disregard it. Sorry!**
     
-    This email is from the text game. You can change your email settings by logging in.
+    This email is from Ignatym. You can change your email settings by logging in.
     
     ";
     $footnoteBody = "
-    
-    -TextGame
+    Contact us though the forums at ignatym.freeforums.net or contact@ignatym.com
     Have a nice day!";
     
     //send email

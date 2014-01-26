@@ -8,7 +8,8 @@
 body{
 background-color:#A89423; /*old background*/
 /*background-color:#624A0A;*/
-overflow: scroll;
+/*overflow: scroll;*/
+overflow: hidden;
 }
 
 #main{
@@ -18,23 +19,23 @@ width:600px;*/
 border: solid 1px brown;
 }
 .textBox{
+    position: absolute;
     display: inline-block;
-    width: 50%;
+    width: 47%;
     opacity: 1;
     white-space: pre-wrap;      /* CSS3 */   
     white-space: -moz-pre-wrap; /* Firefox */    
     white-space: -pre-wrap;     /* Opera <7 */   
     white-space: -o-pre-wrap;   /* Opera 7 */    
     word-wrap: break-word;      /* IE */
-    height: 100%;
 }
 #textBox2{
     position: absolute;
-    left: 50%;
+    right: 10px;
 }
 #hub{
-    position: relative;
-    top: -60px;
+    position: absolute;
+    bottom: 10px;
 }
 
 .name{ /*names in chat*/
@@ -150,4 +151,11 @@ text-decoration:underline;
 #optionsMenuButton{
     background-image: url("images/gear.png");
     top:35px;
+}
+#clearAlertsButton{
+    color: black;
+    cursor: pointer;
+}
+#clearAlertsButton:hover{
+    text-decoration: underline;
 }

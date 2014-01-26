@@ -245,7 +245,7 @@ function replaceKeywordType($desc, $type, &$IdOut){
     $descArray = explode(" ",$desc);
     $descArrayLength = count($descArray);
     for($i=0; $i<$descArrayLength; $i++){
-        $query = "select ID from keywordwords where Word=".prepVar($descArray[$i])." and Type=".prepVar($type);
+        $query = "select ID from keywordwords where Word=".prepVar(strtolower($descArray[$i]))." and Type=".prepVar($type);
         if($prerequisite != ""){
             $query.=" and ".$prerequisite;
         }

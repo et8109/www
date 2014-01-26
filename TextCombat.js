@@ -126,7 +126,6 @@ var spanTypes = {
     KEYWORD: 3
 }
 
-var currentLine=0; //17 is max, arbitrary
 var textBox="textBox1";
 var OfftextBox="textBox2";
 
@@ -410,7 +409,7 @@ function walk(newSceneId) {
     *wait for a new description input
     */
 function displayMyDesc() {
-    openTextArea("enter a new description");
+    openTextArea();
     sendRequest("TextCombat.php","function=getDesc&type="+spanTypes.PLAYER,
         function(response){
             //first is name, second id desc
@@ -444,7 +443,7 @@ function addCraftName(){
     if (itemName == null) {
         return;
     }
-    openTextArea(itemName+"'s description");
+    openTextArea();
     //has a name, need a description
     sendRequest("crafting.php","function=getCraftInfo",
         function(response){
@@ -665,7 +664,13 @@ function attack() {
         function(){}
     );
 }
-
+/**
+ *clears the alerts which are not required
+ */
+function clearAlerts(){
+    //clear in php
+    //clear in js
+}
 function openMenu(){
     openAlerts();
     document.getElementById("menuMain").style.visibility="visible";
@@ -675,21 +680,37 @@ function openMenu(){
  */
 function openAlerts(){
     document.getElementById("alert").style.color="black";
+    var inside = document.getElementById("menuMainInside");
     if (frontLoadAlertText) {
-        document.getElementById("menuMainInside").innerHTML = "Alerts:";
+        inside.innerHTML = "Alerts:";
         for(alertNum in alerts){
-            document.getElementById("menuMainInside").innerHTML +="</br>"+alertText[alertNum];
+            inside.innerHTML +="</br>"+alertText[alertNum];
         }
+        addAlertsEnding(alerts.length>0);
     }
     else{
         sendRequest(
             "TextCombat.php",
             "function=getAlertMessages",
             function(response){
-                document.getElementById("menuMainInside").innerHTML = "Alerts:";
-                document.getElementById("menuMainInside").innerHTML += response;
+                inside.innerHTML = "Alerts:";
+                inside.innerHTML += response;
+                addAlertsEnding(response!="");
             }
         );
+    }
+}
+/**
+ *adds the ending to the alerts menu
+ */
+function addAlertsEnding(alertsBool) {
+    var inside = document.getElementById("menuMainInside");
+    var clearButton = "</br><span id='clearAlertsButton' onclick='clearAlerts()'>[Clear]</span>";
+    var noAlerts = "</br>None";
+    if (alertsBool) {
+        inside.innerHTML+=clearButton;
+    } else{
+        inside.innerHTML+=noAlerts;
     }
 }
 /**
@@ -851,18 +872,18 @@ function removeAlert(alertType) {
 *Adds a line of text to the screen. Also controls the opacity and left/right columns
 */
 function addText(text) {
+    var currentHeight = document.getElementById(this.textBox).offsetHeight;
+    var maxHeight = (document.height || document.body.offsetHeight)-document.getElementById("hub").offsetHeight;
     document.getElementById(this.textBox).innerHTML += "</br>"+ text;
-    document.getElementById(this.OfftextBox).style.opacity =(17-this.currentLine)/17;
-    this.currentLine++;
-    if (this.currentLine>16) {
+    document.getElementById(this.OfftextBox).style.opacity =(maxHeight-currentHeight)/maxHeight;
+    if (currentHeight+80>maxHeight) {
         //switch text boxes
-        textBox_ = this.textBox;
+        var textBox_ = this.textBox;
         this.textBox = this.OfftextBox;
         this.OfftextBox = textBox_;
         //reset opacity, text, line number
         document.getElementById(this.textBox).style.opacity=1;
         document.getElementById(this.textBox).innerHTML = "";
-        this.currentLine=0;
     }
 }
 

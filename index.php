@@ -101,62 +101,31 @@ make a php header
     contact info
 can't log in if already logged in
 move chat to db
-error on wrong password
-
-look over later list
-
-debug
-
-take note of all code practices
-
-start changelog
-
-change email headers
-db uname/pass
-
-alpha begins!
-
 ********************************************
 later:
 ********************************************
 combine multiple querys into one in long functions
-a way to remove certain alerts
 ability to view players from the home page
-scolling/clicking/autocomplete selection from lists
-js constants page with enums and text
-change function names so that action is first, such as prompt
 make sure items table has a secondary search set fo playerID
-auto-completeing when selecting things, like items from your inventory
 javascript can be disabled, double check things on server side
-a logout function, player is removed from sceneplayers when not active..
 add options for each command, custom commands
     add list of players to look
-landmark scenes(essentially seach by scene keyword)
-weather/light and darknes/time
+weather/light and darknes/time, candles/lamps
 scrolls/library? A way for players to write thier own lore -> admin hierarchy
     sroll: two types of people, knights and squires. together it is a powerful relationship, but k/k or s/s are easily friends.
     scroll: each month is a cyle of sin (pennance, regret, deciciveness, inaction, ect.)
-darkness/night time has a light setting, where the screen gets darker unless there is a candle/lamp
 cache stuff?
 does js .length take linear time?
-updateChat() still replaces spans in the js
-whitespace problems when looking for keywards, happend in crafting
 find a way to see sql errors
 php count() is not automatic, and loops through each time. avoid.
-when walking into a scene, show things that happened a bit before.
 move help text to a text file
 add flushing to the server to speed up the response
 one server request per function!
 websockets
 add final to final variables
-make sure removing an alerts actually removes it, not extends it by null
-there is a maximum amount of alerts
 make sure all variables have var
 only have things on client-side which will not impact anyone else
-when text wraps due to small screen width, the text box can go below the page
-make sure everything is searching by ID
 check to make sure cookies were not changed
-looks for upper case and lower case items in description
 -->
 <html>
     <head>
