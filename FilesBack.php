@@ -2,7 +2,7 @@
 
 session_start();
 include 'phpHelperFunctions.php';
-
+$con = getConnection();//needed, but getter if moved
 //create new chat if none exists
 if(!file_exists($fileName)){
     $chatFile = fopen($fileName, "w");
@@ -45,8 +45,8 @@ switch($function){
             $_SESSION['lastChatTime'] = intval($lines[36]);
         }
         //send alert on/off info
-        $alertRow = query("select count(1) from playeralerts where playerID="prepVar($_SESSION['playerID']));
-        echo "<<>>".$alertRow[0];
+        $alertRow = query("select count(1) from playeralerts where playerID=".prepVar($_SESSION['playerID']));
+        echo ">>>".$alertRow[0];
         break;
     
     //when entering a new scene

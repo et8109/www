@@ -14,10 +14,11 @@ var frontLoadKeywords;
         "setup.php",
         "function=setUp",
         function(response){
-        response = response.split("<>");
-        currentScene = parseInt(response[1]);
-        frontLoadSceneText = parseInt(response[2]);
-        frontLoadKeywords = parseInt(response[3]);
+            response = response.split("<>");
+            currentScene = parseInt(response[1]);
+            frontLoadSceneText = parseInt(response[2]);
+            frontLoadKeywords = parseInt(response[3]);
+            document.getElementById("input").disabled = false;
         }
     ); 
 }());
@@ -244,7 +245,7 @@ function textTyped(e){
 function updateChat(){
     sendRequest("FilesBack.php","function=updateChat",
         function(response){
-            response = response.split("<<>>");
+            response = response.split(">>>");
             var numAlerts = response[1];
             var text = response[0].split("\r\n");
 	    if (text.length>1) {
@@ -268,7 +269,7 @@ function updateChat(){
                     }
                     //if a chat
                     else{
-                        addText("<span class='name' onclick='addDesc("+spanTypes.PLAYER+","+response[i]+")'>"+response[i+1]+"</span>: "+response[i+2]);
+                        addText("<span class='name' onclick='addDesc("+spanTypes.PLAYER+","+text[i]+")'>"+text[i+1]+"</span>: "+chatLine);
                     }
                 }
             }
@@ -623,7 +624,6 @@ function openMenu(){
  *shows alerts in menu box
  */
 function openAlerts(){
-    document.getElementById("alert").style.color="black";
     var inside = document.getElementById("menuMainInside");
     sendRequest(
         "TextCombat.php",
@@ -737,7 +737,14 @@ function hireEmployee(name){
 /**
  *fires someone who works for you so they loose thier job
  */
-function fireEmployee(name) {
+function fireEmployee(name){
+    sendRequest("manage.php",
+                 "function=fireEmployee&name="+name,
+        function(response){
+            addText(name+" has been hired");
+        }
+    );
+}
 /**
  *displays some info about the player
  */
