@@ -26,7 +26,7 @@ switch($function){
                 break;
             case(spanTypes::SCENE):
                 //if no id set, it's the current scene
-                $ID = isset($_POST['ID']) ? $_POST['ID'] : $_SESSION['currentScene'];
+                $ID = is_numeric($_POST['ID']) ? $_POST['ID'] : $_SESSION['currentScene'];
                 $row = query("select Name, Description, appshp from scenes where ID=".prepVar($ID));
                 echo getSpanText(spanTypes::SCENE,$ID,$row["Name"])."<>".$row["Description"];
                 //managing the scene
@@ -62,6 +62,19 @@ switch($function){
         updateChatTime();
         //add player to new scene list
         query("insert into sceneplayers (sceneID,playerID,playerName) values(".prepVar($_SESSION['currentScene']).",".prepVar($_SESSION['playerID']).",".prepVar($_SESSION['playerName']).")");
+        break;
+    
+    case('destroyItem'):
+        //make sure player has item
+        $itemRow = query("select ID from items where Name=".prepVar($_POST['name']));
+        if($itemRow == false){
+            sendError("could not find item: ".$_POST['name']);
+        }
+        //remove from items
+        query("delete from items where ID=".prepVar($itemRow['ID']));
+        //remove from itemkeywords
+        query("delete from itemkeywords where ID=".prepVar($itemRow['ID']));
+        addAlert(alertTypes::removedItem);
         break;
     
     case('putItemIn'):
@@ -247,9 +260,19 @@ switch($function){
         break;
     
     case('clearAlerts'):
-        //find which alerts are temp
-        
-        //remove from playeralerts
+        $permAlerts = array(
+            alertTypes::hiddenItem,
+            alertTypes::newItem,
+            alertTypes::removedItem
+        );
+        $query = "delete from playeralerts where playerID=".prepVar($_SESSION['playerID'])." and not ( ";
+        $query.= "alertID=".$permAlerts[0];
+        $numPermAlerts = sizeof($permAlerts);
+        for($i=1; $i<$numPermAlerts; $i++){
+            $query.=" or alertID=".$permAlerts[$i];
+        }
+        $query.=" )";
+        query($query);
         break;
     
     case('login'):

@@ -9,6 +9,7 @@ if(isset($_SESSION['playerID'])){
 <html>
     <head>
         <!-- shared favicon code -->
+        <title>Ignatym</title>
         <link rel="icon" href="images/favicon.ico" type="image/x-icon"/>
         <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon"/>
         <script src="login.js"></script>
@@ -24,7 +25,8 @@ Password: </br>
         <!-- shared error message -->
         <img id="errorPoint" src="images/errorPoint.png" style="visibility: hidden"><span id="error"></span></br>
         <div id="info">
-            <a href="http://ignatym.freeforums.net/">Forums</a></br></br>
+            <a href="guide.php" target="_newtab">Guide</a></br></br>
+            <a href="http://ignatym.freeforums.net/" target="_newtab">Forums</a></br></br>
             Welcome to the alpha!
         </div>
     </body>

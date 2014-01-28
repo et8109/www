@@ -130,6 +130,7 @@ check to make sure cookies were not changed
 <html>
     <head>
         <!-- shared favicon code -->
+        <title>Ignatym</title>
         <link rel="icon" href="images/favicon.ico" type="image/x-icon"/>
         <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon"/>
 <link rel="stylesheet" type="text/css" href="TextCombat.css" />

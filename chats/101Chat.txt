@@ -1,15 +1,3 @@
-1390933178
-1
-Ensetym
-hello
-1390933242
-1
-Ensetym
-hello
-1390933283
-1
-Ensetym
-hello
 1390933380
 1
 Ensetym
@@ -38,3 +26,15 @@ Ensetym
 1
 Ensetym
 <1><>1<><span class='name' onclick='addDesc(1,1)'>Ensetym</span> blocked and retaliated against 0 p--o 0 <span class='name' onclick='addDesc(1,1)'>Ensetym</span>
+1390938933
+1
+Ensetym
+asdsaf
+1390939074
+1
+Ensetym
+sdfds
+1390940125
+1
+Ensetym
+<0><>102<><span class='name' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Blacksmith</span>

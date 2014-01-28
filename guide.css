@@ -1,0 +1,27 @@
+body{
+background-color:#624A0A;
+background-image:url('images/flames.jpg');
+background-repeat:no-repeat;
+background-position:center;
+color:tan;
+}
+h1{
+    text-align: center;
+}
+h2{
+    display: inline-block;
+    margin: 10px;
+    padding: 10px;
+    background: black;
+    border-radius: 10px;
+    cursor: pointer;
+}
+#commands{
+    display: none;
+}
+#keywords{
+    display: none;
+}
+#activities{
+    display: none;
+}

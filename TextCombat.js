@@ -163,7 +163,7 @@ function textTyped(e){
                 addText("who would you like to attack?");
                 break;
             case("/help"):
-                addHelpText();
+                addText("<a href='guide.php' target='_newtab'>Guide</a>");
                 break;
             case("/put"):
                 inputText[0] = "";
@@ -195,6 +195,12 @@ function textTyped(e){
                 break;
             case("/self"):
                 addPlayerInfo();
+                break;
+            case("/destroy"):
+                inputText[0] = "";
+                inputText = inputText.join(" ");
+                inputText = inputText.trim();
+                destroyItem(inputText);
                 break;
             default:
                 addText(inputText+"..unknown command");
@@ -269,7 +275,7 @@ function updateChat(){
                     }
                     //if a chat
                     else{
-                        addText("<span class='name' onclick='addDesc("+spanTypes.PLAYER+","+text[i]+")'>"+text[i+1]+"</span>: "+chatLine);
+                        addText("<span class='name' onclick='addDesc("+spanTypes.PLAYER+","+text[i]+")'>"+text[i+1]+"</span>:"+chatLine);
                     }
                 }
             }
@@ -758,6 +764,18 @@ function addPlayerInfo(){
         }
     );
 }
+
+/**
+ *removes an item from the player's inventory
+ */
+function destroyItem(itemName){
+    sendRequest("TextCombat.php",
+                "function=destroyItem&name="+itemName,
+                function(response){
+                    addText(itemName+" has been destroyed");
+                }
+    );
+}
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////
@@ -919,19 +937,6 @@ function playSound(soundId){
     if (!muted) {
         document.getElementById(soundId).play();
     }
-}
-
-/**
- *adds the help text to the screen
- */
-function addHelpText(args) {
-    addText("Help:");
-    addText("-Commands");
-    addText("/look : shows where you are");
-    addText("/attack : asks for the name of the player you want to attack");
-    addText("-Description");
-    addText("to set your description, click on your name below the text input. Your description must include all visible items");
-    addText("this help text should be moved to a text file");
 }
 
 /**
