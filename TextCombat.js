@@ -4,7 +4,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //Globals
 
-var frontLoadAlertText;
 var frontLoadSceneText;
 var frontLoadKeywords;
 /**
@@ -17,39 +16,11 @@ var frontLoadKeywords;
         function(response){
         response = response.split("<>");
         currentScene = parseInt(response[1]);
-        frontLoadAlertText = parseInt(response[2]);
-        frontLoadSceneText = parseInt(response[3]);
-        frontLoadKeywords = parseInt(response[4]);
-        //see if alerts button should be gold
-        var numAlerts = parseInt(response[5]);
-        if (numAlerts > 0) {
-            document.getElementById("alert").style.color="gold";
-        }
-        //allow input
-        document.getElementById("input").disabled=false;
+        frontLoadSceneText = parseInt(response[2]);
+        frontLoadKeywords = parseInt(response[3]);
         }
     ); 
 }());
-var alertText ={};
-if (frontLoadAlertText) {
-    sendRequest(
-        "setup.php",
-        "function=frontLoadAlerts",
-        function(response){
-            response = response.split("<<>>");
-            //ids and thier text
-            var alertTextsAndIDs = response[0].split("<>");
-            for(var i=1; i<alertTextsAndIDs.length; i+=2){
-                alertText[parseInt(alertTextsAndIDs[i])] = alertTextsAndIDs[i+1];
-            }
-            //the player's alerts
-            var playerAlerts = response[1].split("<>");
-            for(var i=1; i<playerAlerts.length; i++){
-                addAlert(playerAlerts[i]);
-            }
-        }
-    );
-}
 
 //[id][0:name, 1:description]
 var sceneText={};
@@ -130,29 +101,6 @@ var textBox="textBox1";
 var OfftextBox="textBox2";
 
 /**
- *current active alerts
- */
-var alerts ={};
-/**
- *all the possible alerts.
- *stored in db as numbers, so must be finable by number
- */
-var alertTypes ={
-    NEW_ITEM : 1,
-    HIDDEN_ITEM : 2,
-    REMOVED_ITEM : 3,
-    NEW_JOB : 4,
-    FIRED : 5,
-    EMPLOYEE_QUIT : 6,
-    NEW_MANAGER : 7,
-    NEW_LORD : 8,
-    NEW_EMPLOYEE : 9,
-    MANAGER_QUIT : 10,
-    EMPLOYEE_FIRED : 11,
-    MANAGER_FIRED : 12
-}
-
-/**
  *if the sound is muted or not
  */
 var muted = false;
@@ -223,7 +171,6 @@ function textTyped(e){
                 putItemIn(inputText[0].trim(), inputText[1].trim());
                 break;
             case("/take"):
-                alert("start take");
                 inputText[0] = "";
                 inputText = inputText.join(" ");
                 inputText = inputText.split(" from ");
@@ -297,25 +244,24 @@ function textTyped(e){
 function updateChat(){
     sendRequest("FilesBack.php","function=updateChat",
         function(response){
-            if (response=="") {
-                //nothing
-                return;
-            }
-            response = response.split("\r\n");
-	    if (response.length>1) {
-		for(var i=0; i<response.length; i+=3){
+            response = response.split("<<>>");
+            var numAlerts = response[1];
+            var text = response[0].split("\r\n");
+	    if (text.length>1) {
+		for(var i=0; i<text.length; i+=3){
+                    var chatLine = text[i+2];
                     //if an action, not a chat
-                    if (response[i+2].indexOf("<") == 1) {
-                        var type = parseInt(response[i+2].charAt(2));
+                    if (chatLine.indexOf("<") == 1) {
+                        var type = parseInt(chatLine.charAt(2));
                         switch(type){
                             case(actionTypes.ATTACK):
                                 //let the player know somehow that they were attacked, attak sound
-                                var info = response[i+2].split("<>");//1:id, 2:text
+                                var info = chatLine.split("<>");//1:id, 2:text
                                 addText(info[2]);
                                 break;
                             case(actionTypes.WALKING):
                                 //footsteps sound
-                                var info = response[i+2].split("<>");//1:name, 2:id
+                                var info = chatLine.split("<>");//1:name, 2:id
                                 addText(info[2]);
                                 break;
                         }
@@ -326,6 +272,8 @@ function updateChat(){
                     }
                 }
             }
+            //alerts
+            setAlertButton(parseInt(numAlerts));
         }
     );
 }
@@ -373,10 +321,6 @@ function setNewDescription() {
     sendRequest("TextCombat.php","function=updateDescription&Description="+newDescription,
         function(response) {
             closeTextArea();
-            //new item, cange description alert
-            removeAlert(alertTypes.NEW_ITEM);
-            removeAlert(alertTypes.REMOVED_ITEM);
-            removeAlert(alertTypes.HIDDEN_ITEM);
             waitingForTextArea=textAreaInputs.NOTHING;
         }
     );
@@ -475,9 +419,6 @@ function addCraftDescription(){
             closeTextArea();
             waitingForTextArea = textAreaInputs.NOTHING;
             cancelWaits();
-            //new item in inventory alert
-            //also in db
-            addAlert(alertTypes.NEW_ITEM);
             //sound
             playSound("anvil");
             itemName = "";
@@ -559,7 +500,6 @@ function addItemToScene(){
     sendRequest("manage.php","function=addItemToScene&Name="+itemName+"&Note="+noteText,
         function(response){
             addText("added "+itemName);
-            addAlert(alertTypes.REMOVED_ITEM);
             return;
         }
     );
@@ -576,7 +516,6 @@ function removeItemFromScene(){
     sendRequest("manage.php","function=removeItemFromScene&Name="+itemName,
         function(response){
             addText("you take the "+itemName);
-            addAlert(alertTypes.NEW_ITEM);
             return;
         }
     );
@@ -668,9 +607,14 @@ function attack() {
  *clears the alerts which are not required
  */
 function clearAlerts(){
-    //clear in php
-    //clear in js
+    sendRequest("TextCombat.php",
+                "function=clearAlerts",
+        function(){}
+    );
 }
+/**
+ *opens the menu and the first page
+ */
 function openMenu(){
     openAlerts();
     document.getElementById("menuMain").style.visibility="visible";
@@ -681,24 +625,15 @@ function openMenu(){
 function openAlerts(){
     document.getElementById("alert").style.color="black";
     var inside = document.getElementById("menuMainInside");
-    if (frontLoadAlertText) {
-        inside.innerHTML = "Alerts:";
-        for(alertNum in alerts){
-            inside.innerHTML +="</br>"+alertText[alertNum];
+    sendRequest(
+        "TextCombat.php",
+        "function=getAlertMessages",
+        function(response){
+            inside.innerHTML = "Alerts:";
+            inside.innerHTML += response;
+            addAlertsEnding(response!="");
         }
-        addAlertsEnding(alerts.length>0);
-    }
-    else{
-        sendRequest(
-            "TextCombat.php",
-            "function=getAlertMessages",
-            function(response){
-                inside.innerHTML = "Alerts:";
-                inside.innerHTML += response;
-                addAlertsEnding(response!="");
-            }
-        );
-    }
+    );
 }
 /**
  *adds the ending to the alerts menu
@@ -714,9 +649,7 @@ function addAlertsEnding(alertsBool) {
     }
 }
 /**
- *closes the alert box.
- *called by the close button on the page
- *sets the alert button to be black
+ *closes the menu
  */
 function closeMenu(){
 document.getElementById("menuMain").style.visibility="hidden";
@@ -726,17 +659,6 @@ document.getElementById("menuMain").style.visibility="hidden";
  */
 function openOptions(){
     var menuInside = document.getElementById("menuMainInside");
-    menuInside.innerHTML = "";
-    menuInside.innerHTML += "Options:";
-    //front load alert text
-    if (frontLoadAlertText) {
-        menuInside.innerHTML +="</br><input type='checkbox' onclick='toggleFrontLoadAlertText()' checked='checked' >";
-    }
-    else{
-        menuInside.innerHTML +="</br><input type='checkbox' onclick='toggleFrontLoadAlertText()'>";
-
-    }
-    menuInside.innerHTML +="Front load alert text. About 2 lines.</input></br>Note: refreshing the page still required for some alerts.";
     //front load scene text
     if (frontLoadSceneText) {
         menuInside.innerHTML +="</br><input type='checkbox' onclick='toggleFrontLoadSceneText()' checked='checked'>";
@@ -760,7 +682,6 @@ function openOptions(){
 function putItemIn(itemName, containerName) {
     sendRequest("TextCombat.php","function=putItemIn&itemName="+itemName+"&containerName="+containerName,
         function(response){
-            addAlert(alertTypes.HIDDEN_ITEM);
         }
     );
 }
@@ -770,7 +691,6 @@ function putItemIn(itemName, containerName) {
 function takeItemFrom(itemName, containerName){
     sendRequest("TextCombat.php","function=takeItemFrom&itemName="+itemName+"&containerName="+containerName,
         function(response){
-            addAlert(alertTypes.NEW_ITEM);
         }
     );
 }
@@ -818,13 +738,6 @@ function hireEmployee(name){
  *fires someone who works for you so they loose thier job
  */
 function fireEmployee(name) {
-    sendRequest("manage.php","function=fireEmployee&name="+name,
-        function(response){
-            addText(name+" has been hired");
-        }
-    );
-}
-
 /**
  *displays some info about the player
  */
@@ -844,28 +757,22 @@ function addPlayerInfo(){
 ////////////////////////////////////////////////////
 //small methods
 /**
+*sets the alert button
+*/
+function setAlertButton(numAlerts) {
+    var button = document.getElementById("alert");
+    button.innerHTML="alerts["+numAlerts+"]";
+    if (numAlerts>0) {
+        button.style.color = "gold";
+    } else{
+        button.style.color = "black";
+    }
+}
+/**
  *sets the text line to the input text
  */
 function setTextLine(text){
     document.getElementById("input").value = text;
-}
-/**
- *adds an alert to the list.
- *does not add to the db
- */
-function addAlert(alertType) {
-    if (alerts[alertType]) {
-        return;
-    }
-    alerts[alertType] = true;
-    document.getElementById("alert").style.color="gold";
-}
-/**
-*removes the given alert from the alerts list.
-*does not remove from the database
-*/
-function removeAlert(alertType) {
-    delete alerts[alertType];
 }
 
 /**
@@ -1060,23 +967,6 @@ function isWaiting() {
  */
 function removeHtmlStyling(text){
     return text.replace(/(<([^>]+)>)/ig,"");
-}
-/**
- *switches whether the alert text is front loaded or not
- *also tells db
- */
-function toggleFrontLoadAlertText() {
-    frontLoadAlertText=!frontLoadAlertText;
-    var frontLoad;
-    if (frontLoadAlertText) {
-        frontLoad = 1;
-    }
-    else{
-        frontLoad = 0;
-    }
-    sendRequest("TextCombat.php","function=setFrontLoadAlerts&load="+frontLoad,
-        function(){}
-    );
 }
 /**
  *switches whether the scene text is front loaded or not

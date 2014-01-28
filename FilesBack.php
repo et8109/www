@@ -44,6 +44,9 @@ switch($function){
         if(intval($lines[36]) > $_SESSION['lastChatTime']){
             $_SESSION['lastChatTime'] = intval($lines[36]);
         }
+        //send alert on/off info
+        $alertRow = query("select count(1) from playeralerts where playerID="prepVar($_SESSION['playerID']));
+        echo "<<>>".$alertRow[0];
         break;
     
     //when entering a new scene

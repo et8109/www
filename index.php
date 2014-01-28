@@ -154,7 +154,7 @@ check to make sure cookies were not changed
         <input id="input" disabled="true" type="text" id="input" maxlength="100" onkeypress="textTyped(event)"></input></br>
         <span id="logout" onclick="logout()"><a href="logout.php">log out</a></span>
         <span id="hubName" onclick="displayMyDesc()"><?php echo $_SESSION['playerName'];?></span>
-        <span id="alert" onclick="openMenu()">[alerts]</span>
+        <span id="alert" onclick="openMenu()">alerts</span>
         
         <div id="extra">
             <textArea id="textArea" maxlength="1000"></textArea><br/>

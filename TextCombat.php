@@ -227,10 +227,6 @@ switch($function){
         }
         break;
     
-    case('setFrontLoadAlerts'):
-        query("update playerinfo set frontLoadAlerts=".$_POST['load']." where ID=".prepVar($_SESSION['playerID']));
-        break;
-    
     case('setFrontLoadScenes'):
         query("update playerinfo set frontLoadScenes=".$_POST['load']." where ID=".prepVar($_SESSION['playerID']));
         break;
@@ -248,6 +244,12 @@ switch($function){
             echo "</br>".$row2['Description'];
         }
         mysqli_free_result($result);
+        break;
+    
+    case('clearAlerts'):
+        //find which alerts are temp
+        
+        //remove from playeralerts
         break;
     
     case('login'):
