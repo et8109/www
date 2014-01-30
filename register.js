@@ -53,7 +53,7 @@ function register() {
     sendRequest("TextCombat.php",
                 "function=register&uname="+uname+"&pass="+pass+"&pass2="+pass2,
         function (response) {
-            document.getElementById("message").innerHTML = "Welcome, "+uname+". <a href='index.php'>Begin!</a>";
+            document.getElementById("message").innerHTML = "Welcome, "+uname+"! <a href='login.php'>Back to login</a>";
         }
     );
 }

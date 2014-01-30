@@ -1034,7 +1034,10 @@ function validateInput(text){
  *removes the player from the sceneplayers list
  */
 function logout() {
-    alert("logging out");
+    sendRequest("TextCombat.php",
+                "function=logout",
+                function(){}
+    );
 }
 /**
  *sends a request to the server

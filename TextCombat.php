@@ -53,7 +53,7 @@ switch($function){
     
     case('moveScenes'):
         //remove player from last scene list
-        query("delete from sceneplayers where sceneID=".prepVar($_SESSION['currentScene'])." and playerID=".prepVar($_SESSION['playerID']));
+        query("delete from sceneplayers where playerID=".prepVar($_SESSION['playerID']));
         //recieve id or name of scene, update this players location in cookie and db
         $_SESSION['currentScene'] = $_POST['newScene'];
         query("Update playerinfo set Scene=".prepVar($_POST['newScene'])." where ID=".prepVar($_SESSION['playerID']));
@@ -290,16 +290,21 @@ switch($function){
             sendError("Enter a valid password");
         }
         //get username, password
-        $playerRow = query("select ID,Name,Scene from playerinfo where Name=".prepVar($uname)." and password=".prepVar($pass));
+        $playerRow = query("select ID,Name,Scene,loggedIn from playerinfo where Name=".prepVar($uname)." and password=".prepVar($pass));
         if($playerRow == false){
             sendError("Incorrect username or password");
         }
+        if($playerRow['loggedIn'] == true){
+            sendError("You are already logged in somewhere else.");
+        }
+        query("update playerinfo set loggedIn=1 and lastActionTime=CURRENT_TIMESTAMP where playerID=".prepVar($_SESSION['playerID']));
         //select needed info from playerinfo
         $_SESSION['playerID'] = $playerRow['ID'];
         $_SESSION['playerName'] = $playerRow['Name'];
-        $_SESSION['lastChatTime'] = date_timestamp_get(new DateTime());
+        updateChatTime();
         $_SESSION['currentScene'] = $playerRow['Scene'];
-        header("Location: index.php");
+        query("insert into sceneplayers (sceneID,playerID,playerName) values(".prepVar($_SESSION['currentScene']).",".prepVar($_SESSION['playerID']).",".prepVar($_SESSION['playerName']).")");
+
         break;
     
     case('register'):
@@ -327,10 +332,11 @@ switch($function){
         }
         //add player
         $playerID = lastIDQuery("insert into playerinfo (Name,Password,Description,Scene)values(".prepVar($uname).",".prepVar($pass).",".prepVar("I am new, so be nice to me!").",".constants::startSceneID.")");
-        $_SESSION['playerID'] = $playerID;
-        $_SESSION['playerName'] = $uname;
-        $_SESSION['lastChatTime'] = date_timestamp_get(new DateTime());
-        $_SESSION['currentScene'] = constants::startSceneID;
+        break;
+    
+    case('logout'):
+        query("delete from sceneplayers where playerID=".prepVar($_SESSION['playerID']));
+        query("update playerinfo set loggedIn=0 and lastActionTime=CURRENT_TIMESTAMP where playerID=".prepVar($_SESSION['playerID']));
         break;
 }
 ?>

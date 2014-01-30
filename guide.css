@@ -2,8 +2,11 @@ body{
 background-color:#624A0A;
 background-image:url('images/flames.jpg');
 background-repeat:no-repeat;
-background-position:center;
+background-position:right;
 color:tan;
+}
+a{
+    color:tan;
 }
 h1{
     text-align: center;

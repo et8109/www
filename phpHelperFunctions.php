@@ -1,6 +1,14 @@
 <?php
 //check inputs
 checkInputIsClean();
+//check if logged in
+$function = $_POST['function'];
+if($function != 'register' && $function != 'login'){
+    $loginRow = query("select loggedIn from playerinfo where ID=".prepVar($_SESSION['playerID']));
+    if($loginRow['loggedIn'] == false){
+        sendError("You are not logged in. Please log in again.");
+    }
+}
 include_once 'constants.php';
 
 /**
@@ -143,6 +151,7 @@ function addChatText($text){
  *updates the player's chat time so it is the most current in the scene
  */
 function updateChatTime(){
+    //or set to the current time??
     $lines = array();
     $lines = file($GLOBALS['fileName']);
     if(intval($lines[36]) > $_SESSION['lastChatTime']){
