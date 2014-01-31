@@ -1,8 +1,6 @@
 <?php
-session_start();
 include 'phpHelperFunctions.php';
-//set connection
-$con = getConnection();
+
 $function = $_POST['function'];
 switch($function){
     case('setUp'):

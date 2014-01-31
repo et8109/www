@@ -1,15 +1,25 @@
 <?php
+include_once 'constants.php';
+session_start();
 //check inputs
 checkInputIsClean();
+//get connection to db
+$con = getConnection();
 //check if logged in
 $function = $_POST['function'];
 if($function != 'register' && $function != 'login'){
+    //check session
+    if(!isset($_SESSION['playerID'])){
+        session_destroy();
+        sendError("Your session was lost. Please log in again.");
+    }
     $loginRow = query("select loggedIn from playerinfo where ID=".prepVar($_SESSION['playerID']));
-    if($loginRow['loggedIn'] == false){
-        sendError("You are not logged in. Please log in again.");
+    //check login id
+    if($loginRow['loggedIn'] != $_SESSION['loginID']){
+        session_destroy();
+        sendError("You were recently logged out. Please log in again.");
     }
 }
-include_once 'constants.php';
 
 /**
  *prints the input string to the debug file.
@@ -148,15 +158,10 @@ function addChatText($text){
 }
 
 /**
- *updates the player's chat time so it is the most current in the scene
+ *updates the player's chat time so it is a few seconds ago
  */
 function updateChatTime(){
-    //or set to the current time??
-    $lines = array();
-    $lines = file($GLOBALS['fileName']);
-    if(intval($lines[36]) > $_SESSION['lastChatTime']){
-        $_SESSION['lastChatTime'] = intval($lines[36]);
-    }
+    $_SESSION['lastChatTime'] = date_timestamp_get(new DateTime()) - 5;
 }
 
 /**

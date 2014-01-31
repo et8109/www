@@ -1,15 +1,3 @@
-1390933380
-1
-Ensetym
-hello
-1390933387
-1
-Ensetym
-yooo
-1390933404
-1
-Ensetym
-hello
 1390933410
 1
 Ensetym
@@ -38,3 +26,15 @@ sdfds
 1
 Ensetym
 <0><>102<><span class='name' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Blacksmith</span>
+1391140511
+1
+Ensetym
+hello
+1391140624
+1
+Ensetym
+hello
+1391140988
+1
+Ensetym
+sdfdsf

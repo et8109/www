@@ -7,10 +7,8 @@ $combatItemKeywords = array(
     4 => 1
 );
 
-session_start();
 include 'phpHelperFunctions.php';
-//set connection
-$con = getConnection();
+
 $function = $_POST['function'];
 switch($function){
     case('attack'):        

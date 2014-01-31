@@ -1,9 +1,6 @@
 <?php
-
-session_start();
 include 'phpHelperFunctions.php';
-//set connection
-$con = getConnection();
+
 $function = $_POST['function'];
 switch($function){
     
@@ -294,17 +291,21 @@ switch($function){
         if($playerRow == false){
             sendError("Incorrect username or password");
         }
-        if($playerRow['loggedIn'] == true){
-            sendError("You are already logged in somewhere else.");
+        if($playerRow['loggedIn'] == false){
+            query("insert into sceneplayers (sceneID,playerID,playerName) values(".prepVar($playerRow['Scene']).",".prepVar($playerRow['ID']).",".prepVar($playerRow['Name']).")");
+
         }
-        query("update playerinfo set loggedIn=1 and lastActionTime=CURRENT_TIMESTAMP where playerID=".prepVar($_SESSION['playerID']));
+        //find next login id
+        $lastLogin = intval($playerRow['loggedIn']);
+        $nextLogin = $lastLogin < 9 ? $lastLogin+1 : 1;
+        
+        $status = query("update playerinfo set loggedIn=".prepVar($nextLogin).", lastLoginTime=CURRENT_TIMESTAMP where ID=".prepVar($playerRow['ID']));
         //select needed info from playerinfo
         $_SESSION['playerID'] = $playerRow['ID'];
         $_SESSION['playerName'] = $playerRow['Name'];
-        updateChatTime();
         $_SESSION['currentScene'] = $playerRow['Scene'];
-        query("insert into sceneplayers (sceneID,playerID,playerName) values(".prepVar($_SESSION['currentScene']).",".prepVar($_SESSION['playerID']).",".prepVar($_SESSION['playerName']).")");
-
+        $_SESSION['loginID'] = $nextLogin;
+        updateChatTime();
         break;
     
     case('register'):
@@ -336,7 +337,9 @@ switch($function){
     
     case('logout'):
         query("delete from sceneplayers where playerID=".prepVar($_SESSION['playerID']));
-        query("update playerinfo set loggedIn=0 and lastActionTime=CURRENT_TIMESTAMP where playerID=".prepVar($_SESSION['playerID']));
+        query("update playerinfo set loggedIn=0 where ID=".prepVar($_SESSION['playerID']));
+        session_destroy();
+        sendError("logged out. <a href='login.php'>Back to login</a>");
         break;
 }
 ?>

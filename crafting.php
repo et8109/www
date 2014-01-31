@@ -1,6 +1,5 @@
 <?php
 
-session_start();
 include 'phpHelperFunctions.php';
 
 /**
@@ -11,8 +10,6 @@ $itemKeywordTypes = array(
     keywordTypes::QUALITY
 );
 
-//set connection
-$con = getConnection();
 $function = $_POST['function'];
 switch($function){
         /**

@@ -1,8 +1,6 @@
 <?php
 
-session_start();
 include 'phpHelperFunctions.php';
-$con = getConnection();//needed, but getter if moved
 //create new chat if none exists
 if(!file_exists($fileName)){
     $chatFile = fopen($fileName, "w");

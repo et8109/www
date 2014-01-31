@@ -153,7 +153,7 @@ check to make sure cookies were not changed
         <!-- shared error message -->
         <img id="errorPoint" src="images/errorPoint.png" style="visibility: hidden"><span id="error" style="color: black"></span></br>
         <input id="input" disabled="true" type="text" id="input" maxlength="100" onkeypress="textTyped(event)"></input></br>
-        <span id="logout" onclick="logout()"><a href="logout.php">log out</a></span>
+        <span id="logout" onclick="logout()">[log out]</span>
         <span id="hubName" onclick="displayMyDesc()"><?php echo $_SESSION['playerName'];?></span>
         <span id="alert" onclick="openMenu()">alerts[]</span>
         

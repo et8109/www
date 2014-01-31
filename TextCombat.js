@@ -18,7 +18,7 @@ var frontLoadKeywords;
             currentScene = parseInt(response[1]);
             frontLoadSceneText = parseInt(response[2]);
             frontLoadKeywords = parseInt(response[3]);
-            document.getElementById("input").disabled = false;
+            enableInput();
         }
     ); 
 }());
@@ -58,7 +58,7 @@ if (frontLoadKeywords) {
 /**
 *sets the timer to update chat
 */
-updater: setInterval("updateChat()", 3000);
+var updater = setInterval("updateChat()", 3000);
 /**
  *The possible inputs from the text area at the bottom of the page
  */
@@ -1034,6 +1034,8 @@ function validateInput(text){
  *removes the player from the sceneplayers list
  */
 function logout() {
+    clearInterval(updater);
+    disableInput();
     sendRequest("TextCombat.php",
                 "function=logout",
                 function(){}
@@ -1062,6 +1064,21 @@ function sendRequest(url,params,returnFunction){
         }
     }
     request.send(params);
+}
+
+/**
+ *prevents the player from entering anything
+ */
+function disableInput() {
+    document.getElementById("input").disabled = true;
+    document.getElementById("textArea").disabled = true;
+}
+/**
+ *allows input again
+ */
+function enableInput() {
+    document.getElementById("input").disabled = false;
+    document.getElementById("textArea").disabled = false;
 }
 /**
  *sets the error message.
