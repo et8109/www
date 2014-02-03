@@ -37,6 +37,15 @@ border: solid 1px brown;
     position: absolute;
     bottom: 10px;
 }
+#logout{
+    cursor: pointer;
+}
+#logout:hover{
+    text-decoration: underline;
+}
+#wait{
+    color:black;
+}
 
 .name{ /*names in chat*/
     font-weight: bold;

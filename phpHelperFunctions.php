@@ -158,10 +158,11 @@ function addChatText($text){
 }
 
 /**
- *updates the player's chat time so it is a few seconds ago
+ *updates the player's chat time so it is right now.
  */
 function updateChatTime(){
-    $_SESSION['lastChatTime'] = date_timestamp_get(new DateTime()) - 5;
+    //if subtracting, watch out for the walk line when moving scenes
+    $_SESSION['lastChatTime'] = date_timestamp_get(new DateTime());
 }
 
 /**
@@ -213,6 +214,7 @@ function speakAction($type, $targetName, $targetID){
  *returns the span text for the given object.
  *the span text is for the title/name, not description
  *Note: id for keywords is the actual word, not number
+ *action: id is keyword id
  */
 function getSpanText($type, $id, $name){
     switch($type){
@@ -228,6 +230,17 @@ function getSpanText($type, $id, $name){
         case(spanTypes::SCENE):
             return "<span class='sceneName'>".$name."</span>";
             //return "<span class='sceneName' onclick='addDesc(".spanTypes::SCENE.",".$id.")'>".$name."</span>";
+            break;
+        case(spanTypes::ACTION):
+            final class actionIDs {
+                const crafting = 6;
+                const pub = 11;
+            }
+            $actionFunctions = array(
+                actionIDs::crafting => "startCraft()",
+                actionIDs::pub => "startWaiter()"
+            );
+            return "<span onclick='".$actionFunctions[$id]."' class='active action'>".$name."</span>";
             break;
     }
 }
@@ -265,7 +278,7 @@ function replaceKeywordType($desc, $type, &$IdOut){
         }
         $keywordRow = query($query);
         if(isset($keywordRow['ID'])){
-            $descArray[$i] = getSpanText(spanTypes::KEYWORD,$descArray[$i],$descArray[$i]);
+            $descArray[$i] = getSpanText($type,$descArray[$i],$descArray[$i]);
             $IdOut = $keywordRow['ID'];
             return implode(" ",$descArray);
         }
@@ -277,14 +290,14 @@ function replaceKeywordType($desc, $type, &$IdOut){
  *replaces the first keyword of the given ID.
  *returns false if not found
  */
-function replaceKeywordID($desc, $ID){
+function replaceKeywordID($desc, $ID, $spanType){
     $descArray = explode(" ",$desc);
     $descArrayLength = count($descArray);
     for($i=0; i<$descArrayLength; $i++){
-        $keywordRow = query("select ID from keywordwords where Word=".prepVar($descArray[$i])." and ID=".prepVar($ID));
+        $keywordRow = query("select ID,Type from keywordwords where Word=".prepVar($descArray[$i])." and ID=".prepVar($ID));
         if(!is_bool($keywordRow)){
             //found, success
-            $descArray[$i] = getSpanText(spanTypes::KEYWORD,$descArray[$i],$descArray[$i]);
+            $descArray[$i] = getSpanText(intval($keywordRow['Type']),$keywordRow['ID'],$descArray[$i]);
             return implode(" ",$descArray);
         }
     }
@@ -518,6 +531,4 @@ function getPlayerManageLevel(){
         return 0;
     }
 }
-
-
 ?>

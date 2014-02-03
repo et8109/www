@@ -152,6 +152,7 @@ check to make sure cookies were not changed
         <div id="hub">
         <!-- shared error message -->
         <img id="errorPoint" src="images/errorPoint.png" style="visibility: hidden"><span id="error" style="color: black"></span></br>
+        <span id="wait"></span></br>
         <input id="input" disabled="true" type="text" id="input" maxlength="100" onkeypress="textTyped(event)"></input></br>
         <span id="logout" onclick="logout()">[log out]</span>
         <span id="hubName" onclick="displayMyDesc()"><?php echo $_SESSION['playerName'];?></span>

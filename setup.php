@@ -1,6 +1,11 @@
 <?php
 include 'phpHelperFunctions.php';
 
+$version = 1;
+if($_POST['version'] != $version){
+    sendError("You're using an old version of Ignatym. Clear your cache and try again.");
+}
+
 $function = $_POST['function'];
 switch($function){
     case('setUp'):

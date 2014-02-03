@@ -70,21 +70,44 @@ switch($function){
             sendError("You cannot manage this location");
         }
         echo "<span class='active action' onclick='quitJobPrompt()'>quit job</span>";
-        echo "</br><span class='active action' onclick='getItemsInScene()'>view items</span>";
-        echo "</br><span class='active action' onclick='addItemToScenePrompt()'>add item</span>";
-        echo "</br><span class='active action' onclick='changeItemNotePrompt()'>change an items note</span>";
-        if (manageLevel > 1) {
+        echo "<><span class='active action' onclick='getItemsInScene()'>view items</span>";
+        echo "<><span class='active action' onclick='addItemToScenePrompt()'>add item</span>";
+        echo "<><span class='active action' onclick='changeItemNotePrompt()'>change an items note</span>";
+        if ($manageLevel > 1) {
             //at least manager
-            echo "</br><span class='active action' onclick='removeItemFromScenePrompt()'>take item</span>";
+            echo "<><span class='active action' onclick='removeItemFromScenePrompt()'>take item</span>";
         }
-        if (manageLevel > 2) {
+        if ($manageLevel > 2) {
             //at least lord
-            echo "</br><span class='active action' onclick='newSceneDescPrompt()'>edit scene desc</span>";
+            echo "<><span class='active action' onclick='newSceneDescPrompt()'>edit scene desc</span>";
         }
-        if (manageLevel > 3) {
+        if ($manageLevel > 3) {
             //at least monarch
-            echo "</br>can't edit scene title yet";
+            echo "<>can't edit scene title yet";
         }
+        break;
+    
+    case('becomeManager'):
+        //make sure there are jobs here
+        if(!checkLocationAcceptsApprentice()){
+            sendError("There are no jobs here."); 
+        }
+        //make sure there is no manager already
+        $positionRow = query("select count(1) from playerkeywords where type=".keywordTypes::MANAGER." and locationID=".prepVar($_SESSION['currentScene']));
+        if($positionRow[0] == 1){
+            sendError("Someone is already a manager here.");
+        }
+        //make sure they don't have a job
+        if(checkPlayerHasJob()){
+            sendError("You already have a job.");
+        }
+        //take stuff from hire employee
+        //7 is the starting keyword for managers
+        query("insert into playerkeywords (ID,keywordID,locationID,type) values (".prepVar($_SESSION['playerID']).",7,".$_SESSION['currentScene'].",".keywordTypes::MANAGER.")");
+        //let employee know
+        addAlert(alertTypes::newJob);
+        //let above and below know
+        alertOfNewPosition(keywordTypes::MANAGER);
         break;
     
     case("hireEmployee"):
@@ -152,8 +175,7 @@ switch($function){
             $position = keywordTypes::LORD;
             $location = $townRow['town'];
         }
-        query("delete from playerkeywords where ID=".prepVar($employeeID)." and (type=".keywordTypes::APPSHP." or type=".keywordTypes::MANAGER." or type=".keywordTypes::LORD." or type=".keywordTypes::MONARCH.")");
-        query("insert into playerkeywords (ID,keywordID,locationID,type) values ".prepVar($employeeID).",".$startingKeywordID.",".$location.",".$position);
+        query("insert into playerkeywords (ID,keywordID,locationID,type) values (".prepVar($employeeID).",".$startingKeywordID.",".$location.",".$position.")");
         //let employee know
         addAlert(alertTypes::newJob, $employeeID);
         //let above and below know
@@ -244,7 +266,7 @@ function checkPlayerHasJob(){
  */
 function checkLocationAcceptsApprentice(){
     //make sure the location accepts/has room for apprentice
-    $sceneRow = query("select count(1) from scenes where ID=".prepVar($_SESSION['playerID'])." and appshp=1");
+    $sceneRow = query("select count(1) from scenes where ID=".prepVar($_SESSION['currentScene'])." and appshp=1");
     return ($sceneRow[0] > 0);
 }
 

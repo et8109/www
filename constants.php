@@ -58,7 +58,8 @@ final class spanTypes {
     const ITEM = 0;
     const PLAYER = 1;
     const SCENE = 2;
-    const KEYWORD = 3;
+    const ACTION = 3;
+    const KEYWORD = 4;
 }
 /**
  *the numbers corresponding to keyword types

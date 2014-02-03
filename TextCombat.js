@@ -3,7 +3,9 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //Globals
+var version = 1;
 
+disableInput();
 var frontLoadSceneText;
 var frontLoadKeywords;
 /**
@@ -12,7 +14,7 @@ var frontLoadKeywords;
 (function(){
    sendRequest(
         "setup.php",
-        "function=setUp",
+        "function=setUp$version="+version,
         function(response){
             response = response.split("<>");
             currentScene = parseInt(response[1]);
@@ -85,6 +87,70 @@ var textLineInputs = {
 var waitingForTextArea = textAreaInputs.NOTHING;
 var waitingForTextLine = textLineInputs.NOTHING;
 /**
+ *the class for all waits
+ *must be ended
+ */
+function listener(message, onInput){
+    /**
+     *checks to make sure no other listeners are active
+     *sets the wait message
+     */
+    this.start = function(){
+        if (currentListenerTextLine != null || currentListenerTextArea != null) {
+            setErrorMessage("You're busy with something else.");
+            return false;
+        }
+        setWaitMessage(message);
+        return true;
+    }
+    /**
+     *calls the function of this listener
+     */
+    this.input = function(input){
+        if(onInput(input)){
+        }
+    }
+    /**
+     *clears the wait message
+     *clears the current listeners
+     */
+    this.end = function(){
+        clearWaitMessage();
+        currentListenerTextLine = null;
+        currentListenerTextArea = null;
+    }
+}
+listener.textLineListener = null;
+listener.textAreaListener = null;
+/**
+ *sets a listener for the text line input
+ */
+function setTextLineListener(listener){
+    if (listener.start) {
+        currentListenerTextLine = listener;
+    }
+}
+/**
+ *sets a listener for the text area input
+ */
+function setTextAreaListener(listener){
+    if (listener.start) {
+        currentListenerTextArea = listener;
+    }
+}
+
+var listener_personal_desc = new listener("Enter your description below.",
+                                          function(input) {
+                                            setNewDescription(input);
+                                          }
+                                          );
+var listener_item_desc = new listener("Enter the item description below.",
+                                          function(input) {
+                                            setNewDescription(input);
+                                          }
+                                          );
+
+/**
  A bunch of types of random stuff.
  Each should have:
  id
@@ -147,6 +213,10 @@ function textTyped(e){
     if (inputText == null) {
         //nothing, skips to clear input
     }
+    //listener check
+    if (listener.textLineListener != null) {
+        currentListenerTextLine.input(inputText);
+    }
     //command check
     else if(inputText.indexOf("/") == 0){
         closeTextArea();
@@ -157,6 +227,9 @@ function textTyped(e){
             case("/look"):
                 deactivateActiveLinks();
                 addDesc(spanTypes.SCENE, currentScene);
+                break;
+            case('/closelook'):
+                closeLook();
                 break;
             case("/attack"):
                 waitingForTextLine = textLineInputs.TARGET_NAME;
@@ -207,31 +280,6 @@ function textTyped(e){
                 break;
         }
     }
-    
-    //if not a command
-    else if (waitingForTextLine != textLineInputs.NOTHING) {
-        switch (waitingForTextLine) {
-            case(textLineInputs.ITEM_NAME):
-                addCraftName();
-            break;
-            case(textLineInputs.TARGET_NAME):
-                attack();
-                break;
-            case(textLineInputs.ITEM_NAME_TO_ADD_TO_SCENE):
-                addItemNoteToScenePrompt();
-                break;
-            case(textLineInputs.ITEM_NAME_TO_REMOVE_FROM_SCENE):
-                removeItemFromScene();
-                break;
-            case(textLineInputs.ITEM_NAME_TO_CHANGE_NOTE_OF):
-                newNoteTextPromt();
-                break;
-            case(textLineInputs.QUIT_JOB):
-                quitJob();
-                break;
-        }
-    }
-    
     //not waiting, and not command
     else{
         if (inputText == "") {
@@ -268,7 +316,7 @@ function updateChat(){
                                 break;
                             case(actionTypes.WALKING):
                                 //footsteps sound
-                                var info = chatLine.split("<>");//1:name, 2:id
+                                var info = chatLine.split("<>");//1:target,2:text
                                 addText(info[2]);
                                 break;
                         }
@@ -316,11 +364,10 @@ function addDesc(type, id) {
 }
   
 /**
-*Sets the player's new description after checking for inventory items, no < or >.
-*Do not call directly! call check description first!
+*Sets the player's new description
 */
-function setNewDescription() {
-    var newDescription = getTextAreaText();
+function setNewDescription(desc) {
+    var newDescription = desc;
     //would be null if < or > was in area
     if (null == newDescription) {
         return;
@@ -560,7 +607,7 @@ function newSceneDescPrompt() {
             //first is name, second is desc
             response=response.split("<>");
             setTextAreaText(removeHtmlStyling(response[1]));
-            waitingForTextLine = textAreaInputs.NEW_ITEM_NOTE_TEXT;
+            waitingForTextLine = textAreaInputs.NEW_SCENE_DESC;
         }
     );
 }
@@ -614,6 +661,7 @@ function attack() {
  *clears the alerts which are not required
  */
 function clearAlerts(){
+    closeMenu();
     sendRequest("TextCombat.php",
                 "function=clearAlerts",
         function(){}
@@ -631,6 +679,7 @@ function openMenu(){
  */
 function openAlerts(){
     var inside = document.getElementById("menuMainInside");
+    inside.innerHTML = "Loading..";
     sendRequest(
         "TextCombat.php",
         "function=getAlertMessages",
@@ -665,22 +714,23 @@ document.getElementById("menuMain").style.visibility="hidden";
  */
 function openOptions(){
     var menuInside = document.getElementById("menuMainInside");
+    menuInside.innerHTML = "Options:</br>";
     //front load scene text
     if (frontLoadSceneText) {
-        menuInside.innerHTML +="</br><input type='checkbox' onclick='toggleFrontLoadSceneText()' checked='checked'>";
+        menuInside.innerHTML +="<input type='checkbox' onclick='toggleFrontLoadSceneText()' checked='checked'>";
     }
     else{
-        menuInside.innerHTML +="</br><input type='checkbox' onclick='toggleFrontLoadSceneText()'>";
+        menuInside.innerHTML +="<input type='checkbox' onclick='toggleFrontLoadSceneText()'>";
     }
-    menuInside.innerHTML +="Front load scene text. About 3 lines.</input>";
+    menuInside.innerHTML +="Front load scene text. About 3 lines.</input></br>";
     //front load keywords
     if (frontLoadKeywords) {
-        menuInside.innerHTML +="</br><input type='checkbox' onclick='toggleFrontLoadKeywords()' checked='checked'>";
+        menuInside.innerHTML +="<input type='checkbox' onclick='toggleFrontLoadKeywords()' checked='checked'>";
     }
     else{
-        menuInside.innerHTML +="</br><input type='checkbox' onclick='toggleFrontLoadKeywords()'>";
+        menuInside.innerHTML +="<input type='checkbox' onclick='toggleFrontLoadKeywords()'>";
     }
-    menuInside.innerHTML +="Front load keyword text. About 6 lines.</input>";
+    menuInside.innerHTML +="Front load keyword text. About 10 lines.</input>";
 }
 /**
  *puts an item into a container item
@@ -706,7 +756,10 @@ function takeItemFrom(itemName, containerName){
 function getManageSceneText() {
     sendRequest("manage.php","function=getManageSceneText",
         function(response){
-            addText(response);
+            response = response.split("<>");
+            for(var i=0; i<response.length; i++){
+                addText(response[i]);
+            }
         }
     );
 }
@@ -774,6 +827,36 @@ function destroyItem(itemName){
                 function(response){
                     addText(itemName+" has been destroyed");
                 }
+    );
+}
+
+/**
+ *gives additional info about the current scene
+ */
+function closeLook() {
+    sendRequest(
+        "TextCombat.php",
+        "function=closeLook",
+        function(response){
+            response = response.split("<>");
+            for(var i=0; i<response.length; i++){
+                addText(response[i]);
+            }
+        }
+    );
+}
+
+/**
+ *lets the player become the manager of the scene
+ *available from closelook
+ */
+function beManager(){
+    sendRequest(
+        "manage.php",
+        "function=becomeManager",
+        function(response){
+            addText("Success, you are now the manager here!");
+        }
     );
 }
 ////////////////////////////////////////////////////
@@ -1079,6 +1162,20 @@ function disableInput() {
 function enableInput() {
     document.getElementById("input").disabled = false;
     document.getElementById("textArea").disabled = false;
+}
+/**
+ *sets the wait message and pops up the image
+ */
+function setWaitMessage(message){
+    //make visible
+    document.getElementById("wait").innerHTML = message;
+}
+/**
+ *removes the wait message and image
+ */
+function clearWaitMessage() {
+    //make invisiable
+    document.getElementById("wait").innerHTML = "";
 }
 /**
  *sets the error message.

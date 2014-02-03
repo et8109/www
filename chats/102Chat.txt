@@ -1,11 +1,3 @@
-1390941332
-1
-Ensetym
-hello
-1390941591
-1
-Ensetym
-hello
 1390941594
 1
 Ensetym
@@ -35,6 +27,14 @@ hello
 Ensetym
 hello
 1391139003
+1
+Ensetym
+<0><>101<><span class='name' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Town Square</span>
+1391210144
+1
+Ensetym
+<0><>101<><span class='name' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Town Square</span>
+1391210669
 1
 Ensetym
 <0><>101<><span class='name' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Town Square</span>

@@ -24,7 +24,7 @@ switch($function){
             case(spanTypes::SCENE):
                 //if no id set, it's the current scene
                 $ID = is_numeric($_POST['ID']) ? $_POST['ID'] : $_SESSION['currentScene'];
-                $row = query("select Name, Description, appshp from scenes where ID=".prepVar($ID));
+                $row = query("select Name, Description from scenes where ID=".prepVar($ID));
                 echo getSpanText(spanTypes::SCENE,$ID,$row["Name"])."<>".$row["Description"];
                 //managing the scene
                 /*$manageLevel = getPlayerManageLevel();
@@ -36,6 +36,28 @@ switch($function){
                     echo " ".getSpanTextApplyForAppshp();
                 }*/
                 break;
+        }
+        break;
+    
+    case('closeLook'):
+        //town and land
+        $sceneRow = query("select town,land,appshp from scenes where ID=".prepVar($_SESSION['currentScene']));
+        if($sceneRow == false){
+            sendError("Could not find this location");
+        }
+        echo "Town: ".$sceneRow['town'];
+        echo "<>Land: ".$sceneRow['land'];
+        $jobsBool = intval($sceneRow['appshp']) > 0 ? "Yes" : "No";
+        echo "<>Jobs: ".$jobsBool;
+        //manager
+        if(intval($sceneRow['appshp']) > 0){
+            $infoRow = query("select ID from playerkeywords where type=".prepVar(keywordTypes::MANAGER)." and locationID=".prepVar($_SESSION['currentScene']));
+            if($infoRow == false){
+                echo "<>No manager. <span class='active action' onclick='beManager()'>Manage this location.</span>";
+            } else{
+                $managerRow = query("select Name from playerinfo where ID=".prepVar($infoRow['ID']));
+                echo "<>Manager: ".$managerRow['Name'];
+            }
         }
         break;
     
