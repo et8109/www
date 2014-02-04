@@ -5,6 +5,10 @@
 //Globals
 var version = 1;
 
+window.onerror = function(msg, url, line) {
+    alert("Error: "+msg+" url: "+url+" line: "+line);
+};
+
 disableInput();
 var frontLoadSceneText;
 var frontLoadKeywords;
@@ -62,41 +66,15 @@ if (frontLoadKeywords) {
 */
 var updater = setInterval("updateChat()", 3000);
 /**
- *The possible inputs from the text area at the bottom of the page
- */
-var textAreaInputs = {
-    NOTHING : 0,
-    PERSONAL_DESCRIPTION : 1,
-    ITEM_DESCRIPTION : 2,
-    NOTE_FOR_ADDING_ITEM : 3,
-    NEW_ITEM_NOTE_TEXT : 4,
-    NEW_SCENE_DESC : 5
-};
-/**
- *The possible inputs from the main text line
- */
-var textLineInputs = {
-    NOTHING : 0,
-    ITEM_NAME : 1,
-    TARGET_NAME : 2,
-    ITEM_NAME_TO_ADD_TO_SCENE : 3,
-    ITEM_NAME_TO_REMOVE_FROM_SCENE : 4,
-    ITEM_NAME_TO_CHANGE_NOTE_OF : 5,
-    QUIT_JOB : 6
-};
-var waitingForTextArea = textAreaInputs.NOTHING;
-var waitingForTextLine = textLineInputs.NOTHING;
-/**
  *the class for all waits
- *must be ended
  */
-function listener(message, onInput){
+function listener(message, onInput, onCancel){
     /**
      *checks to make sure no other listeners are active
      *sets the wait message
      */
     this.start = function(){
-        if (currentListenerTextLine != null || currentListenerTextArea != null) {
+        if (textLineListener != null || textAreaListener != null) {
             setErrorMessage("You're busy with something else.");
             return false;
         }
@@ -106,48 +84,88 @@ function listener(message, onInput){
     /**
      *calls the function of this listener
      */
-    this.input = function(input){
-        if(onInput(input)){
-        }
+    this.onInput = function(input){
+        onInput(input);
     }
     /**
-     *clears the wait message
-     *clears the current listeners
+     *called when cancelled
      */
-    this.end = function(){
-        clearWaitMessage();
-        currentListenerTextLine = null;
-        currentListenerTextArea = null;
+    this.onCancel = function(){
+        onCancel();
     }
 }
-listener.textLineListener = null;
-listener.textAreaListener = null;
+var textLineListener = null;
+var textAreaListener = null;
 /**
  *sets a listener for the text line input
  */
-function setTextLineListener(listener){
-    if (listener.start) {
-        currentListenerTextLine = listener;
+function setTextLineListener(listener_){
+    if (listener_.start()) {
+        textLineListener = listener_;
     }
 }
 /**
  *sets a listener for the text area input
+ *opens the text area
  */
-function setTextAreaListener(listener){
-    if (listener.start) {
-        currentListenerTextArea = listener;
+function setTextAreaListener(listener_){
+    if (listener_.start()) {
+        openTextArea();
+        textAreaListener = listener_;
     }
 }
-
+/**
+ *closes the text area
+ *clears the wait message
+ *removes listeners
+ */
+function endListening() {
+    closeTextArea();
+    clearWaitMessage();
+    if(textLineListener != null){
+        textLineListener.onCancel();
+        textLineListener = null;
+    }
+    if(textAreaListener != null){
+        closeTextArea();
+        textAreaListener.onCancel();
+        textAreaListener = null;
+    }
+}
+//text line listeners
+var listener_item_name = new listener("Enter the name of the item you are crafting.",
+                                            function(input){addCraftName(input);}, function(){}
+                                          );
+var listener_target_name = new listener("Enter a target name to attack.",
+                                            function(input){attack(input);}, function(){}
+                                          );
+var listener_item_name_to_add_to_scene = new listener("Enter an item name to add.",
+                                            function(input){addItemNoteToScenePrompt(input);}, function(){}
+                                          );
+var listener_item_name_to_remove_from_scene = new listener("Enter an item name to remove.",
+                                            function(input){removeItemFromScene(input);}, function(){}
+                                          );
+var listener_item_name_to_change_note_of = new listener("Enter an item name to change the note of.",
+                                            function(input){newNoteTextPromt(input);}, function(){}
+                                          );
+var listener_quit_job = new listener("Enter 'quit' to leave your job.",
+                                            function(input){quitJob(input);}, function(){}
+                                          );
+//text area listeners
 var listener_personal_desc = new listener("Enter your description below.",
-                                          function(input) {
-                                            setNewDescription(input);
-                                          }
+                                            function(input){setNewDescription(input);}, function(){}
                                           );
 var listener_item_desc = new listener("Enter the item description below.",
-                                          function(input) {
-                                            setNewDescription(input);
-                                          }
+                                          function(input){addCraftDescription(input);}, function(){}
+                                          );
+var listener_new_items_note = new listener("Enter the item's note below.",
+                                          function(input){addItemToScene(input);}, function(){}
+                                          );
+var listener_revised_item_note = new listener("Enter the item note below.",
+                                          function(input){changeItemNote(input);},function(){}
+                                          );
+var listener_new_scene_desc = new listener("Enter the location description below.",
+                                          function(input){editSceneDesc(input);},function(){}
                                           );
 
 /**
@@ -214,13 +232,12 @@ function textTyped(e){
         //nothing, skips to clear input
     }
     //listener check
-    if (listener.textLineListener != null) {
-        currentListenerTextLine.input(inputText);
+    if (textLineListener != null) {
+        textLineListener.onInput(inputText);
     }
     //command check
     else if(inputText.indexOf("/") == 0){
         closeTextArea();
-        cancelWaits();
         //find command
         inputText = inputText.split(" ");
         switch (inputText[0]) {
@@ -232,8 +249,7 @@ function textTyped(e){
                 closeLook();
                 break;
             case("/attack"):
-                waitingForTextLine = textLineInputs.TARGET_NAME;
-                addText("who would you like to attack?");
+                setTextLineListener(listener_target_name);
                 break;
             case("/help"):
                 addText("<a href='guide.php' target='_newtab'>Guide</a>");
@@ -367,15 +383,10 @@ function addDesc(type, id) {
 *Sets the player's new description
 */
 function setNewDescription(desc) {
-    var newDescription = desc;
-    //would be null if < or > was in area
-    if (null == newDescription) {
-        return;
-    }
-    sendRequest("TextCombat.php","function=updateDescription&Description="+newDescription,
+    sendRequest("TextCombat.php","function=updateDescription&Description="+desc,
         function(response) {
             closeTextArea();
-            waitingForTextArea=textAreaInputs.NOTHING;
+            endListening();
         }
     );
 }
@@ -399,13 +410,13 @@ function walk(newSceneId) {
             }
         }
     );
-    cancelWaits();
+    endListening();
     closeTextArea();
 }
 /**
-    *open text area and display player description.
-    *wait for a new description input
-    */
+*open text area and display player description.
+*wait for a new description input
+*/
 function displayMyDesc() {
     openTextArea();
     sendRequest("TextCombat.php","function=getDesc&type="+spanTypes.PLAYER,
@@ -416,8 +427,8 @@ function displayMyDesc() {
             setTextAreaText(removeHtmlStyling(response[1]));
         }
     );
-    cancelWaits();
-    waitingForTextArea = textAreaInputs.PERSONAL_DESCRIPTION;
+    endListening();
+    setTextAreaListener(listener_personal_desc);
 }
 
 /**
@@ -431,48 +442,36 @@ if (isWaiting()) {
     return;
 }
 addText("You clear some space on the iron anvil. What do you want to make?");
-waitingForTextLine = textLineInputs.ITEM_NAME;
+setTextLineListener(listener_item_name);
 }
 /**
  *When an item name is given, tells the player to give a description
  */
-function addCraftName(){
-    itemName = getInputText();
-    if (itemName == null) {
-        return;
-    }
-    openTextArea();
+function addCraftName(itemName){
     //has a name, need a description
     sendRequest("crafting.php","function=getCraftInfo",
         function(response){
-            waitingForTextLine = textLineInputs.NOTHING;
-            cancelWaits();
+            endListening();
             addText("Your craftSkill is "+response+ ". enter the "+itemName+"'s description below. Your tags are: tags not done yet");
-            waitingForTextArea = textAreaInputs.ITEM_DESCRIPTION;
+            setTextAreaListener(listener_item_desc);
         }
     );
 }
 /**
- *When and items description is given, and a name was already chosen
+ *When an items description is given, and a name was already chosen
  */
-function addCraftDescription(){
+function addCraftDescription(desc){
     if (itemName == "") {
         addText("[Something wierd happened. Woops! Please let me know what you did. Thanks.]");
-        cancelWaits();
-        return;
-    }
-    var itemDescription = getTextAreaText();
-    //would be null if < or > in area
-    if (null == itemDescription) {
+        endListening();
         return;
     }
     //input into database
-    sendRequest("crafting.php","function=craftItem&Name="+itemName+"&Description="+itemDescription,
+    sendRequest("crafting.php","function=craftItem&Name="+itemName+"&Description="+desc,
         function(response){
             addText("You make a "+itemName);
             closeTextArea();
-            waitingForTextArea = textAreaInputs.NOTHING;
-            cancelWaits();
+            endListening();
             //sound
             playSound("anvil");
             itemName = "";
@@ -519,39 +518,29 @@ function getItemsInScene(onEmptyText){
  */
 function addItemToScenePrompt() {
     addText("what item of yours would you like to add to this location?");
-    waitingForTextLine = textLineInputs.ITEM_NAME_TO_ADD_TO_SCENE;
+    setTextLineListener(listener_item_name_to_add_to_scene);
 }
 
 /**
  *adds an item to the current scene
  */
-function addItemNoteToScenePrompt(){
-    //get item name
-    itemName = getInputText();
-    if (itemName == null) {
-        return;
-    }
-    addText("what is the note for the "+itemName+"?");
-    cancelWaits();
-    waitingForTextArea = textAreaInputs.NOTE_FOR_ADDING_ITEM;
+function addItemNoteToScenePrompt(name){
+    itemName = name;
+    endListening();
+    setTextAreaListener(listener_new_items_note);
 }
 /**
  *prompts for what item to remove from the scene
  */
 function removeItemFromScenePrompt() {
-    addText("what item would you like to remove from this location?");
-    waitingForTextLine = textLineInputs.ITEM_NAME_TO_REMOVE_FROM_SCENE;
+    setTextLineListener(listener_item_name_to_remove_from_scene);
 }
 /**
  *adds the item and its note to the scene
  */
-function addItemToScene(){
-    var noteText = getTextAreaText();
-    if (noteText == null) {
-       return; 
-    }
-    cancelWaits();
-    sendRequest("manage.php","function=addItemToScene&Name="+itemName+"&Note="+noteText,
+function addItemToScene(note){
+    endListening();
+    sendRequest("manage.php","function=addItemToScene&Name="+itemName+"&Note="+note,
         function(response){
             addText("added "+itemName);
             return;
@@ -561,15 +550,11 @@ function addItemToScene(){
 /**
  *removes the given item from the scene
  */
-function removeItemFromScene(){
-    var name = getInputText();
-    if (name == null) {
-       return; 
-    }
-    cancelWaits();
-    sendRequest("manage.php","function=removeItemFromScene&Name="+itemName,
+function removeItemFromScene(name){
+    endListening();
+    sendRequest("manage.php","function=removeItemFromScene&Name="+name,
         function(response){
-            addText("you take the "+itemName);
+            addText("you take the "+name);
             return;
         }
     );
@@ -579,27 +564,23 @@ function removeItemFromScene(){
  */
 function changeItemNotePrompt() {
     addText("what item note would you like to change in this location?");
-    cancelWaits();
-    waitingForTextLine = textLineInputs.ITEM_NAME_TO_CHANGE_NOTE_OF;
+    endListening();
+    setTextLineListener(listener_item_name_to_change_note_of);
 }
 /**
  *prompts for the new note text
  */
-function newNoteTextPromt(){
-    itemName = getInputText();
-    if (itemName == null) {
-        return;
-    }
-    addText("Edit the note below.");
-    cancelWaits();
-    waitingForTextLine = textAreaInputs.NEW_ITEM_NOTE_TEXT;
+function newNoteTextPromt(name){
+    itemName = name;
+    endListening();
+    setTextAreaListener(listener_revised_item_note);
 }
 /**
  *prompts for the new scene description
  */
 function newSceneDescPrompt() {
     addText("Edit the description below.");
-    cancelWaits();
+    endListening();
     //get scene desc
     sendRequest("TextCombat.php","function=getDesc&type="+spanTypes.SCENE,
         function(response){
@@ -607,20 +588,16 @@ function newSceneDescPrompt() {
             //first is name, second is desc
             response=response.split("<>");
             setTextAreaText(removeHtmlStyling(response[1]));
-            waitingForTextLine = textAreaInputs.NEW_SCENE_DESC;
+            setTextAreaListener(listener_new_scene_desc);
         }
     );
 }
 /**
  *gets the note text and changes the item note
  */
-function changeItemNote(){
-    var noteText = getTextAreaText();
-    if (noteText == null) {
-       return; 
-    }
-    cancelWaits();
-    sendRequest("manage.php","function=changeItemNote&Name="+itemName+"&Note="+noteText,
+function changeItemNote(note){
+    endListening();
+    sendRequest("manage.php","function=changeItemNote&Name="+itemName+"&Note="+note,
         function(response){
             addText("changed note for "+itemName);
             return;
@@ -630,13 +607,8 @@ function changeItemNote(){
 /**
  *reuests to change the description of this scene
  */
-function editSceneDesc(){
-    var desc = getTextAreaText();
-    if (desc == null) {
-        //nothing
-        return;
-    }
-    cancelWaits();
+function editSceneDesc(desc){
+    endListening();
     sendRequest("manage.php","function=changeSceneDesc&desc="+desc,
         function(response){
            addText("changed scene description"); 
@@ -646,13 +618,8 @@ function editSceneDesc(){
 /**
 *find who the player want to attack, after /attack
 */
-function attack() {
-    waitingForTextLine = textAreaInputs.NOTHING;
-    cancelWaits();
-    var name = getInputText();
-    if (name == null) {
-        return;
-    }  
+function attack(name) {
+    endListening();
     sendRequest("combat.php","function=attack&Name="+name,
         function(){}
     );
@@ -768,9 +735,8 @@ function getManageSceneText() {
  *makes sure the player really wants to quit thier job
  */
 function quitJobPrompt(){
-    cancelWaits();
-    addText("Type 'quit' to leave your current job.");
-    waitingForTextLine = textLineInputs.QUIT_JOB;
+    endListening();
+    setTextLineListener(listener_quit_job);
 }
 
 /**
@@ -971,29 +937,17 @@ function getTextAreaText(){
     *looks at waiting stuff
     */
 function textAreaSubmit() {
+    var input = getTextAreaText();
+    if (input == null){
+        return;
+    }
     clearErrorMessage();
-    switch (waitingForTextArea) {
-        case(textAreaInputs.PERSONAL_DESCRIPTION):
-            setNewDescription();
-            break;
-        case(textAreaInputs.ITEM_DESCRIPTION):
-            addCraftDescription();
-            break;
-        case(textAreaInputs.NOTE_FOR_ADDING_ITEM):
-            addItemToScene();
-            break;
-        case(textAreaInputs.NEW_ITEM_NOTE_TEXT):
-            changeItemNote();
-            break;
-        case(textAreaInputs.NEW_SCENE_DESC):
-            editSceneDesc();
-            break;
+    if (textAreaListener != null) {
+        textAreaListener.onInput(input);
     }
 }
 /**
 *Closes the text area.
-*Ends crafting.
-*Ends waiting for text area.
 */
 function closeTextArea() {
     document.getElementById("extra").style.display="none";
@@ -1023,38 +977,11 @@ function playSound(soundId){
 }
 
 /**
- *cancels waiting stuff
- */
-function cancelWaits() {
-    switch(waitingForTextArea){
-        //Crafting related
-        case(textAreaInputs.ITEM_DESCRIPTION):
-            addText("you decide not to make the "+itemName);
-            itemName="";
-            break;
-        //personal description related
-        case(textAreaInputs.PERSONAL_DESCRIPTION):
-            break;
-    }
-    switch(waitingForTextLine){
-        //crafting related
-        case(textLineInputs.ITEM_NAME):
-            addText("you decide not to make anything");
-            break;
-        //just combat so far
-        case(textLineInputs.TARGET_NAME):
-            addText("-canceled");
-            break;
-    }
-    waitingForTextArea = textAreaInputs.NOTHING;
-    waitingForTextLine = textLineInputs.NOTHING;
-}
-/**
  *returns true if the player is waiting for something,
  *  in the line or area
  */
 function isWaiting() {
-    return(waitingForTextArea != textAreaInputs.NOTHING || waitingForTextLine != textLineInputs.NOTHING);
+    return(textAreaListener != null || textLineListener != null);
 }
 /**
  *removes the html from the text
@@ -1167,15 +1094,17 @@ function enableInput() {
  *sets the wait message and pops up the image
  */
 function setWaitMessage(message){
-    //make visible
-    document.getElementById("wait").innerHTML = message;
+    var waitBox = document.getElementById("wait");
+    waitBox.innerHTML = message;
+    waitBox.style.visibility = "visible";
 }
 /**
  *removes the wait message and image
  */
 function clearWaitMessage() {
-    //make invisiable
-    document.getElementById("wait").innerHTML = "";
+    var waitBox = document.getElementById("wait");
+    waitBox.innerHTML = "";
+    waitBox.style.visibility = "hidden";
 }
 /**
  *sets the error message.
