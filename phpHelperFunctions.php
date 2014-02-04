@@ -216,8 +216,8 @@ function speakAction($type, $targetName, $targetID){
  *Note: id for keywords is the actual word, not number
  *action: id is keyword id
  */
-function getSpanText($type, $id, $name){
-    switch($type){
+function getSpanText($spanType, $id, $name){
+    switch($spanType){
         case(spanTypes::ITEM):
             return "<span class='item' onclick='addDesc(".spanTypes::ITEM.",".$id.")'>".$name."</span>";
             break;
@@ -278,7 +278,7 @@ function replaceKeywordType($desc, $type, &$IdOut){
         }
         $keywordRow = query($query);
         if(isset($keywordRow['ID'])){
-            $descArray[$i] = getSpanText($type,$descArray[$i],$descArray[$i]);
+            $descArray[$i] = getSpanText(spanTypes::KEYWORD,$descArray[$i],$descArray[$i]);
             $IdOut = $keywordRow['ID'];
             return implode(" ",$descArray);
         }

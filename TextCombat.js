@@ -179,7 +179,8 @@ var spanTypes = {
     ITEM: 0,
     PLAYER: 1,
     SCENE: 2,
-    KEYWORD: 3
+    ACTION: 3,
+    KEYWORD: 4
 }
 
 var textBox="textBox1";
@@ -447,7 +448,8 @@ setTextLineListener(listener_item_name);
 /**
  *When an item name is given, tells the player to give a description
  */
-function addCraftName(itemName){
+function addCraftName(name){
+    itemName = name;
     //has a name, need a description
     sendRequest("crafting.php","function=getCraftInfo",
         function(response){
@@ -466,6 +468,7 @@ function addCraftDescription(desc){
         endListening();
         return;
     }
+    alert(itemName);
     //input into database
     sendRequest("crafting.php","function=craftItem&Name="+itemName+"&Description="+desc,
         function(response){
