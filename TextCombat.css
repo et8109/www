@@ -45,6 +45,7 @@ border: solid 1px brown;
 }
 #wait{
     color:black;
+    visibility: hidden;
 }
 
 .name{ /*names in chat*/

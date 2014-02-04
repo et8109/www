@@ -161,7 +161,7 @@ check to make sure cookies were not changed
         <div id="extra">
             <textArea id="textArea" maxlength="1000"></textArea><br/>
             <span class="textAreaButton" onclick="textAreaSubmit()">Done</span>
-            <span class="textAreaButton" onclick="closeTextArea(), cancelWaits()">Cancel</span><br/>
+            <span class="textAreaButton" onclick="closeTextArea(), endListening()">Cancel</span><br/>
         </div>
         </div>
         <!-- The notifications popup -->
