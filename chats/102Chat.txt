@@ -1,7 +1,3 @@
-1391480461
-1
-Ensetym
-hello
 1391481043
 1
 Ensetym
@@ -38,3 +34,7 @@ Ensetym
 1
 Ensetym
 <0><>101<><span class='name' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Town Square</span>
+1391639963
+0
+tester
+hello

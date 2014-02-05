@@ -234,7 +234,7 @@ switch($function){
                 break;
         }
         //on success:
-        query("delete from playerkeywords where ID=".$employeeRow['ID']." and type=".keywordTypes::APPSHP." or type=".keywordTypes::MANAGER." or type=".keywordTypes::LORD." or type=".keywordTypes::MONARCH);
+        query("delete from playerkeywords where ID=".prepVar($employeeRow['ID'])." and (type=".keywordTypes::APPSHP." or type=".keywordTypes::MANAGER." or type=".keywordTypes::LORD." or type=".keywordTypes::MONARCH.")");
         //give alert to fired employee
         addAlert(alertTypes::fired,$employeeRow['ID']);
         //alert above and below

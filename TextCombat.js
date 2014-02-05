@@ -386,7 +386,6 @@ function addDesc(type, id) {
 function setNewDescription(desc) {
     sendRequest("TextCombat.php","function=updateDescription&Description="+desc,
         function(response) {
-            alert(response);
             closeTextArea();
             endListening();
         }
@@ -770,7 +769,7 @@ function fireEmployee(name){
     sendRequest("manage.php",
                  "function=fireEmployee&name="+name,
         function(response){
-            addText(name+" has been hired");
+            addText(name+" has been fired");
         }
     );
 }

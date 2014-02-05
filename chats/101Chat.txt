@@ -1,11 +1,3 @@
-1391477851
-1
-Ensetym
-<0><>102<><span class='name' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Blacksmith</span>
-1391482482
-1
-Ensetym
-<0><>100<><span class='name' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Pub</span>
 1391482507
 1
 Ensetym
@@ -38,3 +30,11 @@ Ensetym
 1
 Ensetym
 <0><>100<><span class='name' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Pub</span>
+1391639128
+0
+tester
+<0><>100<><span class='name' onclick='addDesc(1,0)'>tester</span> walked to <span class='sceneName'>Pub</span>
+1391639742
+0
+tester
+<0><>102<><span class='name' onclick='addDesc(1,0)'>tester</span> walked to <span class='sceneName'>Blacksmith</span>
