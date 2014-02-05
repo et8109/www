@@ -1,40 +1,40 @@
-1391140511
-1
-Ensetym
-hello
-1391140624
-1
-Ensetym
-hello
-1391140988
-1
-Ensetym
-sdfdsf
-1391210141
-1
-Ensetym
-<0><>102<><span class='name' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Blacksmith</span>
-1391210653
-1
-Ensetym
-hello
-1391210666
-1
-Ensetym
-<0><>102<><span class='name' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Blacksmith</span>
-1391210674
-1
-Ensetym
-<0><>100<><span class='name' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Pub</span>
-1391310954
-1
-Ensetym
-<0><>100<><span class='name' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Pub</span>
-1391311626
-1
-Ensetym
-<0><>100<><span class='name' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Pub</span>
 1391477851
 1
 Ensetym
 <0><>102<><span class='name' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Blacksmith</span>
+1391482482
+1
+Ensetym
+<0><>100<><span class='name' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Pub</span>
+1391482507
+1
+Ensetym
+<0><>102<><span class='name' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Blacksmith</span>
+1391482530
+1
+Ensetym
+<0><>102<><span class='name' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Blacksmith</span>
+1391482552
+1
+Ensetym
+<0><>100<><span class='name' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Pub</span>
+1391571660
+1
+Ensetym
+<0><>102<><span class='name' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Blacksmith</span>
+1391572058
+1
+Ensetym
+<0><>100<><span class='name' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Pub</span>
+1391574479
+1
+Ensetym
+<0><>102<><span class='name' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Blacksmith</span>
+1391574554
+1
+Ensetym
+<0><>100<><span class='name' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Pub</span>
+1391575545
+1
+Ensetym
+<0><>100<><span class='name' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Pub</span>

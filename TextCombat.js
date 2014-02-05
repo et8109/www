@@ -386,6 +386,7 @@ function addDesc(type, id) {
 function setNewDescription(desc) {
     sendRequest("TextCombat.php","function=updateDescription&Description="+desc,
         function(response) {
+            alert(response);
             closeTextArea();
             endListening();
         }
@@ -468,7 +469,6 @@ function addCraftDescription(desc){
         endListening();
         return;
     }
-    alert(itemName);
     //input into database
     sendRequest("crafting.php","function=craftItem&Name="+itemName+"&Description="+desc,
         function(response){
@@ -509,9 +509,9 @@ function getItemsInScene(onEmptyText){
                 return;
             }
             //success
-            var splitResponse = response.split("<>");
-            for(i in splitResonse){
-                addText(splitResponse[i]);
+            response = response.split("<>");
+            for(var i=0; i<response.length; i++){
+                addText(response[i]);
             }
         }
     );
@@ -746,6 +746,7 @@ function quitJobPrompt(){
  *removes the player's current job
  */
 function quitJob() {
+    endListening();
     sendRequest("manage.php","function=quitJob",
         function(response){
             addText("You have quit your job");
@@ -911,8 +912,10 @@ function getInputText(){
 
 /**
 * Opens the bottom text area, sets the value to blank
+* disables main text line
 */
 function openTextArea() {
+    document.getElementById("input").disabled = true;
     document.getElementById("textArea").value="";
     document.getElementById("extra").style.display="block";
 }
@@ -938,12 +941,14 @@ function getTextAreaText(){
 /**
     *Called when the text area done button is clicked
     *looks at waiting stuff
+    *enables main text line
     */
 function textAreaSubmit() {
     var input = getTextAreaText();
     if (input == null){
         return;
     }
+    document.getElementById("input").disabled = false;
     clearErrorMessage();
     if (textAreaListener != null) {
         textAreaListener.onInput(input);
@@ -951,8 +956,10 @@ function textAreaSubmit() {
 }
 /**
 *Closes the text area.
+*enables input line
 */
 function closeTextArea() {
+    document.getElementById("input").disabled = false;
     document.getElementById("extra").style.display="none";
 }
 

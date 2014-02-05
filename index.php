@@ -99,8 +99,6 @@ make a php header
     db login info
     copyright info
     contact info
-can't log in if already logged in
-move chat to db
 ********************************************
 later:
 ********************************************

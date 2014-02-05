@@ -62,7 +62,7 @@ switch($function){
         break;
     
     case('updateDescription'):
-        $success = updateDescription($_SESSION['playerID'], $_POST['Description'], spanTypes::PLAYER);
+        $success = updateDescription($_SESSION['playerID'], $_POST['Description'], spanTypes::PLAYER,$keywordTypeNames);
         if($success){
             removeAlert(alertTypes::newItem);
             removeAlert(alertTypes::removedItem);
@@ -168,11 +168,11 @@ switch($function){
         mysqli_free_result($itemIDsResult);
         $itemNamesResult = queryMulti($itemNamesQuery);
         //seperate into <>
-        while($row = mysqli_fetch_array($itemNamesQuery)){
+        while($row = mysqli_fetch_array($itemNamesResult)){
             echo getSpanText(spanTypes::ITEM,$row['ID'],$row['Name'])."<>";
             echo $itemNotes[$row['ID']];
         }
-        mysqli_free_result($itemNamesQuery);
+        mysqli_free_result($itemNamesResult);
         break;
     
     //gets the id of any player from the same scene. scene is indexed in mysql
@@ -191,32 +191,6 @@ switch($function){
         echo "Name: ".$playerRow['Name'];
         echo "<>ID: ".$_SESSION['playerID'];
         echo "<>Craft skill: ".$playerRow['craftSkill'];
-        //job
-        $jobRow = query("select locationID,type from playerkeywords where playerID=".prepVar($_SESSION['playerID'])." and type=".keywordTypes::APPSHP." or type=".keywordTypes::MANAGER." or type=".keywordTypes::LORD." or type=".keywordTypes::MONARCH);
-        if($jobRow == false){
-            echo "<>No Job";
-        }
-        else{
-            //find name of lcoation
-            switch(intval($jobRow['type'])){
-                case(keywordTypes::APPSHP):
-                    $locationRow = query("select Name from scenes where ID=".prepVar($jobRow['locationID']));
-                    echo "Apprentice at ".$locationRow['Name'];
-                    break;
-                case(keywordTypes::MANAGER):
-                    $locationRow = query("select Name from scenes where ID=".prepVar($jobRow['locationID']));
-                    echo "Manager at ".$locationRow['Name'];
-                    break;
-                case(keywordTypes::LORD):
-                    $locationRow = query("select count(1) from scenes where town=".prepVar($jobRow['locationID']));
-                    echo "Lord of ".$locationRow[0]." locations";
-                    break;
-                case(keywordTypes::MONARCH):
-                    $locationRow = query("select count(1) from scenes where land=".prepVar($jobRow['locationID']));
-                    echo "Monarch of [in progress]";
-                    break;
-            }
-        }
         //keywords
         $keywordsResult = queryMulti("select keywordID,locationID,type from playerkeywords where ID=".prepVar($_SESSION['playerID']));
         $row;
@@ -228,11 +202,9 @@ switch($function){
         else{
             echo "<>Keywords:";
             do{
-                //get the description of the keyword type
-                echo "<>- ".$keywordTypeNames[$row['type']];
                 //find first keyword option
                 $wordRow = query("select word from keywordwords where ID=".prepVar($row['keywordID'])." limit 1");
-                echo ": ".$wordRow['word'];
+                echo "<>".$wordRow['word'];
                 //find location name, if applicable
                 if($row['locationID'] != 0){
                     $locationRow = query("select name from scenes where ID=".prepVar($row['locationID']));

@@ -248,11 +248,12 @@ function getSpanText($spanType, $id, $name){
 /**
  *replaces the first keyword of the given type.
  *returns false if not found
+ *should work for scene actions if corrent kwt is given
  */
-function replaceKeywordType($desc, $type, &$IdOut){
+function replaceKeywordType($desc, $keywordType, &$IdOut){
     //find prerequisites
     $prerequisite = "";
-    switch($type){
+    switch($keywordType){
         case(keywordTypes::QUALITY):
             $row = query("select craftSkill from playerinfo where ID = ".prepVar($_SESSION['playerID']));
             if($row == false){
@@ -272,13 +273,17 @@ function replaceKeywordType($desc, $type, &$IdOut){
     $descArray = explode(" ",$desc);
     $descArrayLength = count($descArray);
     for($i=0; $i<$descArrayLength; $i++){
-        $query = "select ID from keywordwords where Word=".prepVar(strtolower($descArray[$i]))." and Type=".prepVar($type);
+        $query = "select ID from keywordwords where Word=".prepVar(strtolower($descArray[$i]))." and Type=".prepVar($keywordType);
         if($prerequisite != ""){
             $query.=" and ".$prerequisite;
         }
         $keywordRow = query($query);
         if(isset($keywordRow['ID'])){
-            $descArray[$i] = getSpanText(spanTypes::KEYWORD,$descArray[$i],$descArray[$i]);
+            $spanType = spanTypes::KEYWORD;
+            if($keywordType == keywordTypes::SCENE_ACTION){
+                $spanType = spanTypes::ACTION;
+            }
+            $descArray[$i] = getSpanText($spanType,$descArray[$i],$descArray[$i]);
             $IdOut = $keywordRow['ID'];
             return implode(" ",$descArray);
         }
@@ -287,17 +292,21 @@ function replaceKeywordType($desc, $type, &$IdOut){
 }
 
 /**
- *replaces the first keyword of the given ID.
+ *replaces the first keyword/scene action of the given ID.
  *returns false if not found
  */
-function replaceKeywordID($desc, $ID, $spanType){
+function replaceKeywordID($desc, $ID){
     $descArray = explode(" ",$desc);
     $descArrayLength = count($descArray);
-    for($i=0; i<$descArrayLength; $i++){
+    for($i=0; $i<$descArrayLength; $i++){
         $keywordRow = query("select ID,Type from keywordwords where Word=".prepVar($descArray[$i])." and ID=".prepVar($ID));
-        if(!is_bool($keywordRow)){
+        if(isset($keywordRow['ID'])){
             //found, success
-            $descArray[$i] = getSpanText(intval($keywordRow['Type']),$keywordRow['ID'],$descArray[$i]);
+            $spanType = spanTypes::KEYWORD;
+            if(intval($keywordRow['Type']) == keywordTypes::SCENE_ACTION){
+                $spanType = spanTypes::ACTION;
+            }
+            $descArray[$i] = getSpanText($spanType,$keywordRow['ID'],$descArray[$i]);
             return implode(" ",$descArray);
         }
     }
@@ -334,14 +343,14 @@ function replacePlayerItems($description){
  *updates a description in the db
  *sends error on fail
  */
-function updateDescription($ID, $description, $spanTypesType){
+function updateDescription($ID, $description, $spanTypesType, $keywordTypeNames){
     $table = getTable($spanTypesType);
     $keywordTable = getTableKeywords($spanTypesType);
     if($table == null){
         sendError("unfindeable type");
     }
     //get IDs of keywords
-    $keywordsResult = queryMulti("select keywordID from ".$keywordTable." where ID=".$ID);
+    $keywordsResult = queryMulti("select keywordID,Type from ".$keywordTable." where ID=".$ID);
     if(is_bool($keywordsResult)){
         sendError("can't find the required keywords");
     }
@@ -350,7 +359,7 @@ function updateDescription($ID, $description, $spanTypesType){
         $description = replaceKeywordID($description,$keywordRow['keywordID']);
         //if ID not found
         if($description == false){
-            sendError("could not find keyword type: ".$keywordTypeNames[$keywordRow['keywordID']]);
+            sendError("could not find keyword type: ".$keywordTypeNames[intval($keywordRow['Type'])]);
         }
     }
     mysqli_free_result($keywordsResult);
@@ -488,10 +497,7 @@ function checkPlayerCanTakeItem(){
  *sends error on fail
  */
 function removeItemIdFromPlayer($itemID){
-    $updateRow = query("update items set playerID=0 where playerID=".prepVar($_SESSION['playerID'])." and ID=".prepVar($idRow['ID']));
-    if($updateRow == false){
-        sendError("You do not have this item");
-    }
+    $updateRow = query("update items set playerID=0 where playerID=".prepVar($_SESSION['playerID'])." and ID=".prepVar($itemID));
     addAlert(alertTypes::removedItem);
     return true;
 }

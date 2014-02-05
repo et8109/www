@@ -9,13 +9,13 @@ switch($function){
             sendError("You don't have permission");
         }
         //get item id,size
-        $idRow = query("select ID, size from items where playerID=".prepVar($_SESSION['playerID'])." and Name=".prepVar($_POST['Name']));
+        $idRow = query("select ID from items where playerID=".prepVar($_SESSION['playerID'])." and Name=".prepVar($_POST['Name']));
         if(is_bool($idRow)){
-            sendError("You do not have that item");
+            sendError("You do not have a ".$_POST['Name']);
         }
         //make sure scene has less than max items
         $numItems = query("select count(1) from itemsinscenes where sceneID=".prepVar($_SESSION['currentScene']));
-        if($numItems >= constants::maxSceneItems){
+        if($numItems[0] >= constants::maxSceneItems){
             sendError("This location is full already");
         }
         //remove item from player
@@ -46,10 +46,14 @@ switch($function){
         if(getPlayerManageLevel() < 1){
             sendError("You don't have permission");
         }
+        $idRow = query("select ID from items where Name=".prepVar($_POST['Name']));
+        if($idRow == false){
+            sendError($_POST['Name']." does not exist.");
+        }
         //get item id
-        $idRow = query("select ID from items where playerID=".prepVar($_SESSION['playerID'])." and Name=".prepVar($_POST['Name']));
-        if(is_bool($idRow)){
-            sendError("Item not found");
+        $itemRow = query("select count(1) from itemsinscenes where sceneID=".prepVar($_SESSION['currentScene'])." and itemID=".prepVar($idRow['ID']));
+        if($itemRow[0] != 1){
+            sendError($_POST['Name']." not found in this location.");
         }
         query("update itemsinscenes set note=".prepVar($_POST['Note'])." where itemID=".$idRow['ID']);
         break;
@@ -59,7 +63,7 @@ switch($function){
         if(getPlayerManageLevel() < 3){
             sendError("You don't have permission");
         }
-        updateDescription($_SESSION['currentScene'],$_POST['desc'],spanTypes::SCENE);
+        updateDescription($_SESSION['currentScene'],$_POST['desc'],spanTypes::SCENE,$keywordTypeNames);
         break;
     
     case('getManageSceneText'):
@@ -103,7 +107,7 @@ switch($function){
         }
         //take stuff from hire employee
         //7 is the starting keyword for managers
-        query("insert into playerkeywords (ID,keywordID,locationID,type) values (".prepVar($_SESSION['playerID']).",7,".$_SESSION['currentScene'].",".keywordTypes::MANAGER.")");
+        query("insert into playerkeywords (ID,keywordID,locationID,type) values (".prepVar($_SESSION['playerID']).",8,".$_SESSION['currentScene'].",".keywordTypes::MANAGER.")");
         //let employee know
         addAlert(alertTypes::newJob);
         //let above and below know
