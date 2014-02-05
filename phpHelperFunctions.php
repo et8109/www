@@ -1,4 +1,26 @@
 <?php
+
+/**
+Useful:
+Js bookmarks!
+del [full path]index.lock
+
+done:
+logging in and logging out
+stored in $_SESSION: ['playerID'] ['playerName'] ['lastChatTime'] ['currentScene'] ['loginID']
+
+big things:
+PHP PDO!
+buying items
+combat
+backgrounds
+events
+voice
+
+todo:
+sql db backups
+*/
+
 include_once 'constants.php';
 session_start();
 //check inputs

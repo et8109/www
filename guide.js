@@ -4,11 +4,12 @@ function command(name, syntaxArray, desc){
     this.snytaxArray = syntaxArray;
     this.desc = desc;
     this.getText = function(){
-        return (this.name+"</br>"+this.desc);
+        return (this.name+" : "+this.snytaxArray+"</br>"+this.desc);
     };
 }
 var commands = [
     new command("/look",[],"Shows where you are."),
+    new command("/closelook",[],"Shows details about where you are. You can become a manager there if no one else is."),
     new command("/attack",[],"Attacks another player in the same location."),
     new command("/help",[],"It's a link to this page."),
     new command("/put",["[item]","in","[container]"],"Puts an item into a container item."),

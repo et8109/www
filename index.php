@@ -13,10 +13,9 @@ del [full path]index.lock
 
 done:
 logging in and logging out
-stored in $_SESSION: ['playerID'] ['playerName'] ['lastChatTime'] ['currentScene']
+stored in $_SESSION: ['playerID'] ['playerName'] ['lastChatTime'] ['currentScene'] ['loginID']
 
 big things:
-change autoincrement value in db when done testing
 PHP PDO!
 buying items
 combat
@@ -61,8 +60,7 @@ think about item sizes/weights and bags again
             [doneish]removing items from scene
             [doneish]change the notes on items
         [done]lets player minimally change description, with scene keyword check
-        visitors can buy from shop
-            trading between players
+        
         
     [done]sendRequest js function
         [done]constant error recieving
@@ -102,17 +100,12 @@ make a php header
 ********************************************
 later:
 ********************************************
-combine multiple querys into one in long functions
+
 ability to view players from the home page
 make sure items table has a secondary search set fo playerID
 javascript can be disabled, double check things on server side
-add options for each command, custom commands
-    add list of players to look
-weather/light and darknes/time, candles/lamps
-scrolls/library? A way for players to write thier own lore -> admin hierarchy
-    sroll: two types of people, knights and squires. together it is a powerful relationship, but k/k or s/s are easily friends.
-    scroll: each month is a cyle of sin (pennance, regret, deciciveness, inaction, ect.)
-cache stuff?
+
+
 does js .length take linear time?
 find a way to see sql errors
 php count() is not automatic, and loops through each time. avoid.
