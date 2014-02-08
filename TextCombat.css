@@ -91,9 +91,16 @@ border: solid 1px brown;
     left:400px;
     cursor: pointer;
 }
-.manageScene{/*the button that lets you manage a scene if you have the rights*/
+.manageScene{/*the button that lets you manage a scene if you have the rights. Removed?*/
     cursor: pointer;
     font-size:10px;
+}
+.paper{
+    display: inline-block;
+    background: #9EA832;
+    width:99%;
+    margin: 0px;
+    padding: 0px;
 }
 
 /*player name in the hub*/

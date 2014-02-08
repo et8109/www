@@ -214,6 +214,10 @@ var currentScene;
  *if enabled, every query will show how long it took
  */
 var requestSpeedChecker = false;
+/**
+ *if eneabled, text will be displayed with a paper background
+ */
+var onPaper = false;
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
@@ -517,10 +521,12 @@ function getItemsInScene(onEmptyText){
                 return;
             }
             //success
+            startPaper();
             response = response.split("<>");
             for(var i=0; i<response.length; i++){
                 addText(response[i]);
             }
+            endPaper();
         }
     );
 }
@@ -881,7 +887,11 @@ function setTextLine(text){
 function addText(text) {
     var currentHeight = document.getElementById(this.textBox).offsetHeight;
     var maxHeight = (document.height || document.body.offsetHeight)-document.getElementById("hub").offsetHeight;
-    document.getElementById(this.textBox).innerHTML += "</br>"+ text;
+    if (onPaper) {
+        document.getElementById(this.textBox).innerHTML += "</br><span class='paper'>"+text+"</span>";
+    } else{
+        document.getElementById(this.textBox).innerHTML += "</br>"+text;
+    }
     document.getElementById(this.OfftextBox).style.opacity =(maxHeight-currentHeight)/maxHeight;
     if (currentHeight+80>maxHeight) {
         //switch text boxes
@@ -1062,6 +1072,19 @@ function toggleFrontLoadKeywords(){
 function togglersc(){
     requestSpeedChecker = !requestSpeedChecker;
 }
+/**
+ *starts putting the text on paper background
+ */
+function startPaper(){
+    onPaper = true;
+}
+/**
+ *ends writing text on paper background
+ */
+function endPaper(){
+    onPaper = false;
+}
+
 /**
  *checks for unwanted input
  *returns false on fail
