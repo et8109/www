@@ -18,7 +18,7 @@ var frontLoadKeywords;
 (function(){
    sendRequest(
         "setup.php",
-        "function=setUp$version="+version,
+        "function=setUp&version="+version,
         function(response){
             response = response.split("<>");
             currentScene = parseInt(response[1]);
@@ -210,7 +210,10 @@ var itemName;
  *saves the current scene id. used for addDesc of currentScene
  */
 var currentScene;
-
+/**
+ *if enabled, every query will show how long it took
+ */
+var requestSpeedChecker = false;
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
@@ -266,6 +269,12 @@ function textTyped(e){
                 inputText = inputText.join(" ");
                 inputText = inputText.split(" from ");
                 takeItemFrom(inputText[0].trim(), inputText[1].trim());
+                break;
+            case("/give"):
+                inputText[0] = "";
+                inputText = inputText.join(" ");
+                inputText = inputText.split(" to ");
+                giveItemTo(inputText[0].trim(), inputText[1].trim());
                 break;
             case("/manage"):
                 getManageSceneText();
@@ -700,6 +709,8 @@ function openOptions(){
         menuInside.innerHTML +="<input type='checkbox' onclick='toggleFrontLoadKeywords()'>";
     }
     menuInside.innerHTML +="Front load keyword text. About 10 lines.</input>";
+    //query speed checker
+    menuInside.innerHTML += "<span onclick='togglersc()'>Enable/disable speed checker.</span>"
 }
 /**
  *puts an item into a container item
@@ -826,6 +837,18 @@ function beManager(){
         function(response){
             addText("Success, you are now the manager here!");
         }
+    );
+}
+
+/**
+ *gives an item to another player in the same location
+ */
+function giveItemTo(item, playerName){
+    sendRequest("TextCombat.php",
+                "function=giveItemTo&itemName="+item+"&playerName="+playerName,
+                function(response) {
+                    addText(item+" was given to "+playerName);
+                }
     );
 }
 ////////////////////////////////////////////////////
@@ -1034,6 +1057,12 @@ function toggleFrontLoadKeywords(){
     );
 }
 /**
+ *toggles whether the query speed checker is on or off
+ */
+function togglersc(){
+    requestSpeedChecker = !requestSpeedChecker;
+}
+/**
  *checks for unwanted input
  *returns false on fail
  *pints the error message on its own
@@ -1080,7 +1109,15 @@ function sendRequest(url,params,returnFunction){
                 //success, call function
                 returnFunction(response);
             }
+            if (requestSpeedChecker) {
+                var date = new Date();
+                addText("b "+date.getSeconds());
+            }
         }
+    }
+    if (requestSpeedChecker) {
+        var date = new Date();
+        addText("a "+date.getSeconds());
     }
     request.send(params);
 }

@@ -76,15 +76,6 @@ final class keywordTypes {
 }
 
 /**
- *currently empty
- */
-//final class requiredSceneKeywordTypes {};
-/**
- *currently empty
- */
-//final class requiredPlayerKeywordTypes {};
-
-/**
  *the names asocciated with each keyword type
  */
 $keywordTypeNames = array(

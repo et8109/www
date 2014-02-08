@@ -3,8 +3,8 @@
  * keyword ID => increase in combat skill
  */
 $combatItemKeywords = array(
-    2 => 2,
-    4 => 1
+    1 => 1,//wood
+    2 => 2 //metal
 );
 
 include 'phpHelperFunctions.php';
@@ -40,9 +40,9 @@ function getCombatLevel($playerID){
     else{
         //get keywords from items
         $itemRow = mysqli_fetch_array($rowItemIds);
-        $multiQuery = "select keywordID from itemKeywords where itemID=".prepVar($itemRow['ID']);
+        $multiQuery = "select keywordID from itemKeywords where ID=".prepVar($itemRow['ID']);
         while($itemRow = mysqli_fetch_array($rowItemIds)){
-            $multiQuery .= "or ".prepVar($itemRow['ID']);
+            $multiQuery .= " or ID=".prepVar($itemRow['ID']);
         }
         mysqli_free_result($rowItemIds);
         $keywordIdRows = queryMulti($multiQuery);
@@ -52,7 +52,7 @@ function getCombatLevel($playerID){
         }
         else{
             //combat math, items
-            while($keywordRow = mysqli_fetch_array($rowItemIds)){
+            while($keywordRow = mysqli_fetch_array($keywordIdRows)){
                 if(isset( $GLOBALS['combatItemKeywords'][$keywordRow['keywordID']] )){
                     $playerCombatLevel += $GLOBALS['combatItemKeywords'][$keywordRow['keywordID']];
                 }

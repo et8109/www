@@ -223,9 +223,9 @@ function speakAction($type, $targetName, $targetID){
                 $actionWords = " attacked ";
             }
             else{
-                $actionWords = " blocked and retaliated against ";
+                $actionWords = " was blocked by ";
             }
-            $actionWords .= $playerCombatLevel." p--o ".$opponentCombatLevel." ";
+            $actionWords .= $playerCombatLevel." -> ".$opponentCombatLevel." ";
             $text .= "<>".$targetID."<>".getSpanText(spanTypes::PLAYER,$_SESSION['playerID'],$_SESSION['playerName']).$actionWords.getSpanText(spanTypes::PLAYER,$targetID,$targetName);
             break;
     }
@@ -348,13 +348,14 @@ function replacePlayerItems($description){
     }
     while($itemRow = mysqli_fetch_array($itemNamesResult)){
         //if an item is not found
-        if(strpos($description, $itemRow['Name']) == false){
+        $pos = strpos($description, $itemRow['Name']);
+        if($pos == false){
             mysqli_free_result($itemNamesResult);
             sendError("description does not contain ".$itemRow['Name']);
         }
         else{
             //the item was found
-            $description = str_replace($itemRow['Name'], getSpanText(spanTypes::ITEM,$itemRow['ID'],$itemRow['Name']), $description);
+            $description = substr_replace($description,getSpanText(spanTypes::ITEM,$itemRow['ID'],$itemRow['Name']),$pos,strlen($itemRow['Name']));
         }
     }
     mysqli_free_result($itemNamesResult);
@@ -371,6 +372,10 @@ function updateDescription($ID, $description, $spanTypesType, $keywordTypeNames)
     if($table == null){
         sendError("unfindeable type");
     }
+    //if a player, make sure items are there. items first so they don't replace span stuff.
+    if($spanTypesType == spanTypes::PLAYER){
+        $description = replacePlayerItems($description);
+    }
     //get IDs of keywords
     $keywordsResult = queryMulti("select keywordID,Type from ".$keywordTable." where ID=".$ID);
     if(is_bool($keywordsResult)){
@@ -385,10 +390,6 @@ function updateDescription($ID, $description, $spanTypesType, $keywordTypeNames)
         }
     }
     mysqli_free_result($keywordsResult);
-    //if a player, make sure items are there
-    if($spanTypesType == spanTypes::PLAYER){
-        $description = replacePlayerItems($description);
-    }
     //make sure its under max length
     checkDescIsUnderMaxLength($description,$spanTypesType);
     query("update ".$table." set Description=".prepVar($description)." where ID=".prepVar($ID));
@@ -499,14 +500,17 @@ function addItemIdToPlayer($itemID, $itemName){
     return true;
 }
 /**
- *makes sure the player can take the described item
+ *makes sure the player can take an arbitrary item
  *sends error on fail, returns true on success
  */
-function checkPlayerCanTakeItem(){
+function checkPlayerCanTakeItem($playerID = null){
+    if($playerID == null){
+        $playerID = $_SESSION['playerID'];
+    }
     //check player has less than max items
     $numItems = query("select count(1) from items where playerID=".prepVar($_SESSION['playerID']));
     if($numItems[0] >= constants::maxPlayerItems){
-        sendError("You have too many items:".$numItems[0]);
+        sendError("Item limit reached, found ".$numItems[0]);
     }
     //check player desc length
     $row = query("select Description from playerinfo where ID=".prepVar($_SESSION['playerID']));

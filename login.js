@@ -50,7 +50,6 @@ function login() {
     sendRequest("TextCombat.php",
                 "function=login&uname="+uname+"&pass="+pass,
         function(response){
-        //window.location = "index.php"; remove
         window.location.replace("index.php");
         }
     );

@@ -5,128 +5,16 @@
         header("Location: login.php");
     }
 ?>
-
-<!--
-Useful:
-Js bookmarks!
-del [full path]index.lock
-
-done:
-logging in and logging out
-stored in $_SESSION: ['playerID'] ['playerName'] ['lastChatTime'] ['currentScene'] ['loginID']
-
-big things:
-PHP PDO!
-buying items
-combat
-backgrounds
-events
-voice
-
-todo:
-sql db backups
----
-a popup that asks if each keyword should be enabled or ignored
-********************************************
-[done]creating items add the item to itemKeywords
-[done]scenes have keywords
-    move constants to new php page
-    [done]on scene creation or modification, check keywords: use new phphf
-        [done]do for items and players too?
-[done]scenePlayers db table with players in each scene
-    [done]revamp walk
-    [done]add player to list on login
-    [done]revamp attack
-[1/2 done]####Attacking will be the addition of player combat-related skills with player's combat-related item keywords
-    player skills be be player desc keywords
-********************************************
-
-[done]combine playerItems and items tables
-
-think about item sizes/weights and bags again
-
-[sort of]look for repeated code
-
-[doneish]scenes can hold things
-
-    [started]make a pub
-        [done]player keyword db table
-            [done]keyowrds have name, description, locationID
-        [done]when creating a player description, check player keywords
-            [done, except for edit]universalize update desc
-        [done]getSpanText gives manage span if the player has the right keyword and location
-        [doneish]manageScene lets player add/remove from itemsInScene list
-            [doneish]adding items to scenes
-            [doneish]removing items from scene
-            [doneish]change the notes on items
-        [done]lets player minimally change description, with scene keyword check
-        
-        
-    [done]sendRequest js function
-        [done]constant error recieving
-        [done]a php error sender function
-        
-        responsibility hierarchy
-            [done]-each has their own keyword type for playerkeywords
-            [done]-scens have a town and land location, shared with other scenes
-                [done]lord kwrd uses town, diety kwrd uses land
-            [done]-change manage functions to manage level
-            ---
-            to become:
-            apprentice: manager adds you via command
-                cannot leave any notes
-            manager: lord adds you via command or previous manager sets you
-                cannot leave any notes
-                if no manager for __ days, it closes down
-            lord: monarch adds you via command or previous lord sets you
-                cannot leave notes
-                if no lord for __ days, monarch is warned and other lords may choose?
-            to leave:
-            apprentice: use leave command
-            manager,lord, monarch: optionally choose successor
-                successor must have a certain amount of previous experience
-            ---
-            email supprt
-                send lower level changes higher up, can change in options
-            people who work at the same location should have shared notes
-            recieve an alert when you are accepted, told to update email
-
-    make a library
-
-make a php header
-    db login info
-    copyright info
-    contact info
-********************************************
-later:
-********************************************
-
-ability to view players from the home page
-make sure items table has a secondary search set fo playerID
-javascript can be disabled, double check things on server side
-
-
-does js .length take linear time?
-find a way to see sql errors
-php count() is not automatic, and loops through each time. avoid.
-move help text to a text file
-add flushing to the server to speed up the response
-one server request per function!
-websockets
-add final to final variables
-make sure all variables have var
-only have things on client-side which will not impact anyone else
-check to make sure cookies were not changed
--->
 <html>
     <head>
+        <meta name="description" content="Explore a unique world, improve your character, and impact the game in your own way.">
+        <meta name="keywords" content="game,online,free,multiplayer,text">
+        <meta name="author" content="EE">
         <!-- shared favicon code -->
         <title>Ignatym</title>
         <link rel="icon" href="images/favicon.ico" type="image/x-icon"/>
         <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon"/>
 <link rel="stylesheet" type="text/css" href="TextCombat.css" />
-<!--//////////////////////////////////remove testing///////////////////////////////////////////////////-->
-<!--<script src="testing.js"></script>-->
 <audio id="anvil">
     <source src="sounds/anvil.wav" type="audio/wav"/>
     Your browser doesn't support wav sound

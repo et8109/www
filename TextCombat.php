@@ -96,6 +96,22 @@ switch($function){
         addAlert(alertTypes::removedItem);
         break;
     
+    case('giveItemTo'):
+        //find id of reciever
+        $playerRow = query("select ID from playerinfo where Name=".prepVar($_POST['playerName']));
+        if($playerRow == false){
+            sendError("Could not find ".$_POST['playerName']." nearby.");
+        }
+        //find id of item
+        $itemRow = query("select ID from items where playerID=".prepVar($_SESSION['playerID'])." and Name=".prepVar($_POST['itemName']));
+        if($itemRow == false){
+            sendError("Could not find ".$_POST['itemName']);
+        }
+        checkPlayerCanTakeItem($playerRow['ID']);
+        removeItemIdFromPlayer($itemRow['ID']);
+        addItemIdToPlayer($itemRow['ID'], $_POST['itemName']);
+        break;
+    
     case('putItemIn'):
         $itemName = prepVar($_POST['itemName']);
         $containerName = prepVar($_POST['containerName']);
@@ -117,6 +133,11 @@ switch($function){
         //make sure the first item is not in something else
         if($itemRow['insideOf'] != 0){
             sendError($itemName." is inside of something else. Remove it first.");
+        }
+        //make sure the item is not a bag
+        $itemIsBagRow = query("select count(1) from itemkeywords where ID=".prepVar($itemRow['ID'])." and type=".keywordTypes::CONTAINER);
+        if($itemIsBagRow[0] > 0){
+            sendError("You can't put a container into another container.");
         }
         //put in
         query("update items set insideOf=".prepVar($containerRow['ID'])." where ID=".prepVar($itemRow['ID']));

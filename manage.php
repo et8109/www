@@ -13,6 +13,11 @@ switch($function){
         if(is_bool($idRow)){
             sendError("You do not have a ".$_POST['Name']);
         }
+        //make sure it's not a container
+        $itemIsBagRow = query("select count(1) from itemkeywords where ID=".prepVar($idRow['ID'])." and type=".keywordTypes::CONTAINER);
+        if($itemIsBagRow[0] > 0){
+            sendError("You can't put a container into a location.");
+        }
         //make sure scene has less than max items
         $numItems = query("select count(1) from itemsinscenes where sceneID=".prepVar($_SESSION['currentScene']));
         if($numItems[0] >= constants::maxSceneItems){
