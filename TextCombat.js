@@ -333,14 +333,14 @@ function updateChat(){
             var numAlerts = response[1];
             var text = response[0].split("\r\n");
 	    if (text.length>1) {
-		for(var i=0; i<text.length; i+=3){
+		for(var i=0; i<text.length; i+=3){//id,name,text
                     var chatLine = text[i+2];
                     //if an action, not a chat
                     if (chatLine.indexOf("<") == 1) {
                         var type = parseInt(chatLine.charAt(2));
                         switch(type){
                             case(actionTypes.ATTACK):
-                                //let the player know somehow that they were attacked, attak sound
+                                //let the player know somehow that they were attacked, attack sound
                                 var info = chatLine.split("<>");//1:id, 2:text
                                 addText(info[2]);
                                 break;
@@ -353,7 +353,7 @@ function updateChat(){
                     }
                     //if a chat
                     else{
-                        addText("<span class='name' onclick='addDesc("+spanTypes.PLAYER+","+text[i]+")'>"+text[i+1]+"</span>:"+chatLine);
+                        addText(text[1]+":"+chatLine);
                     }
                 }
             }
@@ -387,8 +387,9 @@ function addDesc(type, id) {
     sendRequest("TextCombat.php","function=getDesc&type="+type+"&ID="+id,
         function(response) {
             response = response.split("<>");
-            addText(response[0]);
-            addText(response[1]);
+            for(var i=0; i<response.length; i++){
+                addText(response[i]);
+            }
         }
     );
 }

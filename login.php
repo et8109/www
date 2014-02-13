@@ -22,6 +22,7 @@ Password: </br>
 <INPUT TYPE = 'password' id="password" maxlength=20><br/>
 <input type="button" value="login" onclick="login();">
     <a href="register.php">Need to register?</a></br>
+    Guest account available,</br>username and password are "guest".</br>
         <!-- shared error message -->
         <img id="errorPoint" src="images/errorPoint.png" style="visibility: hidden"><span id="error"></span></br>
         <div id="info">

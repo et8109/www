@@ -26,15 +26,12 @@ switch($function){
                 $ID = is_numeric($_POST['ID']) ? $_POST['ID'] : $_SESSION['currentScene'];
                 $row = query("select Name, Description from scenes where ID=".prepVar($ID));
                 echo getSpanText(spanTypes::SCENE,$ID,$row["Name"])."<>".$row["Description"];
-                //managing the scene
-                /*$manageLevel = getPlayerManageLevel();
-                if($manageLevel > 0){
-                    echo " ".getSpanTextManagingScene($manageLevel);
+                //players
+                $playersResult = queryMulti("select playerID,playerName from sceneplayers where sceneID=".prepVar($_SESSION['currentScene']));
+                while($row = mysqli_fetch_array($playersResult)){
+                    echo "<>-".getSpanText(spanTypes::PLAYER,$row['playerID'],$row['playerName']);
                 }
-                //apply for apprenticeship
-                else if($row['appshp'] == true){
-                    echo " ".getSpanTextApplyForAppshp();
-                }*/
+                mysqli_free_result($playersResult);
                 break;
         }
         break;
@@ -205,13 +202,14 @@ switch($function){
     //used for /self
     case('getPlayerInfo'):
         //info
-        $playerRow = query("select Name,craftSkill from playerinfo where ID=".prepVar($_SESSION['playerID']));
+        $playerRow = query("select Name,craftSkill,health from playerinfo where ID=".prepVar($_SESSION['playerID']));
         if($playerRow == false){
             sendError("Error finding your stats.");
         }
         echo "Name: ".$playerRow['Name'];
         echo "<>ID: ".$_SESSION['playerID'];
         echo "<>Craft skill: ".$playerRow['craftSkill'];
+        echo "<>Health: ".$playerRow['health'];
         //keywords
         $keywordsResult = queryMulti("select keywordID,locationID,type from playerkeywords where ID=".prepVar($_SESSION['playerID']));
         $row;
@@ -221,14 +219,24 @@ switch($function){
             mysqli_free_result($keywordsResult);
         }
         else{
-            echo "<>Keywords:";
+            echo "<>-Keywords:";
             do{
                 //find first keyword option
                 $wordRow = query("select word from keywordwords where ID=".prepVar($row['keywordID'])." limit 1");
                 echo "<>".$wordRow['word'];
                 //find location name, if applicable
                 if($row['locationID'] != 0){
-                    $locationRow = query("select name from scenes where ID=".prepVar($row['locationID']));
+                    //if a lord
+                    $locationRow = "";
+                    if(intval($row['type'])==keywordTypes::LORD){
+                        $locationRow = query("select name from scenes where town=".prepVar($row['locationID']));
+                    }
+                    else if(intval($row['type'])==keywordTypes::MONARCH){
+                        $locationRow = query("select name from scenes where land=".prepVar($row['locationID']));
+                    }
+                    else{
+                        $locationRow = query("select name from scenes where ID=".prepVar($row['locationID']));
+                    }
                     echo ", ".$locationRow['name'];
                 }
             }while($row = mysqli_fetch_array($keywordsResult));
@@ -243,7 +251,7 @@ switch($function){
             mysqli_free_result($itemsResult);
         }
         else{
-            echo "<>Items:<>";
+            echo "<>-Items:<>";
             echo $row['name'];
             while($row = mysqli_fetch_array($itemsResult)){
                 echo ", ".$row['name'];

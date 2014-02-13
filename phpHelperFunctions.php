@@ -175,7 +175,7 @@ function addChatText($text){
     for($i=4; $i<40; $i++){
         fwrite($chatFile,$lines[$i]);
     }
-    fwrite($chatFile,"\r\n".$time."\r\n".$_SESSION['playerID']."\r\n".$_SESSION['playerName']."\r\n".$text);
+    fwrite($chatFile,"\r\n".$time."\r\n".$_SESSION['playerID']."\r\n".getSpanText(spanTypes::PLAYER,$_SESSION['playerID'],$_SESSION['playerName'])."\r\n".$text);
     fclose($chatFile);
 }
 
@@ -221,6 +221,8 @@ function speakAction($type, $targetName, $targetID){
             $opponentCombatLevel = getCombatLevel($_POST['Name']);
             if($playerCombatLevel > $opponentCombatLevel){
                 $actionWords = " attacked ";
+                //lower health
+                query("update playerinfo set health=health-1 where ID=".prepVar($targetID)." and health>0");
             }
             else{
                 $actionWords = " was blocked by ";
@@ -247,7 +249,10 @@ function getSpanText($spanType, $id, $name){
             return "<span class='keyword' onclick='addDesc(".spanTypes::KEYWORD.",&apos;".$name."&apos;)'>".$name."</span>";
             break;
         case(spanTypes::PLAYER):
-            return "<span class='name' onclick='addDesc(".spanTypes::PLAYER.",".$id.")'>".$name."</span>";
+            //find health value
+            $healthRow = query("select health from playerinfo where ID=".prepVar($_SESSION['playerID']));
+            $health = intval($healthRow['health']);
+            return "<span class='name b".$health."' onclick='addDesc(".spanTypes::PLAYER.",".$id.")'>".$name."</span>";
             break;
         case(spanTypes::SCENE):
             return "<span class='sceneName'>".$name."</span>";

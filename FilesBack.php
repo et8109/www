@@ -35,7 +35,6 @@ switch($function){
         }
         //new lines
         while($i<=36 && isset($lines[$i])){
-            //printDebug("new line: ");
             echo $lines[++$i]." ".$lines[++$i]." ".$lines[++$i];
             $i++;
         }

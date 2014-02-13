@@ -53,6 +53,12 @@ border: solid 1px brown;
     color: black;
     cursor: pointer;
 }
+.name.b1{
+    color: #B3311D;
+}
+.name.b0{
+    text-decoration: line-through;
+}
 .item{ /*item names in chat*/
     color: #7A012A;
     cursor: pointer;
@@ -90,10 +96,6 @@ border: solid 1px brown;
     position: absolute;
     left:400px;
     cursor: pointer;
-}
-.manageScene{/*the button that lets you manage a scene if you have the rights. Removed?*/
-    cursor: pointer;
-    font-size:10px;
 }
 .paper{
     display: inline-block;

@@ -1,40 +1,40 @@
-1391573700
+1392258754
 1
 Ensetym
+hihi
+1392258764
+1
+Ensetym
+?
+1392259771
+1
+Ensetym
+<span class='name b1' onclick='addDesc(1,1)'>Ensetym</span>:hello
+1392259780
+1
+Ensetym
+<span class='name b1' onclick='addDesc(1,1)'>Ensetym</span>:shiiiiiiittttttttt
+1392259803
+1
+Ensetym
+<span class='name b1' onclick='addDesc(1,1)'>Ensetym</span>:asdsa
+1392259875
+1
+Ensetym
+<span class='name b1' onclick='addDesc(1,1)'>Ensetym</span>:hello
+1392260161
+1
+<span class='name b1' onclick='addDesc(1,1)'>Ensetym</span>
+dfew
+1392260210
+1
+<span class='name b1' onclick='addDesc(1,1)'>Ensetym</span>
 hello
-1391574047
+1392260256
 1
-Ensetym
-sdfds
-1391574476
+<span class='name b1' onclick='addDesc(1,1)'>Ensetym</span>
+helo
+1392260354
 1
-Ensetym
-<0><>101<><span class='name' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Town Square</span>
-1391574557
-1
-Ensetym
-hi
-1391575521
-1
-Ensetym
-hello
-1391575541
-1
-Ensetym
-<0><>101<><span class='name' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Town Square</span>
-1391639447
-1
-Ensetym
-dsfg
-1391639739
-0
-tester
-<0><>101<><span class='name' onclick='addDesc(1,0)'>tester</span> walked to <span class='sceneName'>Town Square</span>
-1391821149
-1
-Ensetym
-<0><>101<><span class='name' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Town Square</span>
-1391892425
-1
-Ensetym
-yay
+<span class='name b1' onclick='addDesc(1,1)'>Ensetym</span>
+hellooooooo
