@@ -48,13 +48,22 @@ border: solid 1px brown;
     visibility: hidden;
 }
 
-.name{ /*names in chat*/
+.name{ /*names in chat. 5hp is max*/
     font-weight: bold;
     color: black;
     cursor: pointer;
 }
+.name.b4{
+    color: #570000;
+}
+.name.b3{
+    color: #820000;
+}
+.name.b2{
+    color: #960000;
+}
 .name.b1{
-    color: #B3311D;
+    color: #CC0000;
 }
 .name.b0{
     text-decoration: line-through;

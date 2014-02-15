@@ -22,6 +22,9 @@ sql db backups
 */
 
 include_once 'constants.php';
+
+//error_reporting(0);
+
 session_start();
 //check inputs
 checkInputIsClean();
@@ -155,7 +158,7 @@ function checkInputIsClean(){
  *terminates all php
  */
 function sendError($message){
-    echo "<<".$message;
+    echo constants::errorSymbol.$message;
     die();
 }
 
@@ -217,6 +220,11 @@ function speakAction($type, $targetName, $targetID){
             $text .= "<>".$targetID."<>".getSpanText(spanTypes::PLAYER,$_SESSION['playerID'],$_SESSION['playerName'])." walked to ".getSpanText(spanTypes::SCENE,$targetID,$targetName);
             break;
         case(actionTypes::ATTACK):
+            //check for santcuary tag
+            $sceneRow = query("select count(1) from scenekeywords where ID=".prepVar($_SESSION['currentScene'])." and keywordID=12");
+            if($sceneRow[0] == 1){
+                sendError("You cannot fight in a sanctuary.");
+            }
             $playerCombatLevel = getCombatLevel($_SESSION['playerID']);
             $opponentCombatLevel = getCombatLevel($_POST['Name']);
             if($playerCombatLevel > $opponentCombatLevel){
@@ -534,38 +542,48 @@ function removeItemIdFromPlayer($itemID){
 }
 
 /**
- *returns the manage level of the player in the current scene
- *0: nothing
- *1: apprentice
- *2: manager
- *3: lord
- *4: monarch
+ *returns the manage level of the player in the current scene,
+ *which is the type in constants page.
+ *Returns 0 if no manage level.
  */
 function getPlayerManageLevel(){
     //only works because there is 1 job per scene
     //type is hierarchy level
     $keywordRow = query("select type, locationID from playerkeywords where ID=".prepVar($_SESSION['playerID'])." and (type=".keywordTypes::APPSHP." or type=".keywordTypes::MANAGER." or type=".keywordTypes::LORD." or type=".keywordTypes::MONARCH.")");
     //apprentice
-    if($keywordRow['type'] == 4 && $keywordRow['locationID'] == $_SESSION['currentScene']){
-        return 1;
+    if($keywordRow['type'] == keywordTypes::APPSHP && $keywordRow['locationID'] == $_SESSION['currentScene']){
+        return keywordTypes::APPSHP;
     }
     //manager
-    else if($keywordRow['type'] == 5 && $keywordRow['locationID'] == $_SESSION['currentScene']){
-        return 2;
+    else if($keywordRow['type'] == keywordTypes::MANAGER && $keywordRow['locationID'] == $_SESSION['currentScene']){
+        return keywordTypes::MANAGER;
     }
     //get the current scene town and land
     $sceneRow = query("select town, land from scenes where ID=".prepVar($_SESSION['currentScene']));
     //lord
-    if($keywordRow['type'] == 6 && $keywordRow['locationID'] == $sceneRow['town']){
-        return 3;
+    if($keywordRow['type'] == keywordTypes::LORD && $keywordRow['locationID'] == $sceneRow['town']){
+        return keywordTypes::LORD;
     }
     //lord
-    else if($keywordRow['type'] == 7 && $keywordRow['locationID'] == $sceneRow['land']){
-        return 4;
+    else if($keywordRow['type'] == keywordTypes::MONARCH && $keywordRow['locationID'] == $sceneRow['land']){
+        return keywordTypes::MONARCH;
     }
     else{
         //nothing
         return 0;
     }
+}
+
+/**
+ *returns the id of the monarch of this scene
+ *returns false on fail.
+ */
+function getMonarchId(){
+    $landQuery = "(select land from scenes where ID=".prepVar($_SESSION['currentScene']).")";
+    $monarchRow = query("select ID from playerkeywords where type =".keywordTypes::MONARCH." and locationID=".$landQuery);
+    if($monarchRow == false){
+        return false;
+    }
+    return $monarchRow['ID'];
 }
 ?>

@@ -22,6 +22,16 @@ switch($function){
             sendError($_POST['Name']." is not nearby");
         }
         break;
+    
+    case('regen'):
+        //check if in sanctuary
+        $sceneRow = query("select count(1) from scenekeywords where ID=".prepVar($_SESSION['currentScene'])." and keywordID=12");
+        if($sceneRow[0] != 1){
+            sendError("You can only regenerate in a sanctuary.");
+        }
+        //set health to max
+        query("update playerinfo set health=".prepVar(constants::maxHealth)." where ID=".prepVar($_SESSION['playerID']));
+        break;
 }
 
 /**

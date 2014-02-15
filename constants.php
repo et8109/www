@@ -8,6 +8,9 @@ final class constants {
     const dbpassword = "1Gn4tym";
     const dbname = "ignatymc_game";
     const startSceneID = 101;
+    const maxHealth = 5;
+    const errorSymbol = "<-<";//repeated in js code
+    const numAlertsDivider = "<<<";//repeated in js code
 }
 /**
  *the maximum text size in the db
@@ -41,6 +44,7 @@ final class alertTypes{
     const managerQuit = 10;
     const employeeFired = 11;
     const managerFired = 12;
+    const newDescDraft = 13;
 }
 /**
  *the possible actions that are visible in chat.

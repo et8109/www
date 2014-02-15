@@ -305,6 +305,9 @@ function textTyped(e){
                 inputText = inputText.trim();
                 destroyItem(inputText);
                 break;
+            case('/regen'):
+                regenerate();
+                break;
             default:
                 addText(inputText+"..unknown command");
                 break;
@@ -329,7 +332,7 @@ function textTyped(e){
 function updateChat(){
     sendRequest("FilesBack.php","function=updateChat",
         function(response){
-            response = response.split(">>>");
+            response = response.split("<<<");
             var numAlerts = response[1];
             var text = response[0].split("\r\n");
 	    if (text.length>1) {
@@ -367,8 +370,8 @@ function updateChat(){
  *prints the description into the text box.
  *id is actually word for descriptions
  */
-function addDesc(type, id) {
-    switch (type) {
+function addDesc(spanType, id) {
+    switch (spanType) {
         case(spanTypes.SCENE):
             if (frontLoadSceneText) {
                 addText( sceneText[id][0] );
@@ -384,7 +387,7 @@ function addDesc(type, id) {
             }
             break;
     }
-    sendRequest("TextCombat.php","function=getDesc&type="+type+"&ID="+id,
+    sendRequest("TextCombat.php","function=getDesc&type="+spanType+"&ID="+id,
         function(response) {
             response = response.split("<>");
             for(var i=0; i<response.length; i++){
@@ -634,6 +637,36 @@ function editSceneDesc(desc){
     );
 }
 /**
+ *displays a list of scene descrptions for the monarch to review in the alerts box.
+ */
+function newSceneDrafts(){
+    openMenu();
+    setMenuText("Loading..");
+    sendRequest("manage.php",
+                "function=getNewSceneDescDrafts", 
+                function(response){
+                    if (response == "") {
+                        setMenuText("No description drafts.");
+                        return;
+                    }
+                    setMenuText("Locations:"+response);
+                }
+    );
+}
+
+/**
+ *displays a location's desc draft in the menu
+ */
+function reviewSceneDesc(sceneID){
+    setMenuText("Loading..");
+    sendRequest("function=getDesc&type="+spanTypes.SCENE+"&ID="+sceneID,
+                function(response){
+                    response = response.split("<>");
+                    setMenuText("[You might want to copy this somewhere else to compare]</br>"+removeHtmlStyling(response[0])+"</br>"+removeHtmlStyling(response[1]));
+                }
+                );
+}
+/**
 *find who the player want to attack, after /attack
 */
 function attack(name) {
@@ -656,8 +689,14 @@ function clearAlerts(){
  *opens the menu and the first page
  */
 function openMenu(){
-    openAlerts();
     document.getElementById("menuMain").style.visibility="visible";
+    setMenuText("~Menu~");
+}
+/**
+ *sets the text inside the menu
+ */
+function setMenuText(text){
+    document.getElementById("menuMainInside").innerHTML=text;
 }
 /**
  *shows alerts in menu box
@@ -717,7 +756,7 @@ function openOptions(){
     }
     menuInside.innerHTML +="Front load keyword text. About 10 lines.</input>";
     //query speed checker
-    menuInside.innerHTML += "<span onclick='togglersc()'>Enable/disable speed checker.</span>"
+    menuInside.innerHTML += "</br></br><span onclick='togglersc()'>Enable/disable speed checker.</span>"
 }
 /**
  *puts an item into a container item
@@ -762,8 +801,11 @@ function quitJobPrompt(){
 /**
  *removes the player's current job
  */
-function quitJob() {
+function quitJob(input) {
     endListening();
+    if (input != "quit") {
+        return;
+    }
     sendRequest("manage.php","function=quitJob",
         function(response){
             addText("You have quit your job");
@@ -855,6 +897,18 @@ function giveItemTo(item, playerName){
                 "function=giveItemTo&itemName="+item+"&playerName="+playerName,
                 function(response) {
                     addText(item+" was given to "+playerName);
+                }
+    );
+}
+
+/**
+ *restores the players health if they are in a sanctuary.
+ */
+function regenerate() {
+    sendRequest("combat.php", 
+                "function=regen",
+                function(response){
+                    addText("Your health has been restored.");
                 }
     );
 }
@@ -1126,8 +1180,8 @@ function sendRequest(url,params,returnFunction){
         if (this.readyState==4 && this.status==200) {
             var response = this.responseText;
             //if an error
-            if (response.indexOf("<<") == 0) {
-                setErrorMessage(response.replace("<<",""));
+            if (response.indexOf("<-<") == 0) {
+                setErrorMessage(response.replace("<-<",""));
             }
             else{
                 //success, call function

@@ -5,7 +5,7 @@ $function = $_POST['function'];
 switch($function){
     case('addItemToScene'):
         //must be at least an apprentice
-        if(getPlayerManageLevel() < 1){
+        if(getPlayerManageLevel() < keywordTypes::APPSHP){
             sendError("You don't have permission");
         }
         //get item id,size
@@ -31,7 +31,7 @@ switch($function){
     
     case('removeItemFromScene'):
         //must be at least manager
-        if(getPlayerManageLevel() < 2){
+        if(getPlayerManageLevel() < keywordTypes::MANAGER){
             sendError("You don't have permission");
         }
         //get item id,size
@@ -48,7 +48,7 @@ switch($function){
     
     case('changeItemNote'):
         //must be at least apprentice
-        if(getPlayerManageLevel() < 1){
+        if(getPlayerManageLevel() < keywordTypes::APPSHP){
             sendError("You don't have permission");
         }
         $idRow = query("select ID from items where Name=".prepVar($_POST['Name']));
@@ -64,11 +64,35 @@ switch($function){
         break;
     
     case('changeSceneDesc'):
-        //must be at least a lord
-        if(getPlayerManageLevel() < 3){
-            sendError("You don't have permission");
+        $manageLevel = getPlayerManageLevel();
+        if($manageLevel == keywordTypes::LORD){
+            //set draft
+            query("update scenes set descdraft=".prepVar($_POST['desc'])." where ID=".prepVar($_SESSION['currentScene']));
+            //find monarch id
+            $monarchId = getMonarchId();
+            if($monarchId == false){
+                sendError("You need a monarch before you can edit a location's description.");
+            }
+            //send alert to monarch
+            addAlert(alertTypes::newDescDraft);
         }
-        updateDescription($_SESSION['currentScene'],$_POST['desc'],spanTypes::SCENE,$keywordTypeNames);
+        else if($manageLevel == keywordTypes::MONARCH){
+            updateDescription($_SESSION['currentScene'],$_POST['desc'],spanTypes::SCENE,$keywordTypeNames);
+        }
+        //else, no permission
+        sendError("You don't have permission");
+        break;
+    
+    case('getNewSceneDescDrafts'):
+        $landRow = query("select locationID from playerkeywords where ID=".prepVar($_SESSION['playerID'])." and type=".prepVar(keywordTypes::MONARCH));
+        if($landRow == false){
+            sendError("You don't have permission to edit location descriptions.");
+        }
+        //find scenes with drafts
+        $scenesRow = queryMulti("select ID,Name from scenes where land=".prepVar($landRow['locationID'])." and descdraft !=''");
+        while($row = mysqli_fetch_array($scenesRow)){
+            echo "</br><span style='cursor: pointer;' onclick='reviewSceneDesc(".$row['ID'].")'>".$row['Name']."</span>";
+        }
         break;
     
     case('getManageSceneText'):
@@ -82,16 +106,17 @@ switch($function){
         echo "<><span class='active action' onclick='getItemsInScene()'>view items</span>";
         echo "<><span class='active action' onclick='addItemToScenePrompt()'>add item</span>";
         echo "<><span class='active action' onclick='changeItemNotePrompt()'>change an items note</span>";
-        if ($manageLevel > 1) {
+        if ($manageLevel >= keywordTypes::MANAGER) {
             //at least manager
             echo "<><span class='active action' onclick='removeItemFromScenePrompt()'>take item</span>";
         }
-        if ($manageLevel > 2) {
+        if ($manageLevel >= keywordTypes::LORD) {
             //at least lord
             echo "<><span class='active action' onclick='newSceneDescPrompt()'>edit scene desc</span>";
         }
-        if ($manageLevel > 3) {
+        if ($manageLevel >= keywordTypes::MONARCH) {
             //at least monarch
+            echo "<><span class='active action' onclick='newSceneDrafts()'>review new description drafts</span>";
             echo "<>can't edit scene title yet";
         }
         break;
@@ -381,7 +406,8 @@ function setLadderPositions($keywordType,&$lowerResult,&$higherResult){
             $IdFromTownQuery = "(select ID from scenes where town=".$townQuery.")";
             $lowerResult = queryMulti("select ID from playerkeywords where type=".keywordTypes::MANAGER." and locationID=".$IdFromTownQuery);
             
-            $landQuery = "(select land from scenes where ID=".prepVar($_SESSION['currentScene']);
+            //same as getMonarchId function in helpers
+            $landQuery = "(select land from scenes where ID=".prepVar($_SESSION['currentScene']).")";
             $higherResult = queryMulti("select ID from playerkeywords where type =".keywordTypes::MONARCH." and locationID=".$landQuery);
             break;
         case(keywordTypes::MONARCH):

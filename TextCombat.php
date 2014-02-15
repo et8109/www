@@ -56,6 +56,14 @@ switch($function){
                 echo "<>Manager: ".$managerRow['Name'];
             }
         }
+        //lord
+        $lordRow = query("select ID from playerkeywords where type=".prepVar(keywordTypes::LORD)." and locationID=".prepVar($sceneRow['town']));
+        if($lordRow == false){
+            echo "<>Lord: None. The monarch should appoint one.";
+        }
+        else{
+            $lordNameRow = query("select Name from playerinfo where ID=".prepVar($lordRow['ID']));
+        }
         break;
     
     case('updateDescription'):
@@ -283,7 +291,9 @@ switch($function){
         $permAlerts = array(
             alertTypes::hiddenItem,
             alertTypes::newItem,
-            alertTypes::removedItem
+            alertTypes::removedItem,
+            alertTypes::newJob,
+            alertTypes::fired
         );
         $query = "delete from playeralerts where playerID=".prepVar($_SESSION['playerID'])." and not ( ";
         $query.= "alertID=".$permAlerts[0];
