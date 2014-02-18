@@ -211,37 +211,29 @@ function removeAlert($alertNum){
 }
 
 /**
- *adds an action to the current chat
+ *when a player attacks something.
+ *sent to chat.
+ *attacker - text - target
  */
-function speakAction($type, $targetName, $targetID){
-    $text = "<".$type.">";
-    switch($type){
-        case(actionTypes::WALKING):
-            $text .= "<>".$targetID."<>".getSpanText(spanTypes::PLAYER,$_SESSION['playerID'],$_SESSION['playerName'])." walked to ".getSpanText(spanTypes::SCENE,$targetID,$targetName);
-            break;
-        case(actionTypes::ATTACK):
-            //check for santcuary tag
-            $sceneRow = query("select count(1) from scenekeywords where ID=".prepVar($_SESSION['currentScene'])." and keywordID=12");
-            if($sceneRow[0] == 1){
-                sendError("You cannot fight in a sanctuary.");
-            }
-            $playerCombatLevel = getCombatLevel($_SESSION['playerID']);
-            $opponentCombatLevel = getCombatLevel($_POST['Name']);
-            if($playerCombatLevel > $opponentCombatLevel){
-                $actionWords = " attacked ";
-                //lower health
-                query("update playerinfo set health=health-1 where ID=".prepVar($targetID)." and health>0");
-            }
-            else{
-                $actionWords = " was blocked by ";
-            }
-            $actionWords .= $playerCombatLevel." -> ".$opponentCombatLevel." ";
-            $text .= "<>".$targetID."<>".getSpanText(spanTypes::PLAYER,$_SESSION['playerID'],$_SESSION['playerName']).$actionWords.getSpanText(spanTypes::PLAYER,$targetID,$targetName);
-            break;
-    }
-    addChatText($text);
+function speakActionAttack($targetSpanType, $targetID, $targetName, $text){
+    $text = getSpanText(spanTypes::PLAYER,$_SESSION['playerID'],$_SESSION['playerName']).$text.getSpanText($targetSpanType,$targetID,$targetName);
+    _speakAction(actionTypes::ATTACK,$text);
 }
-
+/**
+ *when a player walks from one scene to another
+ *sent to chat.
+ */
+function speakActionWalk($sceneID, $sceneName){
+    $text = getSpanText(spanTypes::PLAYER,$_SESSION['playerID'],$_SESSION['playerName'])." walked to ".getSpanText(spanTypes::SCENE,$sceneID,$sceneName);
+    _speakAction(actionTypes::WALKING, $text);
+}
+/**
+ *only to use by other speak action functions.
+ *sends the type and text to chat.
+ */
+function _speakAction($saType, $text){
+    addChatText("<".$saType."><>".$text);
+}
 /**
  *returns the span text for the given object.
  *the span text is for the title/name, not description
@@ -266,6 +258,12 @@ function getSpanText($spanType, $id, $name){
             return "<span class='sceneName'>".$name."</span>";
             //return "<span class='sceneName' onclick='addDesc(".spanTypes::SCENE.",".$id.")'>".$name."</span>";
             break;
+        case(spanTypes::NPC):
+            //find health value
+            $healthRow = query("select health from scenenpcs where npcID=".prepVar($id));
+            $health = intval($healthRow['health']);
+            return "<span class='npc b".$health."' onclick='addDesc(".spanTypes::NPC.",".$id.")'>".$name."</span>";
+            break;
         case(spanTypes::ACTION):
             final class actionIDs {
                 const crafting = 6;
@@ -278,52 +276,6 @@ function getSpanText($spanType, $id, $name){
             return "<span onclick='".$actionFunctions[$id]."' class='active action'>".$name."</span>";
             break;
     }
-}
-
-/**
- *replaces the first keyword of the given type.
- *returns false if not found
- *should work for scene actions if corrent kwt is given
- */
-function replaceKeywordType($desc, $keywordType, &$IdOut){
-    //find prerequisites
-    $prerequisite = "";
-    switch($keywordType){
-        case(keywordTypes::QUALITY):
-            $row = query("select craftSkill from playerinfo where ID = ".prepVar($_SESSION['playerID']));
-            if($row == false){
-                sendError("error finding craft level");
-            }
-            switch($row['craftSkill']){
-                case(0):
-                    $prerequisite = "ID<=3";
-                    break;
-                case(1):
-                    $prerequisite = "ID<=4";
-                    break;
-            }
-            break;
-    }
-    //find and replace the word
-    $descArray = explode(" ",$desc);
-    $descArrayLength = count($descArray);
-    for($i=0; $i<$descArrayLength; $i++){
-        $query = "select ID from keywordwords where Word=".prepVar(strtolower($descArray[$i]))." and Type=".prepVar($keywordType);
-        if($prerequisite != ""){
-            $query.=" and ".$prerequisite;
-        }
-        $keywordRow = query($query);
-        if(isset($keywordRow['ID'])){
-            $spanType = spanTypes::KEYWORD;
-            if($keywordType == keywordTypes::SCENE_ACTION){
-                $spanType = spanTypes::ACTION;
-            }
-            $descArray[$i] = getSpanText($spanType,$descArray[$i],$descArray[$i]);
-            $IdOut = $keywordRow['ID'];
-            return implode(" ",$descArray);
-        }
-    }
-    return false;
 }
 
 /**
@@ -388,6 +340,9 @@ function updateDescription($ID, $description, $spanTypesType, $keywordTypeNames)
     //if a player, make sure items are there. items first so they don't replace span stuff.
     if($spanTypesType == spanTypes::PLAYER){
         $description = replacePlayerItems($description);
+    }
+    //if a scene, make sure paths are there
+    if($spanTypesType == spanTypes::SCENE){
     }
     //get IDs of keywords
     $keywordsResult = queryMulti("select keywordID,Type from ".$keywordTable." where ID=".$ID);
@@ -503,11 +458,7 @@ function addItemNameToPlayer($itemName){
 function addItemIdToPlayer($itemID, $itemName){
     //change playerID for the item
     query("update items set playerID=".prepVar($_SESSION['playerID'])." where ID=".prepVar($itemID));
-    //add item to player desc
-    $row = query("select Description from playerinfo where ID=".prepVar($_SESSION['playerID']));
-    $playerDescription = $row['Description'];
-    $playerDescription .= " ".getSpanText(spanTypes::ITEM,$itemID,$itemName);
-    query("Update playerinfo set Description=".prepVar($playerDescription)." where ID=".prepVar($_SESSION['playerID']));
+    addWordToPlayerDesc(spanTypes::ITEM,$itemID,$itemName,$_SESSION['playerID']);
     //add an alert for the player
     addAlert(alertTypes::newItem);
     return true;
@@ -541,6 +492,30 @@ function removeItemIdFromPlayer($itemID){
     return true;
 }
 
+/**
+ *gives the keyword to the player in playerkeywords
+ *adds the keyword word to the end of the player's description.
+ *player ID is optional
+ *does not add an alert
+ */
+function addKeywordToPlayer($keywordID,$keywordType,$location,$playerID = -1){
+    if($playerID == -1){
+        $playerID = $_SESSION['playerID'];
+    }
+    $nameRow = query("select Word from keywordwords where ID=".prepVar($keywordID)." limit 1");
+    query("insert into playerkeywords (ID,keywordID,locationID,type) values (".prepVar($playerID).",".prepVar($keywordID).",".prepVar($location).",".prepVar($keywordType).")");
+    addWordToPlayerDesc(spanTypes::KEYWORD,$keywordID,$nameRow['Word'],$playerID);
+}
+
+/**
+ *adds a word to the end of a player's description
+ */
+function addWordToPlayerDesc($spanType, $kworitemID, $name, $playerID = -1){
+    if($playerID == -1){
+        $playerID = $_SESSION['playerID'];
+    }
+    query("Update playerinfo set Description=(Description + ' ".getSpanText($spanType,$kworitemID,$name)."') where ID=".prepVar($playerID));
+}
 /**
  *returns the manage level of the player in the current scene,
  *which is the type in constants page.

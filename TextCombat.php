@@ -21,6 +21,10 @@ switch($function){
                 $row = query("select Name, Description from playerinfo where ID=".prepVar($ID));
                 echo getSpanText(spanTypes::PLAYER,$ID,$row["Name"])."<>".$row["Description"];
                 break;
+            case(spanTypes::NPC):
+                $row = query("select name,description from npcs where ID=".prepVar($_POST['ID']));
+                echo getSpanText(spanTypes::NPC,$_POST['ID'],$row['name'])."<>".$row['description'];
+                break;
             case(spanTypes::SCENE):
                 //if no id set, it's the current scene
                 $ID = is_numeric($_POST['ID']) ? $_POST['ID'] : $_SESSION['currentScene'];
@@ -32,6 +36,12 @@ switch($function){
                     echo "<>-".getSpanText(spanTypes::PLAYER,$row['playerID'],$row['playerName']);
                 }
                 mysqli_free_result($playersResult);
+                //npcs
+                $npcsResult = queryMulti("select npcID,npcName from scenenpcs where sceneID=".prepVar($_SESSION['currentScene'])." and health>0");
+                while($row = mysqli_fetch_array($npcsResult)){
+                    echo "<>-!".getSpanText(spanTypes::NPC,$row['npcID'],$row['npcName']);
+                }
+                mysqli_free_result($npcsResult);
                 break;
         }
         break;
@@ -72,6 +82,9 @@ switch($function){
             removeAlert(alertTypes::newItem);
             removeAlert(alertTypes::removedItem);
             removeAlert(alertTypes::hiddenItem);
+            removeAlert(alertTypes::newJob);
+            removeAlert(alertTypes::fired);
+            removeAlert(alertTypes::newSpell);
         }
         break;
     
@@ -82,12 +95,48 @@ switch($function){
         $_SESSION['currentScene'] = $_POST['newScene'];
         query("Update playerinfo set Scene=".prepVar($_POST['newScene'])." where ID=".prepVar($_SESSION['playerID']));
         $row = query("select Name from scenes where ID=".$_POST['newScene']);
-        speakAction(actionTypes::WALKING, $row['Name'], $_POST['newScene']);
+        speakActionWalk($_POST['newScene'],$row['Name']);
         updateChatTime();
         //add player to new scene list
         query("insert into sceneplayers (sceneID,playerID,playerName) values(".prepVar($_SESSION['currentScene']).",".prepVar($_SESSION['playerID']).",".prepVar($_SESSION['playerName']).")");
         break;
     
+    case('readBook'):
+        //make sure book exists
+        $IdRow = query("select ID from keywordwords where Word=".prepVar(strtolower($_POST['bookName']))." and type=".prepVar(keywordTypes::SPELLBOOK));
+        if($IdRow == false){
+            sendError("Could not find the ".$_POST['bookName']." here.");
+        }
+        //make sure scene has spellbook
+        $bookRow = query("select count(1) from scenekeywords where ID=".prepVar($_SESSION['currentScene'])." and type=".prepVar(keywordTypes::SPELLBOOK)." and keywordID=".prepVar($IdRow['ID']));
+        if($bookRow[0] != 1){
+            sendError("Could not find the ".$_POST['bookName']." here.");
+        }
+        //display spellbook text
+        echo "You open the frail pages of the leatherbound book. The first line reads: Reanimating the dead. Following is a strange sequence of instructions and illustrations.";
+        break;
+    
+    case('learn spell'):
+        //make sure scene has spellbook
+        $IdRow = query("select ID from keywordwords where Word=".prepVar(strtolower($_POST['bookName']))." and type=".prepVar(keywordTypes::SPELLBOOK));
+        if($IdRow == false){
+            sendError("Could not find the ".$_POST['bookName']." here.");
+        }
+        //make sure scene has spellbook
+        $bookRow = query("select count(1) from scenekeywords where ID=".prepVar($_SESSION['currentScene'])." and type=".prepVar(keywordTypes::SPELLBOOK)." and keywordID=".prepVar($IdRow['ID']));
+        if($bookRow[0] != 1){
+            sendError("Could not find the ".$_POST['bookName']." here.");
+        }
+        //make sure player does not have a spell
+        $spellRow = query("select count(1) from playerkeywords where ID=".prepVar($_SESSION['playerID'])." and type=".prepVar(keywordTypes::SPELL));
+        if($spellRow[0] == 1){
+            sendError("You already know a spell. You would have to forget that one first.");
+        }
+        //give spell to player
+        addKeywordToPlayer($bookToSpell[$IdRow['ID']],keywordTypes::SPELL,0,$_SESSION['playerID']);
+        //add new spell alert
+        addAlert(alertTypes::newSpell);
+        break;
     case('destroyItem'):
         //make sure player has item
         $itemRow = query("select ID from items where Name=".prepVar($_POST['name']));
@@ -173,32 +222,43 @@ switch($function){
     
     case('getItemsInScene'):
         //get item ids
-        $itemIDsResult = queryMulti("select itemID,note from itemsinscenes where sceneID=".$_SESSION['currentScene']);
+        $itemIDsResult = queryMulti("select itemID,note from itemsinscenes where sceneID=".prepVar($_SESSION['currentScene']));
         //store itemID note connection
         $itemNotes = array();
         //get items names and ids
         if($row = mysqli_fetch_array($itemIDsResult)){
             $itemNamesQuery = "select ID,Name from items where ID=".$row['itemID'];
             $itemNotes[$row['itemID']] = $row['note'];
-        }
-        else{
-            //no items in the scene
-            echo "";
+            while($row = mysqli_fetch_array($itemIDsResult)){
+                $itemNamesQuery .=" or ID=".$row['itemID'];
+                $itemNotes[$row['itemID']] = $row['note'];
+            }
             mysqli_free_result($itemIDsResult);
-            return;
+            $itemNamesResult = queryMulti($itemNamesQuery);
+            //seperate into <>
+            while($row = mysqli_fetch_array($itemNamesResult)){
+                echo getSpanText(spanTypes::ITEM,$row['ID'],$row['Name'])."<>";
+                echo $itemNotes[$row['ID']];
+            }
+            mysqli_free_result($itemNamesResult);
         }
-        while($row = mysqli_fetch_array($itemIDsResult)){
-            $itemNamesQuery .=" or ".$row['itemID'];
-            $itemNotes[$row['itemID']] = $row['note'];
+        //materials
+        $matIDsResult = queryMulti("select keywordID from scenekeywords where ID=".prepVar($_SESSION['currentScene'])." and type=".prepVar(keywordTypes::MATERIAL));
+        //get material names and ids
+        if($row = mysqli_fetch_array($matIDsResult)){
+            $matNamesQuery = "select Word from keywordwords where (ID=".$row['keywordID']." limit 1";
+            while($row = mysqli_fetch_array($matIDsResult)){
+                $matNamesQuery .=" or ID=".$row['itemID']." limit 1";
+            }
+            $matNamesQuery.=")";
+            mysqli_free_result($matIDsResult);
+            $matNamesResult = queryMulti($matNamesQuery);
+            //seperate into <>
+            while($row = mysqli_fetch_array($matNamesResult)){
+                echo getSpanText(spanTypes::KEYWORD,$row['ID'],$row['Word'])."<>";
+            }
+            mysqli_free_result($matNamesResult);
         }
-        mysqli_free_result($itemIDsResult);
-        $itemNamesResult = queryMulti($itemNamesQuery);
-        //seperate into <>
-        while($row = mysqli_fetch_array($itemNamesResult)){
-            echo getSpanText(spanTypes::ITEM,$row['ID'],$row['Name'])."<>";
-            echo $itemNotes[$row['ID']];
-        }
-        mysqli_free_result($itemNamesResult);
         break;
     
     //gets the id of any player from the same scene. scene is indexed in mysql
@@ -234,18 +294,16 @@ switch($function){
                 echo "<>".$wordRow['word'];
                 //find location name, if applicable
                 if($row['locationID'] != 0){
-                    //if a lord
-                    $locationRow = "";
                     if(intval($row['type'])==keywordTypes::LORD){
-                        $locationRow = query("select name from scenes where town=".prepVar($row['locationID']));
+                        echo " of town ".$row['locationID'];
                     }
                     else if(intval($row['type'])==keywordTypes::MONARCH){
-                        $locationRow = query("select name from scenes where land=".prepVar($row['locationID']));
+                        echo " of land ".$row['locationID'];
                     }
                     else{
                         $locationRow = query("select name from scenes where ID=".prepVar($row['locationID']));
+                        echo " of: ".$locationRow['name'];
                     }
-                    echo ", ".$locationRow['name'];
                 }
             }while($row = mysqli_fetch_array($keywordsResult));
             mysqli_free_result($keywordsResult);
@@ -293,7 +351,8 @@ switch($function){
             alertTypes::newItem,
             alertTypes::removedItem,
             alertTypes::newJob,
-            alertTypes::fired
+            alertTypes::fired,
+            alertTypes::newSpell
         );
         $query = "delete from playeralerts where playerID=".prepVar($_SESSION['playerID'])." and not ( ";
         $query.= "alertID=".$permAlerts[0];

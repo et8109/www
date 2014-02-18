@@ -44,6 +44,10 @@ switch($function){
             $itemKeywordTypes[] = keywordTypes::CONTAINER;
             $keywordIDs[keywordTypes::CONTAINER] = $IdOut;
         }
+        //remove materials from scene
+        foreach ($itemKeywordTypes as $t){
+            query("remove from scenekeywords where ID=".prepVar($_SESSION['currentScene'])." and keywordID=".$keywordIDs[$t]." limit 1");
+        }
         //make sure desc length is less than max
         checkDescIsUnderMaxLength($desc, spanTypes::ITEM);
         //add the item into db
@@ -53,7 +57,6 @@ switch($function){
             query("Update items set room=2 where ID=".$lastID);
         }
         //add the item to itemKeywords with it's keywords
-        $numKeywords = count($itemKeywordTypes);
         foreach ($itemKeywordTypes as $t){
             query("insert into itemkeywords (ID, keywordID, type) values (".$lastID.",".$keywordIDs[$t].",".$t.")");
         }
@@ -64,5 +67,61 @@ switch($function){
         $row = query("SELECT `craftSkill` FROM `playerinfo` WHERE ID = ".prepVar($_SESSION['playerID']));
         echo $row['craftSkill'];
         break;
+}
+
+/**
+ *replaces the first keyword of the given type.
+ *returns error on insufficient materials
+ *returns false on not type not found
+ *should work for scene actions if corrent kwt is given
+ */
+function replaceKeywordType($desc, $keywordType, &$IdOut){
+    //find prerequisites
+    $prerequisite = "";
+    switch($keywordType){
+        case(keywordTypes::QUALITY):
+            $row = query("select craftSkill from playerinfo where ID = ".prepVar($_SESSION['playerID']));
+            if($row == false){
+                sendError("error finding craft level");
+            }
+            switch($row['craftSkill']){
+                case(0):
+                    $prerequisite = "ID<=3";
+                    break;
+                case(1):
+                    $prerequisite = "ID<=4";
+                    break;
+            }
+            break;
+    }
+    //find and replace the word
+    $descArray = explode(" ",$desc);
+    $descArrayLength = count($descArray);
+    for($i=0; $i<$descArrayLength; $i++){
+        $word = $descArray[$i];
+        $query = "select ID from keywordwords where Word=".prepVar(strtolower($word))." and Type=".prepVar($keywordType);
+        if($prerequisite != ""){
+            $query.=" and ".$prerequisite;
+        }
+        $keywordRow = query($query);
+        if(isset($keywordRow['ID'])){
+            //if a material, make sure it is available
+            if($keywordType == keywordTypes::MATERIAL){
+                $numMatRow = query("select count(1) from scenekeywords where ID=".prepVar($_SESSION['currentScene'])." and keywordID=".prepVar($keywordRow['ID']));
+                if($numMatRow[0] < 1){
+                    sendError("You don't have enough material for: ".$word);
+                }
+            }
+            //find correct span to replace with
+            $spanType = spanTypes::KEYWORD;
+            if($keywordType == keywordTypes::SCENE_ACTION){
+                $spanType = spanTypes::ACTION;
+            }
+            $descArray[$i] = getSpanText($spanType,$descArray[$i],$descArray[$i]);
+            $IdOut = $keywordRow['ID'];
+            return implode(" ",$descArray);
+        }
+    }
+    return false;
 }
 ?>

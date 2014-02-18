@@ -53,19 +53,19 @@ border: solid 1px brown;
     color: black;
     cursor: pointer;
 }
-.name.b4{
+.b4{
     color: #570000;
 }
-.name.b3{
+.b3{
     color: #820000;
 }
-.name.b2{
+.b2{
     color: #960000;
 }
-.name.b1{
+.b1{
     color: #CC0000;
 }
-.name.b0{
+.b0{
     text-decoration: line-through;
 }
 .item{ /*item names in chat*/
@@ -86,6 +86,10 @@ border: solid 1px brown;
 }
 .keyword{
     color: blue;
+    cursor: pointer;
+}
+.npc{
+    font-weight: bold;
     cursor: pointer;
 }
 /*The done and cancel buttons in the extra menu*/

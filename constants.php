@@ -9,7 +9,7 @@ final class constants {
     const dbname = "ignatymc_game";
     const startSceneID = 101;
     const maxHealth = 5;
-    const errorSymbol = "<-<";//repeated in js code
+    const errorSymbol = "<<-<<";//repeated in js code
     const numAlertsDivider = "<<<";//repeated in js code
 }
 /**
@@ -45,6 +45,7 @@ final class alertTypes{
     const employeeFired = 11;
     const managerFired = 12;
     const newDescDraft = 13;
+    const newSpell = 14;
 }
 /**
  *the possible actions that are visible in chat.
@@ -64,6 +65,7 @@ final class spanTypes {
     const SCENE = 2;
     const ACTION = 3;
     const KEYWORD = 4;
+    const NPC = 5;
 }
 /**
  *the numbers corresponding to keyword types
@@ -77,6 +79,8 @@ final class keywordTypes {
     const MANAGER = 5;
     const LORD = 6;
     const MONARCH = 7;
+    const SPELLBOOK = 8;
+    const SPELL = 9;
 }
 
 /**
@@ -90,6 +94,13 @@ $keywordTypeNames = array(
   4 => "apprenticeship",
   5 => "manager",
   6 => "lord",
-  7 => "monarch"
+  7 => "monarch",
+  8 => "spellbook",
+  9 => "spell"
+);
+
+//books to spells
+$bookToSpell = array(
+    13 => 14 //animatome to necromancer
 );
 ?>

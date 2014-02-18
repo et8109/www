@@ -8,7 +8,10 @@ switch($function){
         if(getPlayerManageLevel() < keywordTypes::APPSHP){
             sendError("You don't have permission");
         }
-        //get item id,size
+        if(itemTypeInScene() == -1){
+            sendError("Items cannot be stored here.");
+        }
+        //get item id
         $idRow = query("select ID from items where playerID=".prepVar($_SESSION['playerID'])." and Name=".prepVar($_POST['Name']));
         if(is_bool($idRow)){
             sendError("You do not have a ".$_POST['Name']);
@@ -34,7 +37,10 @@ switch($function){
         if(getPlayerManageLevel() < keywordTypes::MANAGER){
             sendError("You don't have permission");
         }
-        //get item id,size
+        if(itemTypeInScene() == -1){
+            sendError("Items cannot be removed from here.");
+        }
+        //get item id
         $idRow = query("select ID from items where Name=".prepVar($_POST['Name']));
         if(is_bool($idRow)){
             sendError("That item does not exist");
@@ -50,6 +56,9 @@ switch($function){
         //must be at least apprentice
         if(getPlayerManageLevel() < keywordTypes::APPSHP){
             sendError("You don't have permission");
+        }
+        if(itemTypeInScene() == -1){
+            sendError("Item notes cannot be changed here.");
         }
         $idRow = query("select ID from items where Name=".prepVar($_POST['Name']));
         if($idRow == false){
@@ -79,8 +88,10 @@ switch($function){
         else if($manageLevel == keywordTypes::MONARCH){
             updateDescription($_SESSION['currentScene'],$_POST['desc'],spanTypes::SCENE,$keywordTypeNames);
         }
-        //else, no permission
-        sendError("You don't have permission");
+        else{
+            //else, no permission
+            sendError("You don't have permission");
+        }
         break;
     
     case('getNewSceneDescDrafts'):
@@ -104,11 +115,14 @@ switch($function){
         }
         echo "<span class='active action' onclick='quitJobPrompt()'>quit job</span>";
         echo "<><span class='active action' onclick='getItemsInScene()'>view items</span>";
-        echo "<><span class='active action' onclick='addItemToScenePrompt()'>add item</span>";
-        echo "<><span class='active action' onclick='changeItemNotePrompt()'>change an items note</span>";
-        if ($manageLevel >= keywordTypes::MANAGER) {
-            //at least manager
-            echo "<><span class='active action' onclick='removeItemFromScenePrompt()'>take item</span>";
+        //if items are accepted
+        if(itemTypeInScene() != -1){
+            echo "<><span class='active action' onclick='addItemToScenePrompt()'>add item</span>";
+            echo "<><span class='active action' onclick='changeItemNotePrompt()'>change an items note</span>";
+            if ($manageLevel >= keywordTypes::MANAGER) {
+                //at least manager
+                echo "<><span class='active action' onclick='removeItemFromScenePrompt()'>take item</span>";
+            }
         }
         if ($manageLevel >= keywordTypes::LORD) {
             //at least lord
@@ -135,9 +149,8 @@ switch($function){
         if(checkPlayerHasJob()){
             sendError("You already have a job.");
         }
-        //take stuff from hire employee
-        //7 is the starting keyword for managers
-        query("insert into playerkeywords (ID,keywordID,locationID,type) values (".prepVar($_SESSION['playerID']).",8,".$_SESSION['currentScene'].",".keywordTypes::MANAGER.")");
+        //add keyword
+        addKeywordToPlayer(8,keywordTypes::MANAGER,$_SESSION['currentScene'],$_SESSION['playerID']);
         //let employee know
         addAlert(alertTypes::newJob);
         //let above and below know
@@ -209,7 +222,8 @@ switch($function){
             $position = keywordTypes::LORD;
             $location = $townRow['town'];
         }
-        query("insert into playerkeywords (ID,keywordID,locationID,type) values (".prepVar($employeeID).",".$startingKeywordID.",".$location.",".$position.")");
+        //add keyword
+        addKeywordToPlayer($startingKeywordID,$position,$location,$employeeID);
         //let employee know
         addAlert(alertTypes::newJob, $employeeID);
         //let above and below know
@@ -415,5 +429,22 @@ function setLadderPositions($keywordType,&$lowerResult,&$higherResult){
             break;
     }
     
+}
+
+/**
+ *returns the keyword type that items need to be placed in this scene
+ *-1 means no items accepted
+ *0 means all items accepted
+ */
+function itemTypeInScene(){
+    //check scene keywords
+    $sceneRow = queryMulti("select keywordID from scenekeywords where ID=".prepVar($_SESSION['currentScene']));
+    while($row = mysqli_fetch_array($sceneRow)){
+        if($row['keywordID'] == 11){
+            //pub
+            return 0;
+        }
+    }
+    return -1;
 }
 ?>

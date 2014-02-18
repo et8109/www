@@ -10,7 +10,7 @@ function command(name, syntaxArray, desc){
 var commands = [
     new command("/look",[],"Shows where you are."),
     new command("/closelook",[],"Shows details about where you are. You can become a manager there if no one else is."),
-    new command("/attack",[],"Attacks another player in the same location."),
+    new command("/attack",["[targetname]"],"Attacks an enemy in the same location."),
     new command("/give",["[itemname]","to","[playername]"],"gives an item to another player."),
     new command("/help",[],"It's a link to this page."),
     new command("/put",["[item]","in","[container]"],"Puts an item into a container item."),

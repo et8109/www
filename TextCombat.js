@@ -136,9 +136,6 @@ function endListening() {
 var listener_item_name = new listener("Enter the name of the item you are crafting.",
                                             function(input){addCraftName(input);}, function(){}
                                           );
-var listener_target_name = new listener("Enter a target name to attack.",
-                                            function(input){attack(input);}, function(){}
-                                          );
 var listener_item_name_to_add_to_scene = new listener("Enter an item name to add.",
                                             function(input){addItemNoteToScenePrompt(input);}, function(){}
                                           );
@@ -150,6 +147,9 @@ var listener_item_name_to_change_note_of = new listener("Enter an item name to c
                                           );
 var listener_quit_job = new listener("Enter 'quit' to leave your job.",
                                             function(input){quitJob(input);}, function(){}
+                                          );
+var listener_learn_spell = new listener("Enter 'learn' to learn this spell.",
+                                            function(input){learnSpell(input);}, function(){itemName="";}
                                           );
 //text area listeners
 var listener_personal_desc = new listener("Enter your description below.",
@@ -180,7 +180,8 @@ var spanTypes = {
     PLAYER: 1,
     SCENE: 2,
     ACTION: 3,
-    KEYWORD: 4
+    KEYWORD: 4,
+    NPC: 5
 }
 
 var textBox="textBox1";
@@ -257,7 +258,9 @@ function textTyped(e){
                 closeLook();
                 break;
             case("/attack"):
-                setTextLineListener(listener_target_name);
+                inputText[0] = "";
+                inputText = inputText.join("");
+                attack(inputText);
                 break;
             case("/help"):
                 addText("<a href='guide.php' target='_newtab'>Guide</a>");
@@ -308,6 +311,12 @@ function textTyped(e){
             case('/regen'):
                 regenerate();
                 break;
+            case("/read"):
+                inputText[0] = "";
+                inputText = inputText.join(" ");
+                inputText = inputText.trim();
+                readBook(inputText);
+                break;
             default:
                 addText(inputText+"..unknown command");
                 break;
@@ -341,16 +350,16 @@ function updateChat(){
                     //if an action, not a chat
                     if (chatLine.indexOf("<") == 1) {
                         var type = parseInt(chatLine.charAt(2));
+                        chatLine = chatLine.split("<>");
+                        chatLine = chatLine[1];
                         switch(type){
                             case(actionTypes.ATTACK):
                                 //let the player know somehow that they were attacked, attack sound
-                                var info = chatLine.split("<>");//1:id, 2:text
-                                addText(info[2]);
+                                addText(chatLine);
                                 break;
                             case(actionTypes.WALKING):
                                 //footsteps sound
-                                var info = chatLine.split("<>");//1:target,2:text
-                                addText(info[2]);
+                                addText(chatLine);
                                 break;
                         }
                     }
@@ -514,7 +523,7 @@ function startWaiter(){
 }
 
 /**
- *gets the items in the scene(item and store note).
+ *gets the items and materials in the scene(item with store note).
  *prints empty text if nothing was found
  */
 function getItemsInScene(onEmptyText){
@@ -599,17 +608,16 @@ function newNoteTextPromt(name){
 /**
  *prompts for the new scene description
  */
-function newSceneDescPrompt() {
+function newSceneDescPrompt(){
     addText("Edit the description below.");
     endListening();
     //get scene desc
     sendRequest("TextCombat.php","function=getDesc&type="+spanTypes.SCENE,
         function(response){
-            openTextArea();
+            setTextAreaListener(listener_new_scene_desc);
             //first is name, second is desc
             response=response.split("<>");
             setTextAreaText(removeHtmlStyling(response[1]));
-            setTextAreaListener(listener_new_scene_desc);
         }
     );
 }
@@ -670,9 +678,9 @@ function reviewSceneDesc(sceneID){
 *find who the player want to attack, after /attack
 */
 function attack(name) {
-    endListening();
     sendRequest("combat.php","function=attack&Name="+name,
-        function(){}
+        function(response){
+        }
     );
 }
 /**
@@ -911,6 +919,40 @@ function regenerate() {
                     addText("Your health has been restored.");
                 }
     );
+}
+
+/**
+ *the player reads a book in the scene.
+ *prompts player to learn the spell
+ */
+function readBook(bookName) {
+    addText("You open the "+bookName+"...");
+    sendRequest("TextCombat.php",
+                "function=readBook&bookName="+bookName,
+                function(response){
+                    itemName = bookName; //remember for learning the spell
+                    startPaper();
+                    addText(response);
+                    endPaper();
+                    setTextLineListener(listener_learn_spell);
+                }
+                );
+}
+/**
+ *gives the spell of the book to the player
+ */
+function learnSpell(input) {
+    if (input != "learn") {
+        return;
+    }
+    sendRequest("TextCombat.php",
+                "function=learnSpell&bookName="+itemName,
+                function(){
+                    addText("A warm glow emits from the "+itemName+" as its spell power magically seeps into your hands.");
+                }
+                );
+    endListening();
+    itemName = "";
 }
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////
@@ -1180,8 +1222,8 @@ function sendRequest(url,params,returnFunction){
         if (this.readyState==4 && this.status==200) {
             var response = this.responseText;
             //if an error
-            if (response.indexOf("<-<") == 0) {
-                setErrorMessage(response.replace("<-<",""));
+            if (response.indexOf("<<-<<") == 0) {
+                setErrorMessage(response.replace("<<-<<",""));
             }
             else{
                 //success, call function

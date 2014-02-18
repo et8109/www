@@ -1,31 +1,3 @@
-1392434395
-1
-<span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
-<1><>1<><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> was blocked by 3 -> 3 <span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
-1392434524
-1
-<span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
-<0><>101<><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Town Square</span>
-1392434616
-1
-<span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
-<1><>1<><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> was blocked by 3 -> 3 <span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
-1392434686
-1
-<span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
-<1><>1<><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> was blocked by 3 -> 3 <span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
-1392435146
-1
-<span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
-<1><>1<><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> was blocked by 3 -> 3 <span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
-1392492356
-1
-<span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
-hahaol
-1392492367
-1
-<span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
-that's funny... and true
 1392492373
 1
 <span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
@@ -38,3 +10,31 @@ that's funny... and true
 1
 <span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
 <0><>101<><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Town Square</span>
+1392505176
+1
+<span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
+<0><>103<><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>wilderness</span>
+1392506146
+1
+<span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
+<0><>103<><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Wilderness</span>
+1392506180
+1
+<span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
+<0><>103<><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Wilderness</span>
+1392520894
+1
+<span class='name b0' onclick='addDesc(1,1)'>Ensetym</span>
+<0><><span class='name b0' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Town Square</span>
+1392520905
+1
+<span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
+<0><><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Wilderness</span>
+1392574317
+1
+<span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
+<0><><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Town Square</span>
+1392697837
+1
+<span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
+<0><><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Town Square</span>
