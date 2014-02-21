@@ -101,42 +101,6 @@ switch($function){
         query("insert into sceneplayers (sceneID,playerID,playerName) values(".prepVar($_SESSION['currentScene']).",".prepVar($_SESSION['playerID']).",".prepVar($_SESSION['playerName']).")");
         break;
     
-    case('readBook'):
-        //make sure book exists
-        $IdRow = query("select ID from keywordwords where Word=".prepVar(strtolower($_POST['bookName']))." and type=".prepVar(keywordTypes::SPELLBOOK));
-        if($IdRow == false){
-            sendError("Could not find the ".$_POST['bookName']." here.");
-        }
-        //make sure scene has spellbook
-        $bookRow = query("select count(1) from scenekeywords where ID=".prepVar($_SESSION['currentScene'])." and type=".prepVar(keywordTypes::SPELLBOOK)." and keywordID=".prepVar($IdRow['ID']));
-        if($bookRow[0] != 1){
-            sendError("Could not find the ".$_POST['bookName']." here.");
-        }
-        //display spellbook text
-        echo "You open the frail pages of the leatherbound book. The first line reads: Reanimating the dead. Following is a strange sequence of instructions and illustrations.";
-        break;
-    
-    case('learn spell'):
-        //make sure scene has spellbook
-        $IdRow = query("select ID from keywordwords where Word=".prepVar(strtolower($_POST['bookName']))." and type=".prepVar(keywordTypes::SPELLBOOK));
-        if($IdRow == false){
-            sendError("Could not find the ".$_POST['bookName']." here.");
-        }
-        //make sure scene has spellbook
-        $bookRow = query("select count(1) from scenekeywords where ID=".prepVar($_SESSION['currentScene'])." and type=".prepVar(keywordTypes::SPELLBOOK)." and keywordID=".prepVar($IdRow['ID']));
-        if($bookRow[0] != 1){
-            sendError("Could not find the ".$_POST['bookName']." here.");
-        }
-        //make sure player does not have a spell
-        $spellRow = query("select count(1) from playerkeywords where ID=".prepVar($_SESSION['playerID'])." and type=".prepVar(keywordTypes::SPELL));
-        if($spellRow[0] == 1){
-            sendError("You already know a spell. You would have to forget that one first.");
-        }
-        //give spell to player
-        addKeywordToPlayer($bookToSpell[$IdRow['ID']],keywordTypes::SPELL,0,$_SESSION['playerID']);
-        //add new spell alert
-        addAlert(alertTypes::newSpell);
-        break;
     case('destroyItem'):
         //make sure player has item
         $itemRow = query("select ID from items where Name=".prepVar($_POST['name']));

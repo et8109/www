@@ -264,6 +264,9 @@ function getSpanText($spanType, $id, $name){
             $health = intval($healthRow['health']);
             return "<span class='npc b".$health."' onclick='addDesc(".spanTypes::NPC.",".$id.")'>".$name."</span>";
             break;
+        case(spanTypes::PATH):
+            return "<span class='active path' onclick='walk(".$id.")'>".$name."</span>";
+            break;
         case(spanTypes::ACTION):
             final class actionIDs {
                 const crafting = 6;
@@ -328,6 +331,38 @@ function replacePlayerItems($description){
 }
 
 /**
+ *replaces all the paths of a scene with spans
+ *sends error if not found
+ */
+function replaceScenePaths($description){
+    $pathResult = queryMulti("select lowID,highID from scenepaths where lowID=".prepVar($_SESSION['currentScene'])." or highID=".prepVar($_SESSION['currentScene']));
+    if($pathResult == false){
+        sendError("Error finding paths");
+    }
+    //find path names
+    if($row = mysqli_fetch_array($pathResult)){
+        $pathID = $_SESSION['currentScene'] == $row['lowID'] ? $row['highID'] : $row['lowID'];
+        $nameQuery = "select ID,Name from scenes where ID=".prepVar($pathID);
+    }
+    while($row = mysqli_fetch_array($pathResult)){
+        $pathID = $_SESSION['currentScene'] == $row['lowID'] ? $row['highID'] : $row['lowID'];
+        $nameQuery .= " or ID=".prepVar($pathID);
+    }
+    $namesResult = queryMulti($nameQuery);
+    mysqli_free_result($pathResult);
+    if($namesResult == false){
+        sendError("Error finding paths");
+    }
+    while($row = mysqli_fetch_array($namesResult)){
+        $pos = strpos($description, $row['Name']);
+        if($pos == false){
+            sendError("Path not found: ".$row['Name']);
+        }
+         $description = substr_replace($description,getSpanText(spanTypes::PATH,$row['ID'],$row['Name']),$pos,strlen($row['Name']));
+    }
+    return $description;
+}
+/**
  *updates a description in the db
  *sends error on fail
  */
@@ -343,6 +378,7 @@ function updateDescription($ID, $description, $spanTypesType, $keywordTypeNames)
     }
     //if a scene, make sure paths are there
     if($spanTypesType == spanTypes::SCENE){
+        $description = replaceScenePaths($description);
     }
     //get IDs of keywords
     $keywordsResult = queryMulti("select keywordID,Type from ".$keywordTable." where ID=".$ID);
@@ -514,7 +550,7 @@ function addWordToPlayerDesc($spanType, $kworitemID, $name, $playerID = -1){
     if($playerID == -1){
         $playerID = $_SESSION['playerID'];
     }
-    query("Update playerinfo set Description=(Description + ' ".getSpanText($spanType,$kworitemID,$name)."') where ID=".prepVar($playerID));
+    query("Update playerinfo set Description=(Description + ' ' +".getSpanText($spanType,$kworitemID,$name).") where ID=".prepVar($playerID));
 }
 /**
  *returns the manage level of the player in the current scene,

@@ -1,15 +1,3 @@
-1392502579
-1
-<span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
-ok then
-1392502585
-1
-<span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
-lets go, everyone!
-1392502603
-1
-<span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
-*runs off to the north*
 1392502612
 1
 <span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
@@ -35,6 +23,18 @@ lets go, everyone!
 <span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
 <0><><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Pub</span>
 1392697842
+1
+<span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
+<0><><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Library</span>
+1392949974
+1
+<span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
+<0><><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Library</span>
+1392950016
+1
+<span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
+<0><><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Library</span>
+1392950136
 1
 <span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
 <0><><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Library</span>

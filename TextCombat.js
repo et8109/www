@@ -181,7 +181,8 @@ var spanTypes = {
     SCENE: 2,
     ACTION: 3,
     KEYWORD: 4,
-    NPC: 5
+    NPC: 5,
+    PATH: 6
 }
 
 var textBox="textBox1";
@@ -316,6 +317,15 @@ function textTyped(e){
                 inputText = inputText.join(" ");
                 inputText = inputText.trim();
                 readBook(inputText);
+                break;
+            case("/forget"):
+                forgetSpell(inputText);
+            break;
+            case("/cast"):
+                inputText[0] = "";
+                inputText = inputText.join(" ");
+                inputText = inputText.trim();
+                castSpell(inputText);
                 break;
             default:
                 addText(inputText+"..unknown command");
@@ -927,7 +937,7 @@ function regenerate() {
  */
 function readBook(bookName) {
     addText("You open the "+bookName+"...");
-    sendRequest("TextCombat.php",
+    sendRequest("magic.php",
                 "function=readBook&bookName="+bookName,
                 function(response){
                     itemName = bookName; //remember for learning the spell
@@ -943,16 +953,37 @@ function readBook(bookName) {
  */
 function learnSpell(input) {
     if (input != "learn") {
+        itemName = "";
         return;
     }
-    sendRequest("TextCombat.php",
+    sendRequest("magic.php",
                 "function=learnSpell&bookName="+itemName,
                 function(){
                     addText("A warm glow emits from the "+itemName+" as its spell power magically seeps into your hands.");
+                    itemName = "";
                 }
                 );
     endListening();
-    itemName = "";
+}
+
+/**
+ *removes a spell from the player
+ */
+function forgetSpell(kwname) {
+    sendRequest("magic.php",
+                "function=forgetSpell",
+                function(response){
+                    addText("You clear your mind of previous spells.");
+                    });
+}
+
+/**
+ *casts a spell
+ */
+function castSpell(spellname) {
+    sendRequest("magic.php",
+                "function=castSpell&name="+spellname,
+                function(){});
 }
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////

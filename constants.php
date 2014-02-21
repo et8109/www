@@ -66,6 +66,7 @@ final class spanTypes {
     const ACTION = 3;
     const KEYWORD = 4;
     const NPC = 5;
+    const PATH = 6;
 }
 /**
  *the numbers corresponding to keyword types
@@ -97,10 +98,5 @@ $keywordTypeNames = array(
   7 => "monarch",
   8 => "spellbook",
   9 => "spell"
-);
-
-//books to spells
-$bookToSpell = array(
-    13 => 14 //animatome to necromancer
 );
 ?>
