@@ -21,14 +21,14 @@ switch($function){
         //see if player is there
         $row = query("SELECT playerID FROM sceneplayers WHERE SceneID =".prepVar($_SESSION['currentScene'])." AND playerName = ".prepVar($_POST['Name']));
         if($row != false){
-            $targetID = $row['plauerID'];
+            $targetID = $row['playerID'];
             $targetSpanType = spanTypes::PLAYER;
             $opponentCombatLevel = getPlayerCombatLevel($targetID);
         }
         else{
-            $row = query("SELECT ID FROM scenenpcs WHERE SceneID =".prepVar($_SESSION['currentScene'])." AND npcName = ".prepVar($_POST['Name'])." and health>0");
+            $row = query("SELECT npcID FROM scenenpcs WHERE SceneID =".prepVar($_SESSION['currentScene'])." AND npcName = ".prepVar($_POST['Name'])." and health>0");
             if($row != false){
-                $targetID = $row['ID'];
+                $targetID = $row['npcID'];
                 $targetSpanType = spanTypes::NPC;
                 $opponentCombatLevel = getNpcCombatLevel($targetID);
             } else{
@@ -38,14 +38,17 @@ switch($function){
         //determine outcome
         $actionWords;
         $playerCombatLevel = getPlayerCombatLevel($_SESSION['playerID']);
-        if($playerCombatLevel > $opponentCombatLevel){
-            $actionWords = " attacked ";
+        //math
+        $chance = $playerCombatLevel/($playerCombatLevel + $opponentCombatLevel);
+        $win = ((rand(0,10)*.1) < $chance);
+        if($win){
+            $actionWords = " struck ";
             //lower health
             if($targetSpanType == spanTypes::PLAYER){
                 query("update playerinfo set health=health-1 where ID=".prepVar($targetID)." and health>0");
             } else if($targetSpanType == spanTypes::NPC){
-                query("update scenenpcs set health=health-1 where sceneID=".prepVar($_SESSION['currentScene'])." and ID=".prepVar($targetID)." and health>0");
-                $killRow = query("select count(1) from scenenpcs where sceneID=".prepVar($_SESSION['currentScene'])." and ID=".prepVar($targetID)." and health=0");
+                query("update scenenpcs set health=health-1 where sceneID=".prepVar($_SESSION['currentScene'])." and npcID=".prepVar($targetID)." and health>0");
+                $killRow = query("select count(1) from scenenpcs where sceneID=".prepVar($_SESSION['currentScene'])." and npcID=".prepVar($targetID)." and health=0");
                 if($killRow[0] > 0){
                     $actionWords = " defeated ";
                     //if a killing blow, check for npc material
@@ -69,6 +72,8 @@ switch($function){
         }
         else{
             $actionWords = " was blocked by ";
+            //lower health
+            query("update playerinfo set health=health-1 where ID=".prepVar($_SESSION['playerID'])." and health>0");
         }
         $actionWords .= $playerCombatLevel." -> ".$opponentCombatLevel." ";
         speakActionAttack($targetSpanType,$targetID,$_POST['Name'],$actionWords);

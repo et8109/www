@@ -1,13 +1,17 @@
 <?php
 
+include_once "phpHelperFunctions.php";
+
 //books to spells
 $bookToClass = array(
     13 => 14 //animatome to necromancer
 );
-$spellToClass = array{
+$spellToClass = array(
     "reanimate" => 14 //necromancer
-}
-case('readBook'):
+);
+switch($_POST['function']){
+    
+    case('readBook'):
         //make sure book exists
         $IdRow = query("select ID from keywordwords where Word=".prepVar(strtolower($_POST['bookName']))." and type=".prepVar(keywordTypes::SPELLBOOK));
         if($IdRow == false){
@@ -19,7 +23,7 @@ case('readBook'):
             sendError("Could not find the ".$_POST['bookName']." here.");
         }
         //display spellbook text
-        echo "You open the frail pages of the leatherbound book. The first line reads: How to <b>Reanimate</b> the dead. Following is a strange sequence of instructions and illustrations.";
+        echo "You open the frail pages of the leatherbound book. The first line reads: How to <b>reanimate</b> the dead. Following is a strange sequence of instructions and illustrations.";
         break;
     
     case('learnSpell'):
@@ -45,25 +49,26 @@ case('readBook'):
     
     case("forgetSpell"):
         $forgetRow = query("delete from playerkeywords where ID=".prepVar($_SESSION['playerID'])." and type=".prepVar(keywordTypes::SPELL));
-        if($forgetRow == false){
-            sendError("Unable to forget current spell.");
-        }
         break;
     
     case("castSpell"):
+        if(!isset($spellToClass[$_POST['name']])){
+            sendError($_POST['name']." is not a spell.");
+        }
         //make sure they have the spell
         $spellRow = query("select count(1) from playerkeywords where ID=".prepVar($_SESSION['playerID'])." and type=".prepVar(keywordTypes::SPELL)." and keywordID=".prepVar($spellToClass[$_POST['name']]));
-        if($spellRow == false){
+        if($spellRow[0] != 1){
             sendError("You can't cast ".$_POST['name']);
         }
         //cast
         switch($_POST['name']){
             case('reanimate'):
                 //revive nearby enemies
-                $resRow = query("update set health=".prepVar(constants::maxHealth)." where ");
-                echo "You hear faint grumbling as the dead nearby begin to rise.";
+                $resRow = query("update scenenpcs set health=".prepVar(constants::maxHealth)." where sceneID=".prepVar($_SESSION['currentScene']));
+                echo "You give new life to the dead creatures nearby.";
                 break;
         }
         //respond with text
         break;
+}
 ?>

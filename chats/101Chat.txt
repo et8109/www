@@ -1,27 +1,3 @@
-1392502612
-1
-<span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
-<0><>100<><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Pub</span>
-1392502667
-1
-<span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
-<0><>102<><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Blacksmith</span>
-1392505170
-1
-<span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
-<0><>100<><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Pub</span>
-1392520901
-1
-<span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
-<0><><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Pub</span>
-1392574406
-1
-<span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
-<0><><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Blacksmith</span>
-1392574428
-1
-<span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
-<0><><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Pub</span>
 1392697842
 1
 <span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
@@ -38,3 +14,27 @@
 1
 <span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
 <0><><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Library</span>
+1393052670
+1
+<span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
+<0><><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Pub</span>
+1393118943
+1
+<span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
+<0><><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Library</span>
+1393120342
+1
+<span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
+<0><><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Pub</span>
+1393121024
+1
+<span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
+<0><><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Library</span>
+1393121032
+1
+<span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
+<0><><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Blacksmith</span>
+1393121206
+1
+<span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
+<0><><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Pub</span>

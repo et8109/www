@@ -9,7 +9,7 @@ final class constants {
     const dbname = "ignatymc_game";
     const startSceneID = 101;
     const maxHealth = 5;
-    const errorSymbol = "<<-<<";//repeated in js code
+    const errorSymbol = "<<-<<";//repeated in js code: main and login
     const numAlertsDivider = "<<<";//repeated in js code
 }
 /**

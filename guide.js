@@ -20,7 +20,11 @@ var commands = [
     new command("/hire",["[playername]"],"Hire someone to the position below you. You must be in the correct location."),
     new command("/fire",["[playername]"],"Fires someone who works below you."),
     new command("/self",[],"Displays info about yourself."),
-    new command("/destroy",["[itemname]"],"destroys an item you possess.")
+    new command("/destroy",["[itemname]"],"destroys an item you possess."),
+    new command("/regen",[],"Completely heals you if you are in a sanctuary."),
+    new command("/forget",[],"Remove a spell keyword you possess."),
+    new command("/read",["[bookname]"],"Read a book in the current location."),
+    new command("/cast",["[spellname]"],"Cast a spell you know. Spell names can be found in books.")
 ];
 function keyword(word){
     this.word = word;
@@ -32,7 +36,10 @@ var keywords = [
     new keyword("simple"),
     new keyword("excellent"),
     new keyword("wooden"),
-    new keyword("bag")
+    new keyword("bag"),
+    new keyword("necromancer"),
+    new keyword("anvil"),
+    new keyword("sanctuary")
 ];
 function activity(name){
     this.name = name;
@@ -46,7 +53,8 @@ var activities = [
     new activity("attack people"),
     new activity("explore the world"),
     new activity("manage a shop"),
-    new activity("become a lord or a monarch")
+    new activity("become a lord or a monarch"),
+    new activity("fight some creatures")
 ];
 //create page
 //commands

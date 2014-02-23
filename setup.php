@@ -1,7 +1,7 @@
 <?php
 include 'phpHelperFunctions.php';
 
-$version = 3;
+$version = 4;
 if(intval($_POST['version']) != $version){
     sendError("You're using an old version of Ignatym. Clear your cache and try again. ".$_POST['version']."_".$version);
 }
@@ -10,6 +10,7 @@ $function = $_POST['function'];
 switch($function){
     case('setUp'):
         $row = query("select Scene,frontLoadAlerts,frontLoadScenes,frontLoadKeywords from playerinfo where ID=".prepVar($_SESSION['playerID']));
+        echo "<>".$_SESSION['playerID'];
         echo "<>".$row['Scene'];
         echo "<>".$row['frontLoadScenes'];
         echo "<>".$row['frontLoadKeywords'];

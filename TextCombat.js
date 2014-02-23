@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //Globals
-var version = 3;
+var version = 4;
 
 window.onerror = function(msg, url, line) {
     alert("Error: "+msg+" url: "+url+" line: "+line);
@@ -21,9 +21,10 @@ var frontLoadKeywords;
         "function=setUp&version="+version,
         function(response){
             response = response.split("<>");
-            currentScene = parseInt(response[1]);
-            frontLoadSceneText = parseInt(response[2]);
-            frontLoadKeywords = parseInt(response[3]);
+            playerID = parseInt(response[1]);
+            currentScene = parseInt(response[2]);
+            frontLoadSceneText = parseInt(response[3]);
+            frontLoadKeywords = parseInt(response[4]);
             enableInput();
         }
     ); 
@@ -149,7 +150,10 @@ var listener_quit_job = new listener("Enter 'quit' to leave your job.",
                                             function(input){quitJob(input);}, function(){}
                                           );
 var listener_learn_spell = new listener("Enter 'learn' to learn this spell.",
-                                            function(input){learnSpell(input);}, function(){itemName="";}
+                                            function(input){learnSpell(input);}, function(){targetName="";}
+                                          );
+var listener_attack_again = new listener("Enter to attack again.",
+                                            function(input){attack(input);}, function(){}
                                           );
 //text area listeners
 var listener_personal_desc = new listener("Enter your description below.",
@@ -207,11 +211,15 @@ var actionTypes ={
  *added to scene
  *have a changed note in scene
  */
-var itemName;
+var targetName;
 /**
  *saves the current scene id. used for addDesc of currentScene
  */
 var currentScene;
+/**
+ *the id of the player
+ */
+var playerID;
 /**
  *if enabled, every query will show how long it took
  */
@@ -364,8 +372,13 @@ function updateChat(){
                         chatLine = chatLine[1];
                         switch(type){
                             case(actionTypes.ATTACK):
-                                //let the player know somehow that they were attacked, attack sound
+                                //let the player know somehow that there is combat, sound maybe
                                 addText(chatLine);
+                                //ask player to attack again
+                                var id = text[i];
+                                if (id == playerID) {
+                                    setTextLineListener(listener_attack_again);
+                                }
                                 break;
                             case(actionTypes.WALKING):
                                 //footsteps sound
@@ -485,12 +498,12 @@ setTextLineListener(listener_item_name);
  *When an item name is given, tells the player to give a description
  */
 function addCraftName(name){
-    itemName = name;
+    targetName = name;
     //has a name, need a description
     sendRequest("crafting.php","function=getCraftInfo",
         function(response){
             endListening();
-            addText("Your craftSkill is "+response+ ". enter the "+itemName+"'s description below. Your tags are: tags not done yet");
+            addText("Your craftSkill is "+response+ ". enter the "+targetName+"'s description below. Your tags are: tags not done yet");
             setTextAreaListener(listener_item_desc);
         }
     );
@@ -499,20 +512,20 @@ function addCraftName(name){
  *When an items description is given, and a name was already chosen
  */
 function addCraftDescription(desc){
-    if (itemName == "") {
+    if (targetName == "") {
         addText("[Something wierd happened. Woops! Please let me know what you did. Thanks.]");
         endListening();
         return;
     }
     //input into database
-    sendRequest("crafting.php","function=craftItem&Name="+itemName+"&Description="+desc,
+    sendRequest("crafting.php","function=craftItem&Name="+targetName+"&Description="+desc,
         function(response){
-            addText("You make a "+itemName);
+            addText("You make a "+targetName);
             closeTextArea();
             endListening();
             //sound
             playSound("anvil");
-            itemName = "";
+            targetName = "";
         }
     );
 }
@@ -565,7 +578,7 @@ function addItemToScenePrompt() {
  *adds an item to the current scene
  */
 function addItemNoteToScenePrompt(name){
-    itemName = name;
+    targetName = name;
     endListening();
     setTextAreaListener(listener_new_items_note);
 }
@@ -580,9 +593,9 @@ function removeItemFromScenePrompt() {
  */
 function addItemToScene(note){
     endListening();
-    sendRequest("manage.php","function=addItemToScene&Name="+itemName+"&Note="+note,
+    sendRequest("manage.php","function=addItemToScene&Name="+targetName+"&Note="+note,
         function(response){
-            addText("added "+itemName);
+            addText("added "+targetName);
             return;
         }
     );
@@ -611,7 +624,7 @@ function changeItemNotePrompt() {
  *prompts for the new note text
  */
 function newNoteTextPromt(name){
-    itemName = name;
+    targetName = name;
     endListening();
     setTextAreaListener(listener_revised_item_note);
 }
@@ -636,9 +649,9 @@ function newSceneDescPrompt(){
  */
 function changeItemNote(note){
     endListening();
-    sendRequest("manage.php","function=changeItemNote&Name="+itemName+"&Note="+note,
+    sendRequest("manage.php","function=changeItemNote&Name="+targetName+"&Note="+note,
         function(response){
-            addText("changed note for "+itemName);
+            addText("changed note for "+targetName);
             return;
         }
     );
@@ -688,9 +701,15 @@ function reviewSceneDesc(sceneID){
 *find who the player want to attack, after /attack
 */
 function attack(name) {
+    //is already attacked once
+    if (isWaiting()) {
+        name=targetName;
+        endListening();
+    } else{
+        targetName = name;
+    }
     sendRequest("combat.php","function=attack&Name="+name,
-        function(response){
-        }
+        function(response){}
     );
 }
 /**
@@ -940,7 +959,7 @@ function readBook(bookName) {
     sendRequest("magic.php",
                 "function=readBook&bookName="+bookName,
                 function(response){
-                    itemName = bookName; //remember for learning the spell
+                    targetName = bookName; //remember for learning the spell
                     startPaper();
                     addText(response);
                     endPaper();
@@ -953,14 +972,14 @@ function readBook(bookName) {
  */
 function learnSpell(input) {
     if (input != "learn") {
-        itemName = "";
+        targetName = "";
         return;
     }
     sendRequest("magic.php",
-                "function=learnSpell&bookName="+itemName,
+                "function=learnSpell&bookName="+targetName,
                 function(){
-                    addText("A warm glow emits from the "+itemName+" as its spell power magically seeps into your hands.");
-                    itemName = "";
+                    addText("A warm glow emits from the "+targetName+" as its spell power magically seeps into your hands.");
+                    targetName = "";
                 }
                 );
     endListening();
@@ -983,7 +1002,7 @@ function forgetSpell(kwname) {
 function castSpell(spellname) {
     sendRequest("magic.php",
                 "function=castSpell&name="+spellname,
-                function(){});
+                function(response){addText(response);});
 }
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////

@@ -1,40 +1,40 @@
-1392520581
-1
-<span class='name b0' onclick='addDesc(1,1)'>Ensetym</span>
-<1><><span class='name b0' onclick='addDesc(1,1)'>Ensetym</span> attacked 3 -> 2 <span class='npc b5' onclick='addDesc(5,1)'>dirtball</span>
-1392520608
-1
-<span class='name b0' onclick='addDesc(1,1)'>Ensetym</span>
-<1><><span class='name b0' onclick='addDesc(1,1)'>Ensetym</span> attacked 3 -> 2 <span class='npc b4' onclick='addDesc(5,1)'>dirtball</span>
-1392520611
-1
-<span class='name b0' onclick='addDesc(1,1)'>Ensetym</span>
-<1><><span class='name b0' onclick='addDesc(1,1)'>Ensetym</span> attacked 3 -> 2 <span class='npc b3' onclick='addDesc(5,1)'>dirtball</span>
-1392520613
-1
-<span class='name b0' onclick='addDesc(1,1)'>Ensetym</span>
-<1><><span class='name b0' onclick='addDesc(1,1)'>Ensetym</span> attacked 3 -> 2 <span class='npc b2' onclick='addDesc(5,1)'>dirtball</span>
-1392520616
-1
-<span class='name b0' onclick='addDesc(1,1)'>Ensetym</span>
-<1><><span class='name b0' onclick='addDesc(1,1)'>Ensetym</span> attacked 3 -> 2 <span class='npc b1' onclick='addDesc(5,1)'>dirtball</span>
-1392520620
-1
-<span class='name b0' onclick='addDesc(1,1)'>Ensetym</span>
-<1><><span class='name b0' onclick='addDesc(1,1)'>Ensetym</span> attacked 3 -> 2 <span class='npc b0' onclick='addDesc(5,1)'>dirtball</span>
-1392520890
-1
-<span class='name b0' onclick='addDesc(1,1)'>Ensetym</span>
-<0><><span class='name b0' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Pub</span>
-1392520914
+1393120370
 1
 <span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
-<1><><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> was blocked by 3 -> 5 <span class='npc b5' onclick='addDesc(5,2)'>wanderer</span>
-1392520927
+<1><><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> was blocked by 3 -> 2 <span class='npc b4' onclick='addDesc(5,1)'>dustball</span>
+1393120379
 1
 <span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
-<1><><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> was blocked by 3 -> 5 <span class='npc b5' onclick='addDesc(5,2)'>wanderer</span>
-1392574313
+<1><><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> was blocked by 3 -> 2 <span class='npc b4' onclick='addDesc(5,1)'>dustball</span>
+1393120457
 1
-<span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
-<0><><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Pub</span>
+<span class='name b4' onclick='addDesc(1,1)'>Ensetym</span>
+<1><><span class='name b4' onclick='addDesc(1,1)'>Ensetym</span> was blocked by 3 -> 2 <span class='npc b4' onclick='addDesc(5,1)'>dustball</span>
+1393120463
+1
+<span class='name b3' onclick='addDesc(1,1)'>Ensetym</span>
+<1><><span class='name b3' onclick='addDesc(1,1)'>Ensetym</span> was blocked by 3 -> 2 <span class='npc b4' onclick='addDesc(5,1)'>dustball</span>
+1393120466
+1
+<span class='name b3' onclick='addDesc(1,1)'>Ensetym</span>
+<1><><span class='name b3' onclick='addDesc(1,1)'>Ensetym</span> struck 3 -> 2 <span class='npc b3' onclick='addDesc(5,1)'>dustball</span>
+1393120470
+1
+<span class='name b2' onclick='addDesc(1,1)'>Ensetym</span>
+<1><><span class='name b2' onclick='addDesc(1,1)'>Ensetym</span> was blocked by 3 -> 2 <span class='npc b3' onclick='addDesc(5,1)'>dustball</span>
+1393120473
+1
+<span class='name b2' onclick='addDesc(1,1)'>Ensetym</span>
+<1><><span class='name b2' onclick='addDesc(1,1)'>Ensetym</span> struck 3 -> 2 <span class='npc b2' onclick='addDesc(5,1)'>dustball</span>
+1393120475
+1
+<span class='name b2' onclick='addDesc(1,1)'>Ensetym</span>
+<1><><span class='name b2' onclick='addDesc(1,1)'>Ensetym</span> struck 3 -> 2 <span class='npc b1' onclick='addDesc(5,1)'>dustball</span>
+1393120478
+1
+<span class='name b2' onclick='addDesc(1,1)'>Ensetym</span>
+<1><><span class='name b2' onclick='addDesc(1,1)'>Ensetym</span> defeated 3 -> 2 <span class='npc b0' onclick='addDesc(5,1)'>dustball</span>
+1393120520
+1
+<span class='name b2' onclick='addDesc(1,1)'>Ensetym</span>
+<0><><span class='name b2' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Pub</span>

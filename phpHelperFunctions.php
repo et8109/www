@@ -23,7 +23,7 @@ sql db backups
 
 include_once 'constants.php';
 
-//error_reporting(0);
+error_reporting(0);
 
 session_start();
 //check inputs

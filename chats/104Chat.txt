@@ -14,18 +14,6 @@
  0
  tester
  new scene filler
- 0
- 0
- tester
- new scene filler
- 0
- 0
- tester
- new scene filler
- 0
- 0
- tester
- new scene filler
 1392949967
 1
 <span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
@@ -35,6 +23,18 @@
 <span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
 <0><><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Town Square</span>
 1392950048
+1
+<span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
+<0><><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Town Square</span>
+1393052244
+1
+<span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
+<0><><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Town Square</span>
+1393120337
+1
+<span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
+<0><><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Town Square</span>
+1393121028
 1
 <span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
 <0><><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Town Square</span>

@@ -12,8 +12,8 @@ function sendRequest(url,params,returnFunction){
         if (this.readyState==4 && this.status==200) {
             var response = this.responseText;
             //if an error
-            if (response.indexOf("<<") == 0) {
-                setErrorMessage(response.replace("<<",""));
+            if (response.indexOf("<<-<<") == 0) {
+                setErrorMessage(response.replace("<<-<<",""));
             }
             else{
                 //success, call function
