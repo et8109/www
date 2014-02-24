@@ -973,6 +973,7 @@ function readBook(bookName) {
 function learnSpell(input) {
     if (input != "learn") {
         targetName = "";
+        endListening();
         return;
     }
     sendRequest("magic.php",
