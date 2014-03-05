@@ -19,6 +19,11 @@ switch($function){
          *adds an alert for the player
          */
     case('craftItem'):
+        //make sure the player is a blacksmith
+        $level = getPlayerManageLevel();
+        if($level != keywordTypes::APPSHP && $level != keywordTypes::MANAGER){
+            sendError("You don't have permission to craft here.");
+        }
         //make sure the player can take an item
         checkPlayerCanTakeItem();
         $keywordIDs = array();

@@ -118,6 +118,9 @@ border: solid 1px brown;
     padding: 0px;
 }
 
+#error{
+    background-color: #A89423;
+}
 /*player name in the hub*/
 #hubName{
     cursor: pointer;

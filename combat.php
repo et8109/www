@@ -103,7 +103,7 @@ function getPlayerCombatLevel($playerID){
        2 => 2 //metal
    );
     //set initial
-    $combatLevel = 0;
+    $combatLevel = 1;
     //get player item ids
     $rowItemIds = queryMulti("select ID from items where playerID=".prepVar($playerID)." and insideOf=0");
     //if player has no items

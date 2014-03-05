@@ -75,10 +75,11 @@ function listener(message, onInput, onCancel){
      *sets the wait message
      */
     this.start = function(){
-        if (textLineListener != null || textAreaListener != null) {
+        endListening();
+        /*if (textLineListener != null || textAreaListener != null) {
             setErrorMessage("You're busy with something else.");
             return false;
-        }
+        }*/
         setWaitMessage(message);
         return true;
     }
@@ -150,7 +151,7 @@ var listener_quit_job = new listener("Enter 'quit' to leave your job.",
                                             function(input){quitJob(input);}, function(){}
                                           );
 var listener_learn_spell = new listener("Enter 'learn' to learn this spell.",
-                                            function(input){learnSpell(input);}, function(){targetName="";}
+                                            function(input){learnSpell(input);}, function(){}
                                           );
 var listener_attack_again = new listener("Enter to attack again.",
                                             function(input){attack(input);}, function(){}
@@ -238,8 +239,11 @@ var onPaper = false;
 *Checks for waiting, commands with /, and talking
 */
 function textTyped(e){
+    //if not enter button
     if(event.keyCode != 13){
-        //if enter button was not pressed, do nothing
+        if (textLineListener == listener_attack_again) {
+            endListening();
+        }
         return;
     }
     //reset prev input index
@@ -701,10 +705,14 @@ function reviewSceneDesc(sceneID){
 *find who the player want to attack, after /attack
 */
 function attack(name) {
-    //is already attacked once
+    //if already attacked once
     if (isWaiting()) {
-        name=targetName;
         endListening();
+        if (name != "") {
+            targetName="";
+            return;
+        }
+        name=targetName;
     } else{
         targetName = name;
     }

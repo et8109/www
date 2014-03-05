@@ -82,6 +82,7 @@ final class keywordTypes {
     const MONARCH = 7;
     const SPELLBOOK = 8;
     const SPELL = 9;
+    const ECT = 10;
 }
 
 /**

@@ -550,10 +550,12 @@ function addWordToPlayerDesc($spanType, $kworitemID, $name, $playerID = -1){
     if($playerID == -1){
         $playerID = $_SESSION['playerID'];
     }
-    query("Update playerinfo set Description=(Description + ' ' +".getSpanText($spanType,$kworitemID,$name).") where ID=".prepVar($playerID));
+    $descRow = query("select Description from playerinfo where where ID=".prepVar($playerID));
+    $desc = $descRow['Description']." ".getSpanText($spanType,$kworitemID,$name);
+    query("Update playerinfo set Description=".prepVar($desc)." where ID=".prepVar($playerID));
 }
 /**
- *returns the manage level of the player in the current scene,
+ *returns the manage level of the player in the current scene, [as an int]
  *which is the type in constants page.
  *Returns 0 if no manage level.
  */
