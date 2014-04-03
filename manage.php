@@ -74,18 +74,7 @@ switch($function){
     
     case('changeSceneDesc'):
         $manageLevel = getPlayerManageLevel();
-        if($manageLevel == keywordTypes::LORD){
-            //set draft
-            query("update scenes set descdraft=".prepVar($_POST['desc'])." where ID=".prepVar($_SESSION['currentScene']));
-            //find monarch id
-            $monarchId = getMonarchId();
-            if($monarchId == false){
-                sendError("You need a monarch before you can edit a location's description.");
-            }
-            //send alert to monarch
-            addAlert(alertTypes::newDescDraft);
-        }
-        else if($manageLevel == keywordTypes::MONARCH){
+        if($manageLevel == keywordTypes::MONARCH){
             updateDescription($_SESSION['currentScene'],$_POST['desc'],spanTypes::SCENE,$keywordTypeNames);
         }
         else{
@@ -126,11 +115,11 @@ switch($function){
         }
         if ($manageLevel >= keywordTypes::LORD) {
             //at least lord
-            echo "<><span class='active action' onclick='newSceneDescPrompt()'>edit scene desc</span>";
+            //echo "";
         }
         if ($manageLevel >= keywordTypes::MONARCH) {
             //at least monarch
-            echo "<><span class='active action' onclick='newSceneDrafts()'>review new description drafts</span>";
+            echo "<><span class='active action' onclick='newSceneDescPrompt()'>edit scene desc</span>";
             echo "<>can't edit scene title yet";
         }
         break;
