@@ -7,11 +7,12 @@ $bookToClass = array(
     13 => 14 //animatome to necromancer
 );
 $spellToClass = array(
-    "reanimate" => 14 //necromancer
+    "reanimate" => 14, //necromancer
+    "summon boss" => 14
 );
 switch($_POST['function']){
     
-    case('readBook'):
+    case('readBook')://see book contents
         //make sure book exists
         $IdRow = query("select ID from keywordwords where Word=".prepVar(strtolower($_POST['bookName']))." and type=".prepVar(keywordTypes::SPELLBOOK));
         if($IdRow == false){
@@ -26,7 +27,7 @@ switch($_POST['function']){
         echo "You open the frail pages of the leatherbound book. The first line reads: How to <b>reanimate</b> the dead. Following is a strange sequence of instructions and illustrations.";
         break;
     
-    case('learnSpell'):
+    case('learnSpell')://learn book contents
         //make sure scene has spellbook
         $IdRow = query("select ID from keywordwords where Word=".prepVar(strtolower($_POST['bookName']))." and type=".prepVar(keywordTypes::SPELLBOOK));
         if($IdRow == false){
@@ -64,8 +65,26 @@ switch($_POST['function']){
         switch($_POST['name']){
             case('reanimate'):
                 //revive nearby enemies
-                $resRow = query("update scenenpcs set health=".prepVar(constants::maxHealth)." where sceneID=".prepVar($_SESSION['currentScene']));
-                echo "You give new life to the dead creatures nearby.";
+                $resRow = query("update scenenpcs set health=".prepVar(constants::maxHealth)." where health=0 and sceneID=".prepVar($_SESSION['currentScene'])." and type=".prepVar(npcTypes::CREATURE));
+                echo "You give new life to ".lastQueryNumRows()." dead creatures nearby.";
+                break;
+            case('summon boss'):
+                $resRow = query("update scenenpcs set health=".prepVar(constants::maxHealth)." where health=0 and sceneID=".prepVar($_SESSION['currentScene'])." and type=".prepVar(npcTypes::BOSS));
+                if(lastQueryNumRows() == 0){
+                    sendError("Could not summon the boss here.");
+                }
+                //create hear effect nearby
+                $posQuery = query("select posx, posy from scenes where ID=".prepVar($_SESSION['currentScene']));
+                $currentX = $posQuery['posx'];
+                $currentY = $posQuery['posy'];
+                $scenes = nearbyScenes(3);
+                foreach($scenes as $sceneID){
+                    //get direction
+                    $posQuery = query("select posx, posy from scenes where ID=".prepVar($sceneID);
+                    $dir = getSceneDir($currentX,$currentY,$posQuery['posx'],$posQuery['posy']);
+                    addChatText("You hear the roar of a boss to the ".$dir,$sceneID);
+                }
+                echo "A boss risies to your challenge.";
                 break;
         }
         //respond with text

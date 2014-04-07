@@ -7,7 +7,6 @@
         <link rel="stylesheet" type="text/css" href="guide.css" />
     </head>
     <body>
-        <a href="login.php">Back to login</a>
         <h1>Welcome to the Ignatym guide</h1>
         <h2 onclick='displayActivities()'>Activities</h2>
         <h2 onclick='displayCommands()'>Commands</h2>

@@ -44,7 +44,7 @@ final class alertTypes{
     const managerQuit = 10;
     const employeeFired = 11;
     const managerFired = 12;
-    const newDescDraft = 13;
+    //no 13
     const newSpell = 14;
 }
 /**
@@ -84,6 +84,12 @@ final class keywordTypes {
     const SPELL = 9;
     const ECT = 10;
 }
+
+final class npcTypes {
+    const CREATURE = 0;
+    const BOSS = 1;
+}
+
 
 /**
  *the names asocciated with each keyword type

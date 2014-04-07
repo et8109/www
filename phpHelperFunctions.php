@@ -110,7 +110,12 @@ function lastIDQuery($sql){
     return mysqli_insert_id($GLOBALS['con']);
         
 }
-
+/**
+ *returns the number of rows affected by the last query
+ */
+function lastQueryNumRows(){
+    return mysqli_affected_rows($con);
+}
 /**
  *sanatizes a variable
  */
@@ -162,19 +167,15 @@ function sendError($message){
     die();
 }
 
-$fileName="";
-if(isset($_SESSION['currentScene'])){
- $fileName = "chats/".$_SESSION['currentScene']."Chat.txt";   
-}
-
 /**
  *adds the given text to the current chat file
  */
-function addChatText($text){
+function addChatText($text, $sceneID = $_SESSION['currentScene']){
+    $fileName = "chats/".$sceneID."Chat.txt";
     $time=date_timestamp_get(new DateTime());
     $lines = array();
-    $lines = file($GLOBALS['fileName']);
-    $chatFile = fopen($GLOBALS['fileName'], "w");
+    $lines = file($fileName);
+    $chatFile = fopen($fileName, "w");
     for($i=4; $i<40; $i++){
         fwrite($chatFile,$lines[$i]);
     }
@@ -227,6 +228,7 @@ function speakActionWalk($sceneID, $sceneName){
     $text = getSpanText(spanTypes::PLAYER,$_SESSION['playerID'],$_SESSION['playerName'])." walked to ".getSpanText(spanTypes::SCENE,$sceneID,$sceneName);
     _speakAction(actionTypes::WALKING, $text);
 }
+
 /**
  *only to use by other speak action functions.
  *sends the type and text to chat.
@@ -598,5 +600,73 @@ function getMonarchId(){
         return false;
     }
     return $monarchRow['ID'];
+}
+
+/**
+ *returns an array of scenes in the radius
+ *first index is null, was curernt scene
+ */
+function nearbyScenes($radius){
+    $sceneIds = array();
+    $sceneIds[] = $_SESSION['currentScene'];
+    $currentRadius = 1;
+    $numScenesAfterLastCycle = 1;
+    $numScenesThisCycle = 0;
+    $index = 0;
+    while($currentRadius <= $radius){//for each radius
+        while($index <= $numScenesAfterLastCycle){//for each scene in last radius
+            $checkID = $sceneIds[$index];
+            $IdQuery = $query("select lowID,highID from scenepaths where lowID=".prepVar($checkID)." or highID=".prepVar($checkID));
+            while($row = mysqli_fetch_array($IdQuery)){
+                $ID = ($checkID == $row['lowID']) ? $row['highID'] : $row['lowID'];
+                if(!in_array($ID,$sceneIds)){
+                    $sceneIds[] = $ID;
+                    $numScenesThisCycle++;
+                    $totalScenes++;
+                }
+            }
+            mysqli_free_result($IdQuery);
+            $index++;
+        }
+        $numScenesAfterLastCycle += $numScenesThisCycle;
+        $numScenesThisCycle = 0;
+        $currentRadius++;
+    }
+    $sceneIds[0] = null;
+    return $sceneIds;
+}
+
+/**
+ *returns a string which describes the general direction
+ */
+function getSceneDir($x1, $y1, $x2, $y2){
+    $angle = tan(($y1-$y2)/($x1-$x2));
+    $section = floor((($angle+(PI/8))/(PI/4)));
+    switch($section){
+        case(0):
+            return "east";
+            break;
+        case(1):
+            return "northeast";
+            break;
+        case(2):
+            return "north";
+            break;
+        case(3):
+            return "northwest";
+            break;
+        case(4):
+            return "west";
+            break;
+        case(5):
+            return "southwest";
+            break;
+        case(6):
+            return "south";
+            break;
+        case(7):
+            return "southeast";
+            break;
+    }
 }
 ?>

@@ -276,7 +276,7 @@ function textTyped(e){
                 attack(inputText);
                 break;
             case("/help"):
-                addText("<a href='guide.php' target='_newtab'>Guide</a>");
+                addText("<a href='guide.php' target='_blank'>Guide</a>");
                 break;
             case("/put"):
                 inputText[0] = "";
