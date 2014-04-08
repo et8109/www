@@ -27,9 +27,9 @@ error_reporting(0);
 
 session_start();
 //check inputs
-checkInputIsClean();
+_checkInputIsClean();
 //get connection to db
-$con = getConnection();
+$con = _getConnection();
 //check if logged in
 $function = $_POST['function'];
 if($function != 'register' && $function != 'login'){
@@ -60,7 +60,7 @@ function printDebug($word){
  *returns a connection ($con) to the db.
  *set the global connection, if applicable, to this
  */
-function getConnection(){
+function _getConnection(){
     $con = mysqli_connect(constants::dbhostName,constants::dbusername,constants::dbpassword,constants::dbname);
     //check connection
     if (mysqli_connect_errno()){
@@ -134,7 +134,7 @@ function prepVar($var){
  *throws error if not
  *assumes inputs are all get
  */
-function checkInputIsClean(){
+function _checkInputIsClean(){
     /**
     *the characters or strings not allowed in inputs
     */
@@ -297,7 +297,7 @@ function getSpanText($spanType, $id, $name){
  *replaces the first keyword/scene action of the given ID.
  *returns false if not found
  */
-function replaceKeywordID($desc, $ID){
+function _replaceKeywordID($desc, $ID){
     $descArray = explode(" ",$desc);
     $descArrayLength = count($descArray);
     for($i=0; $i<$descArrayLength; $i++){
@@ -319,7 +319,7 @@ function replaceKeywordID($desc, $ID){
  *replaces all items in the player's description
  *sends error if not found
  */
-function replacePlayerItems($description){
+function _replacePlayerItems($description){
     //find item names
     $itemNamesResult = queryMulti("select Name,ID from items where playerID=".prepVar($_SESSION['playerID'])." and insideOf=0");
     //if failed in query
@@ -346,7 +346,7 @@ function replacePlayerItems($description){
  *replaces all the paths of a scene with spans
  *sends error if not found
  */
-function replaceScenePaths($description){
+function _replaceScenePaths($description){
     $pathResult = queryMulti("select lowID,highID from scenepaths where lowID=".prepVar($_SESSION['currentScene'])." or highID=".prepVar($_SESSION['currentScene']));
     if($pathResult == false){
         sendError("Error finding paths");
@@ -379,18 +379,18 @@ function replaceScenePaths($description){
  *sends error on fail
  */
 function updateDescription($ID, $description, $spanTypesType, $keywordTypeNames){
-    $table = getTable($spanTypesType);
-    $keywordTable = getTableKeywords($spanTypesType);
+    $table = _getTable($spanTypesType);
+    $keywordTable = _getTableKeywords($spanTypesType);
     if($table == null){
         sendError("unfindeable type");
     }
     //if a player, make sure items are there. items first so they don't replace span stuff.
     if($spanTypesType == spanTypes::PLAYER){
-        $description = replacePlayerItems($description);
+        $description = _replacePlayerItems($description);
     }
     //if a scene, make sure paths are there
     if($spanTypesType == spanTypes::SCENE){
-        $description = replaceScenePaths($description);
+        $description = _replaceScenePaths($description);
     }
     //get IDs of keywords
     $keywordsResult = queryMulti("select keywordID,Type from ".$keywordTable." where ID=".$ID);
@@ -399,7 +399,7 @@ function updateDescription($ID, $description, $spanTypesType, $keywordTypeNames)
     }
     //replace one of each keyword ID
     while($keywordRow = mysqli_fetch_array($keywordsResult)){
-        $description = replaceKeywordID($description,$keywordRow['keywordID']);
+        $description = _replaceKeywordID($description,$keywordRow['keywordID']);
         //if ID not found
         if($description == false){
             sendError("could not find keyword type: ".$keywordTypeNames[intval($keywordRow['Type'])]);
@@ -407,7 +407,7 @@ function updateDescription($ID, $description, $spanTypesType, $keywordTypeNames)
     }
     mysqli_free_result($keywordsResult);
     //make sure its under max length
-    checkDescIsUnderMaxLength($description,$spanTypesType);
+    _checkDescIsUnderMaxLength($description,$spanTypesType);
     query("update ".$table." set Description=".prepVar($description)." where ID=".prepVar($ID));
     return true;
 }
@@ -417,7 +417,7 @@ function updateDescription($ID, $description, $spanTypesType, $keywordTypeNames)
  *return num left if ok
  *scene is scene desc
  */
-function checkDescIsUnderMaxLength($desc, $spanType){
+function _checkDescIsUnderMaxLength($desc, $spanType){
     $resultNum = 0;
     switch($spanType){
         case(spanTypes::ITEM):
@@ -444,7 +444,7 @@ function checkDescIsUnderMaxLength($desc, $spanType){
 /**
  *returns the table where the object itself it
  */
-function getTable($spanTypesType){
+function _getTable($spanTypesType){
     switch($spanTypesType){
         case(spanTypes::SCENE):
             return 'scenes';
@@ -465,7 +465,7 @@ function getTable($spanTypesType){
 /**
  *returns the table where the object's keywords are
  */
-function getTableKeywords($spanTypesType){
+function _getTableKeywords($spanTypesType){
     switch($spanTypesType){
         case(spanTypes::SCENE):
             return 'scenekeywords';
@@ -485,21 +485,6 @@ function getTableKeywords($spanTypesType){
 
 /**
  *adds an item to the player's inventory
- *returns empty string on success
- *sends error on fail
- *checkPlayerCanTakeItem first!
- */
-function addItemNameToPlayer($itemName){
-    //get item ID
-    $idRow = query("select ID from items where playerID=".prepVar($_SESSION['playerID'])." and Name=".prepVar($_POST['Name']));
-        if(is_bool($idRow)){
-            sendError("You do not have that item");
-    }
-    return addItemIdToPlayer($idRow['ID'],$itemName);
-}
-/**
- *adds an item to the player's inventory
- *  call addItemNameToPlayer if you don't know the id
  *adds an alert for a new item
  *checkPlayerCanTakeItem first!
  */
@@ -552,13 +537,13 @@ function addKeywordToPlayer($keywordID,$keywordType,$location,$playerID = -1){
     }
     $nameRow = query("select Word from keywordwords where ID=".prepVar($keywordID)." limit 1");
     query("insert into playerkeywords (ID,keywordID,locationID,type) values (".prepVar($playerID).",".prepVar($keywordID).",".prepVar($location).",".prepVar($keywordType).")");
-    addWordToPlayerDesc(spanTypes::KEYWORD,$keywordID,$nameRow['Word'],$playerID);
+    _addWordToPlayerDesc(spanTypes::KEYWORD,$keywordID,$nameRow['Word'],$playerID);
 }
 
 /**
  *adds a word to the end of a player's description
  */
-function addWordToPlayerDesc($spanType, $kworitemID, $name, $playerID = -1){
+function _addWordToPlayerDesc($spanType, $kworitemID, $name, $playerID = -1){
     if($playerID == -1){
         $playerID = $_SESSION['playerID'];
     }
