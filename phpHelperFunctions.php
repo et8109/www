@@ -114,7 +114,7 @@ function lastIDQuery($sql){
  *returns the number of rows affected by the last query
  */
 function lastQueryNumRows(){
-    return mysqli_affected_rows($con);
+    return mysqli_affected_rows($GLOBALS['con']);
 }
 /**
  *sanatizes a variable
@@ -169,8 +169,12 @@ function sendError($message){
 
 /**
  *adds the given text to the current chat file
+ *returns if scene id is not numeric
  */
-function addChatText($text, $sceneID = $_SESSION['currentScene']){
+function _addChatText($text, $sceneID){
+    if(!is_numeric($sceneID)){
+        return;
+    }
     $fileName = "chats/".$sceneID."Chat.txt";
     $time=date_timestamp_get(new DateTime());
     $lines = array();
@@ -228,13 +232,19 @@ function speakActionWalk($sceneID, $sceneName){
     $text = getSpanText(spanTypes::PLAYER,$_SESSION['playerID'],$_SESSION['playerName'])." walked to ".getSpanText(spanTypes::SCENE,$sceneID,$sceneName);
     _speakAction(actionTypes::WALKING, $text);
 }
+/**
+ *adds the text to the chat, with no player name
+ */
+function speakActionMessage($sceneID, $message){
+    _speakAction(actionTypes::MESSAGE,$message);
+}
 
 /**
  *only to use by other speak action functions.
  *sends the type and text to chat.
  */
 function _speakAction($saType, $text){
-    addChatText("<".$saType."><>".$text);
+    _addChatText("<".$saType."><>".$text, $_SESSION['currentScene']);
 }
 /**
  *returns the span text for the given object.
@@ -614,11 +624,11 @@ function nearbyScenes($radius){
     $numScenesThisCycle = 0;
     $index = 0;
     while($currentRadius <= $radius){//for each radius
-        while($index <= $numScenesAfterLastCycle){//for each scene in last radius
+        while($index < $numScenesAfterLastCycle){//for each scene in last radius
             $checkID = $sceneIds[$index];
-            $IdQuery = $query("select lowID,highID from scenepaths where lowID=".prepVar($checkID)." or highID=".prepVar($checkID));
+            $IdQuery = queryMulti("select lowID, highID from scenepaths where lowID=".prepVar($checkID)." or highID=".prepVar($checkID));
             while($row = mysqli_fetch_array($IdQuery)){
-                $ID = ($checkID == $row['lowID']) ? $row['highID'] : $row['lowID'];
+                $ID = $checkID == $row['lowID'] ? $row['highID'] : $row['lowID'];
                 if(!in_array($ID,$sceneIds)){
                     $sceneIds[] = $ID;
                     $numScenesThisCycle++;

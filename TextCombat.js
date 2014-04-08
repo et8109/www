@@ -203,7 +203,8 @@ var muted = false;
  */
 var actionTypes ={
     WALKING : 0,
-    ATTACK : 1
+    ATTACK : 1,
+    MESSAGE : 2
 }
 
 /**
@@ -386,6 +387,10 @@ function updateChat(){
                                 break;
                             case(actionTypes.WALKING):
                                 //footsteps sound
+                                addText(chatLine);
+                                break;
+                            case(actionTypes.MESSAGE):
+                                //currently only roars from bosses
                                 addText(chatLine);
                                 break;
                         }
@@ -1011,7 +1016,8 @@ function forgetSpell(kwname) {
 function castSpell(spellname) {
     sendRequest("magic.php",
                 "function=castSpell&name="+spellname,
-                function(response){addText(response);});
+                function(response){addText(response);}
+                );
 }
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////

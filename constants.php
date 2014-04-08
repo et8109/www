@@ -54,6 +54,7 @@ final class alertTypes{
 final class actionTypes {
     const WALKING = 0;
     const ATTACK = 1;
+    const MESSAGE = 2;
 }
 
 /**

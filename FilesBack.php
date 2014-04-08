@@ -1,6 +1,9 @@
 <?php
 
 include 'phpHelperFunctions.php';
+
+$fileName = "chats/".$_SESSION['currentScene']."Chat.txt";
+
 //create new chat if none exists
 if(!file_exists($fileName)){
     $chatFile = fopen($fileName, "w");
@@ -21,7 +24,7 @@ $function = $_POST['function'];
 switch($function){
     //make an array from the current chat, and rewrite from second line, adding most recent one
     case('speak'):
-        addChatText($_POST['inputText']);
+        addChatText($_POST['inputText'], $_SESSION['currentScene']);
         break;
     
     //finds the last line not yet seen, and begins to echo from there

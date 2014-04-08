@@ -1,40 +1,40 @@
-1396768831
-1
-<span class='name b4' onclick='addDesc(1,1)'>Ensetym</span>
-<1><><span class='name b4' onclick='addDesc(1,1)'>Ensetym</span> was blocked by 4 -> 2 <span class='npc b5' onclick='addDesc(5,1)'>dustball</span>
-1396768834
-1
-<span class='name b4' onclick='addDesc(1,1)'>Ensetym</span>
-<1><><span class='name b4' onclick='addDesc(1,1)'>Ensetym</span> struck 4 -> 2 <span class='npc b4' onclick='addDesc(5,1)'>dustball</span>
-1396768837
-1
-<span class='name b4' onclick='addDesc(1,1)'>Ensetym</span>
-<1><><span class='name b4' onclick='addDesc(1,1)'>Ensetym</span> struck 4 -> 2 <span class='npc b3' onclick='addDesc(5,1)'>dustball</span>
-1396768840
-1
-<span class='name b3' onclick='addDesc(1,1)'>Ensetym</span>
-<1><><span class='name b3' onclick='addDesc(1,1)'>Ensetym</span> was blocked by 4 -> 2 <span class='npc b3' onclick='addDesc(5,1)'>dustball</span>
-1396768843
-1
-<span class='name b2' onclick='addDesc(1,1)'>Ensetym</span>
-<1><><span class='name b2' onclick='addDesc(1,1)'>Ensetym</span> was blocked by 4 -> 2 <span class='npc b3' onclick='addDesc(5,1)'>dustball</span>
-1396768846
-1
-<span class='name b2' onclick='addDesc(1,1)'>Ensetym</span>
-<1><><span class='name b2' onclick='addDesc(1,1)'>Ensetym</span> struck 4 -> 2 <span class='npc b2' onclick='addDesc(5,1)'>dustball</span>
-1396768849
-1
-<span class='name b2' onclick='addDesc(1,1)'>Ensetym</span>
-<1><><span class='name b2' onclick='addDesc(1,1)'>Ensetym</span> struck 4 -> 2 <span class='npc b1' onclick='addDesc(5,1)'>dustball</span>
-1396768853
+1396917943
 1
 <span class='name b1' onclick='addDesc(1,1)'>Ensetym</span>
-<1><><span class='name b1' onclick='addDesc(1,1)'>Ensetym</span> was blocked by 4 -> 2 <span class='npc b1' onclick='addDesc(5,1)'>dustball</span>
-1396768856
+<1><><span class='name b1' onclick='addDesc(1,1)'>Ensetym</span> was blocked by 4 -> 7 <span class='npc b1' onclick='addDesc(5,3)'>dustLord</span>
+1396917966
 1
 <span class='name b1' onclick='addDesc(1,1)'>Ensetym</span>
-<1><><span class='name b1' onclick='addDesc(1,1)'>Ensetym</span> defeated 4 -> 2 <span class='npc b0' onclick='addDesc(5,1)'>dustball</span>
-1396768876
+hello
+1396917971
 1
 <span class='name b1' onclick='addDesc(1,1)'>Ensetym</span>
-<0><><span class='name b1' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Pub</span>
+<1><><span class='name b1' onclick='addDesc(1,1)'>Ensetym</span> struck 4 -> 2 <span class='npc b1' onclick='addDesc(5,1)'>dustball</span>
+1396918148
+1
+<span class='name b1' onclick='addDesc(1,1)'>Ensetym</span>
+whew
+1396918150
+1
+<span class='name b1' onclick='addDesc(1,1)'>Ensetym</span>
+close one
+1396918175
+1
+<span class='name b1' onclick='addDesc(1,1)'>Ensetym</span>
+<0><><span class='name b1' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Wilderness</span>
+1396918251
+1
+<span class='name b0' onclick='addDesc(1,1)'>Ensetym</span>
+<1><><span class='name b0' onclick='addDesc(1,1)'>Ensetym</span> was blocked by 4 -> 7 <span class='npc b1' onclick='addDesc(5,3)'>dustLord</span>
+1396918278
+1
+<span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
+<0><><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> walked to <span class='sceneName'>Wilderness</span>
+1396918284
+1
+<span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
+<1><><span class='name b5' onclick='addDesc(1,1)'>Ensetym</span> defeated 4 -> 7 <span class='npc b0' onclick='addDesc(5,3)'>dustLord</span>
+1396919523
+1
+<span class='name b5' onclick='addDesc(1,1)'>Ensetym</span>
+mysqli_free_result($IdQuery);

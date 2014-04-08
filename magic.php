@@ -66,7 +66,12 @@ switch($_POST['function']){
             case('reanimate'):
                 //revive nearby enemies
                 $resRow = query("update scenenpcs set health=".prepVar(constants::maxHealth)." where health=0 and sceneID=".prepVar($_SESSION['currentScene'])." and type=".prepVar(npcTypes::CREATURE));
-                echo "You give new life to ".lastQueryNumRows()." dead creatures nearby.";
+                $numRisen = lastQueryNumRows();
+                if($numRisen > 0){
+                    echo "You give new life to ".$numRisen." dead creatures nearby.";
+                } else{
+                    echo "Your spell sizzles, no effect.";
+                }
                 break;
             case('summon boss'):
                 $resRow = query("update scenenpcs set health=".prepVar(constants::maxHealth)." where health=0 and sceneID=".prepVar($_SESSION['currentScene'])." and type=".prepVar(npcTypes::BOSS));
@@ -80,9 +85,9 @@ switch($_POST['function']){
                 $scenes = nearbyScenes(3);
                 foreach($scenes as $sceneID){
                     //get direction
-                    $posQuery = query("select posx, posy from scenes where ID=".prepVar($sceneID);
+                    $posQuery = query("select posx, posy from scenes where ID=".prepVar($sceneID));
                     $dir = getSceneDir($currentX,$currentY,$posQuery['posx'],$posQuery['posy']);
-                    addChatText("You hear the roar of a boss to the ".$dir,$sceneID);
+                    speakActionMessage($sceneID,"You hear the roar of a boss to the ".$dir);
                 }
                 echo "A boss risies to your challenge.";
                 break;
