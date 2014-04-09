@@ -408,6 +408,9 @@ function updateDescription($ID, $description, $spanTypesType, $keywordTypeNames)
     mysqli_free_result($keywordsResult);
     //make sure its under max length
     _checkDescIsUnderMaxLength($description,$spanTypesType);
+    if($spanTypesType == spanTypes::SCENE){//second scene check in this method
+        //log scene
+    }
     query("update ".$table." set Description=".prepVar($description)." where ID=".prepVar($ID));
     return true;
 }
@@ -662,6 +665,24 @@ function getSceneDir($x1, $y1, $x2, $y2){
         case(7):
             return "southeast";
             break;
+    }
+}
+
+/**
+ *returns string time of day, 24 hour clock and 
+ */
+function getTime(){
+    return date('h:i:s');
+}
+/**
+ *returns a string of the time of day
+ */
+function getTimeOfDay(){
+    $time = time()%86400;//seconds in a day
+    if($time<43200){
+        return "nighttime";
+    } else{
+        return "daylight";
     }
 }
 ?>

@@ -340,6 +340,9 @@ function textTyped(e){
                 inputText = inputText.trim();
                 castSpell(inputText);
                 break;
+            case("/time"):
+                getTime();
+            break;
             default:
                 addText(inputText+"..unknown command");
                 break;
@@ -1245,6 +1248,15 @@ function startPaper(){
  */
 function endPaper(){
     onPaper = false;
+}
+
+/**
+ *prints the 24 hour time and time of day
+ */
+function getTime() {
+    sendRequest("TextCombat.php","function=getTime",
+        function(response){addText(response);}
+    );
 }
 
 /**

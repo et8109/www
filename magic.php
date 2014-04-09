@@ -24,7 +24,7 @@ switch($_POST['function']){
             sendError("Could not find the ".$_POST['bookName']." here.");
         }
         //display spellbook text
-        echo "You open the frail pages of the leatherbound book. The first line reads: How to <b>reanimate</b> the dead. Following is a strange sequence of instructions and illustrations.";
+        echo "You open the frail pages of the leatherbound book. The first line reads: How to <b>reanimate</b> the dead or <b>summon a boss</b>. Following is a strange sequence of instructions and illustrations.";
         break;
     
     case('learnSpell')://learn book contents

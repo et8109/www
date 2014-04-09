@@ -328,6 +328,11 @@ switch($function){
         query($query);
         break;
     
+    case('getTime'):
+        echo getTime();
+        echo ", ".getTimeOfDay();
+        break;
+    
     case('login'):
         //make sure they are not logged in
         if(isset($_SESSION['playerID'])){
