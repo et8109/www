@@ -4,11 +4,13 @@ include_once "phpHelperFunctions.php";
 
 //books to spells
 $bookToClass = array(
-    13 => 14 //animatome to necromancer
+    13 => 14, //animatome to necromancer
+    15 => 16  //zephytome to percipitator
 );
 $spellToClass = array(
     "reanimate" => 14, //necromancer
-    "summon boss" => 14
+    "summon boss" => 14,
+    "rainfall" => 16 //percipitator
 );
 switch($_POST['function']){
     
@@ -24,7 +26,15 @@ switch($_POST['function']){
             sendError("Could not find the ".$_POST['bookName']." here.");
         }
         //display spellbook text
-        echo "You open the frail pages of the leatherbound book. The first line reads: How to <b>reanimate</b> the dead or <b>summon a boss</b>. Following is a strange sequence of instructions and illustrations.";
+        switch($_POST['bookName']){
+            case("animatome"):
+                echo "You open the frail pages of the leatherbound book. The first line reads: How to <b>reanimate</b> the dead or <b>summon a boss</b>. Following is a strange sequence of instructions and illustrations.";
+                break;
+            case("zephytome"):
+                echo "The pages of the ancient book feel damp, but they must be dry. The first line reads: How to call forth <b>rainfall</b> and other weather conditions. Following is a strange sequence of instructions and illustrations.";
+                break;
+        }
+        
         break;
     
     case('learnSpell')://learn book contents
@@ -70,7 +80,7 @@ switch($_POST['function']){
                 if($numRisen > 0){
                     echo "You give new life to ".$numRisen." dead creatures nearby.";
                 } else{
-                    echo "Your spell sizzles, no effect.";
+                    echo "Your spell fizzles, no effect.";
                 }
                 break;
             case('summon boss'):
@@ -90,6 +100,16 @@ switch($_POST['function']){
                     speakActionMessage($sceneID,"You hear the roar of a boss to the ".$dir);
                 }
                 echo "A boss risies to your challenge.";
+                break;
+            
+            case("rainfall"):
+                //speakaction that it is raining to all scenes
+                for($i=100,$n = 100+constants::numScenes; $i<$n; $i++){
+                    speakActionMessage($i,"It starts raining..");
+                }
+                //set raining constant in db
+                query("update constants set raining=1");
+                echo "You call down the rain from the sky";
                 break;
         }
         //respond with text

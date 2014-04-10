@@ -1,6 +1,7 @@
 <?php
 
 final class constants {
+    const numScenes = 5;
     const maxPlayerItems = 4;
     const maxSceneItems = 4;
     const dbhostName = "localhost";

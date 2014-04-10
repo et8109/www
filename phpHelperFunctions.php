@@ -222,29 +222,29 @@ function removeAlert($alertNum){
  */
 function speakActionAttack($targetSpanType, $targetID, $targetName, $text){
     $text = getSpanText(spanTypes::PLAYER,$_SESSION['playerID'],$_SESSION['playerName']).$text.getSpanText($targetSpanType,$targetID,$targetName);
-    _speakAction(actionTypes::ATTACK,$text);
+    _speakAction(actionTypes::ATTACK,$text, $_SESSION['currentScene']);
 }
 /**
  *when a player walks from one scene to another
  *sent to chat.
  */
-function speakActionWalk($sceneID, $sceneName){
+function speakActionWalk($nextSceneID, $sceneName){
     $text = getSpanText(spanTypes::PLAYER,$_SESSION['playerID'],$_SESSION['playerName'])." walked to ".getSpanText(spanTypes::SCENE,$sceneID,$sceneName);
-    _speakAction(actionTypes::WALKING, $text);
+    _speakAction(actionTypes::WALKING, $text,$_SESSION['currentScene']);
 }
 /**
  *adds the text to the chat, with no player name
  */
 function speakActionMessage($sceneID, $message){
-    _speakAction(actionTypes::MESSAGE,$message);
+    _speakAction(actionTypes::MESSAGE,$message,$sceneID);
 }
 
 /**
  *only to use by other speak action functions.
  *sends the type and text to chat.
  */
-function _speakAction($saType, $text){
-    _addChatText("<".$saType."><>".$text, $_SESSION['currentScene']);
+function _speakAction($saType, $text, $sceneID){
+    _addChatText("<".$saType."><>".$text, $sceneID);
 }
 /**
  *returns the span text for the given object.
@@ -550,7 +550,7 @@ function _addWordToPlayerDesc($spanType, $kworitemID, $name, $playerID = -1){
     if($playerID == -1){
         $playerID = $_SESSION['playerID'];
     }
-    $descRow = query("select Description from playerinfo where where ID=".prepVar($playerID));
+    $descRow = query("select Description from playerinfo where ID=".prepVar($playerID));
     $desc = $descRow['Description']." ".getSpanText($spanType,$kworitemID,$name);
     query("Update playerinfo set Description=".prepVar($desc)." where ID=".prepVar($playerID));
 }
@@ -677,12 +677,13 @@ function getTime(){
 /**
  *returns a string of the time of day
  */
-function getTimeOfDay(){
+function getTimeOfDayWord(){
     $time = time()%86400;//seconds in a day
     if($time<43200){
-        return "nighttime";
+        return "night time";
     } else{
         return "daylight";
     }
+    return "time not found";
 }
 ?>

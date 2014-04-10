@@ -330,7 +330,7 @@ switch($function){
     
     case('getTime'):
         echo getTime();
-        echo ", ".getTimeOfDay();
+        echo ", ".getTimeOfDayWord();
         break;
     
     case('login'):
