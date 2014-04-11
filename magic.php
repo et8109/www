@@ -10,7 +10,8 @@ $bookToClass = array(
 $spellToClass = array(
     "reanimate" => 14, //necromancer
     "summon boss" => 14,
-    "rainfall" => 16 //percipitator
+    "rainfall" => 16, //percipitator
+    "sunshine" => 16
 );
 switch($_POST['function']){
     
@@ -103,13 +104,31 @@ switch($_POST['function']){
                 break;
             
             case("rainfall"):
-                //speakaction that it is raining to all scenes
-                for($i=100,$n = 100+constants::numScenes; $i<$n; $i++){
-                    speakActionMessage($i,"It starts raining..");
-                }
                 //set raining constant in db
-                query("update constants set raining=1");
-                echo "You call down the rain from the sky";
+                $rainQuery = query("update constants set raining=1 where raining=0");
+                if(lastQueryNumRows == 1){
+                    //speakaction that it is raining to all scenes
+                    for($i=100,$n = 100+constants::numScenes; $i<$n; $i++){
+                        speakActionMessage($i,"It starts raining..");
+                    }
+                    echo "You call down the rain from the sky";
+                } else{
+                    echo "It's already raining";
+                }
+                break;
+            
+            case("sunshine"):
+                //set raining constant in db
+                $rainQuery = query("update constants set raining=0 where raining=1");
+                if(lastQueryNumRows == 1){
+                    //speakaction that it is raining to all scenes
+                    for($i=100,$n = 100+constants::numScenes; $i<$n; $i++){
+                        speakActionMessage($i,"The sun begins to shine though the clouds..");
+                    }
+                    echo "You call forth the sun to shine";
+                } else{
+                    echo "The sun is already out";
+                }
                 break;
         }
         //respond with text
