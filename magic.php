@@ -106,7 +106,7 @@ switch($_POST['function']){
             case("rainfall"):
                 //set raining constant in db
                 $rainQuery = query("update constants set raining=1 where raining=0");
-                if(lastQueryNumRows == 1){
+                if(lastQueryNumRows() == 1){
                     //speakaction that it is raining to all scenes
                     for($i=100,$n = 100+constants::numScenes; $i<$n; $i++){
                         speakActionMessage($i,"It starts raining..");
@@ -120,7 +120,7 @@ switch($_POST['function']){
             case("sunshine"):
                 //set raining constant in db
                 $rainQuery = query("update constants set raining=0 where raining=1");
-                if(lastQueryNumRows == 1){
+                if(lastQueryNumRows() == 1){
                     //speakaction that it is raining to all scenes
                     for($i=100,$n = 100+constants::numScenes; $i<$n; $i++){
                         speakActionMessage($i,"The sun begins to shine though the clouds..");
