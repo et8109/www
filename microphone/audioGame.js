@@ -21,22 +21,22 @@ var npcs=[];
 var playDist = 10;
 
 var types = {
-    ambient_noise: 0
+    ambient_noise: 0,
+    enemy: 1
 }
-
-function object(audioURL,posx,posy,posz,loop){
-    this.playing = false;
-    this.audioURL = audioURL;
-    this.posx = posx;
-    this.posy = posy;
-    this.posz = posz;
-    this.buffer;
-    this.audioSource;
-    this.loop = loop;
+function getPlayDist(o){
+    if (o.type == types.ambient_noise) {
+        return 12;
+    }
+    else if (o.type == types.enemy) {
+        return 5;
+    }
+    return false;
 }
 
 function tickObject(o) {
     //if withing distance
+    var playDist = getPlayDist(o) || log("could not tick. [play dist]");
     if (Math.abs(o.posx-posX)<playDist && Math.abs(o.posy-posY)<playDist) {
         playObject(o);
     } else{
@@ -125,8 +125,14 @@ function checkUpdateResponse(response) {
     for(j in response){
         var data = response[j];
         if (data.type == types.ambient_noise) {
-            var o = data; //new object(data.audioURL,data.posX,data.posY,data.posZ,/*loop*/true);
             data.loop = true;
+            var o = data;
+            npcs.push(o);
+            loadObject(o);//load all objects at once, would be faster
+        }
+        else if (data.type == types.enemy) {
+            data.loop = false;
+            var o = data;
             npcs.push(o);
             loadObject(o);//load all objects at once, would be faster
         }
@@ -138,7 +144,8 @@ function checkUpdateResponse(response) {
             posX = parseInt(data.posX);
             posY = parseInt(data.posY);
             //create walk sound
-            walkObject = new object(data.walkSound,/*no position*/null,null,null,/*loop*/true);
+            walkObject = data
+            walkObject.loop = true;
             loadObject(walkObject);
         }
     }

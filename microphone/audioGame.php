@@ -119,7 +119,7 @@ switch($_POST['function']){
             "peerID" => $playerRow['peerid'],
             "posX" => $playerRow['posx'],
             "posY" => $playerRow['posy'],
-            "walkSound" => "carpetStep.wav"
+            "audioURL" => "carpetStep.wav"//walking audio
         )));
         break;
     
