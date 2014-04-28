@@ -18,31 +18,6 @@ var context = new webkitAudioContext();
 var walkObject;
 
 var npcs=[];
-var playDist = 10;
-
-var types = {
-    ambient_noise: 0,
-    enemy: 1
-}
-function getPlayDist(o){
-    if (o.type == types.ambient_noise) {
-        return 12;
-    }
-    else if (o.type == types.enemy) {
-        return 5;
-    }
-    return false;
-}
-
-function tickObject(o) {
-    //if withing distance
-    var playDist = getPlayDist(o) || log("could not tick. [play dist]");
-    if (Math.abs(o.posx-posX)<playDist && Math.abs(o.posy-posY)<playDist) {
-        playObject(o);
-    } else{
-        stopObject(o);
-    }
-}
 
 function loadObject(object){
     log("requesting: "+object.audioURL);
@@ -121,35 +96,49 @@ function checkUpdateResponse(response) {
     if (response[0].newZone) {
         log("new zone");
         npcs = [];
+        for(j in response){
+            var data = response[j];
+            if (data.type == types.ambient_noise) {
+                data.loop = true;
+                var o = data;
+                npcs.push(o);
+                loadObject(o);//load all objects at once, would be faster
+            }
+            else if (data.type == types.enemy) {
+                data.loop = false;
+                var o = data;
+                npcs.push(o);
+                loadObject(o);//load all objects at once, would be faster
+            }
+            //on login
+            if (data.login) {
+                //create peer
+                createPeer(data.peerID);
+                //set position
+                posX = parseInt(data.posX);
+                posY = parseInt(data.posY);
+                //create walk sound
+                walkObject = data
+                walkObject.loop = true;
+                loadObject(walkObject);
+            }
+        }
+        //sort npc[] by npc id
+    } else{
+        //play events
+        for(j in response){
+            var data = response[j];
+            if (data.event) {
+                //search by npc id
+                for(n in npcs){
+                    if (npcs[n].id == data.npcid) {
+                        //npcs[data.audiotypes].play(); store buffers by audio type
+                    }
+                }
+            }
+        }
+        //nreaby players
     }
-    for(j in response){
-        var data = response[j];
-        if (data.type == types.ambient_noise) {
-            data.loop = true;
-            var o = data;
-            npcs.push(o);
-            loadObject(o);//load all objects at once, would be faster
-        }
-        else if (data.type == types.enemy) {
-            data.loop = false;
-            var o = data;
-            npcs.push(o);
-            loadObject(o);//load all objects at once, would be faster
-        }
-        //on login
-        if (data.login) {
-            //create peer
-            createPeer(data.peerID);
-            //set position
-            posX = parseInt(data.posX);
-            posY = parseInt(data.posY);
-            //create walk sound
-            walkObject = data
-            walkObject.loop = true;
-            loadObject(walkObject);
-        }
-    }
-    //nearby players
 }
 
 /**
@@ -169,9 +158,6 @@ function tick(){
         //update listener position
         context.listener.setPosition(posX,posY,0/*z-coord*/);
         context.listener.setOrientation(Math.cos(angle),Math.sin(angle),0,0,0,1);
-        for(i in npcs){
-            tickObject(npcs[i]);
-        }
     } else{
         //stop walk audio
         stopObject(walkObject);

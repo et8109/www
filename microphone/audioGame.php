@@ -7,7 +7,34 @@ $con = _getConnection();
 final class constants {
     const zoneWidth = 50;
     const numZonesSrt = 2;//should be a square
+    const secBetweenevents = 20;
 }
+/**
+ *the distances at which certain audio starts
+ */
+final class distances {
+    const ambientNotice = 15;
+    const enemyNotice = 10;
+}
+/**
+ *a number which descibes the general behavior of differnt npcs
+ */
+final class npcTypes {
+    const ambient = 15;
+    //const ambient = 0;
+    const enemy = 1;
+}
+
+/**
+ *Which audio of an npc is played
+ */
+final class audioTypes {
+    const encounter = 0;
+    const attack = 1;
+}
+
+
+
 
 function _getConnection(){
     $con = mysqli_connect("localhost","root","","audio_game");
@@ -56,6 +83,28 @@ function sendError($msg){
             "error" => $msg
         ));
 }
+/**
+ *returns the audioType the player is in range of w/ the given x,y coords
+ *returns false if no range
+ */
+function inRange($px,$py,$x,$y,$npcType){
+    $dist = abs($px-$x);
+    $dist2 = abs($py-$y);
+    $dist = $dist > $dist2 ? $dist : $dist2;
+    switch($npcType){
+        case(npcTypes::ambient):
+            if($dist < distances::ambientNotice){
+                return audioTypes::encounter;
+            }
+            break;
+        case(npcTypes::enemy):
+            if($dist < distances::enemyNotice){
+                return audioTypes::attack;
+            }
+            break;
+    }
+    return false;
+}
 
 try{
 switch($_POST['function']){
@@ -68,27 +117,65 @@ switch($_POST['function']){
         $zone += constants::numZonesSrt * floor($posy/constants::zoneWidth);
         //check if zone change
         $zoneQuery = query("select 1 from playerinfo where zone!=".prepVar($zone)." and id=".prepVar($_SESSION['playerID']));
-        //if in a new zone
+        $newZone = false;
         if($zoneQuery){
-            $npcResult = queryMulti("select posx,posy,type,audioURL from npcinfo where zone=".prepVar($zone));
-            $arrayJSON = array();
-            $arrayJSON[0] = array("newZone" => true);
-            while($npcRow = mysqli_fetch_array($npcResult)){
-                $arrayJSON[] = (array(
-                    "success" => true,
-                    "type" => $npcRow['type'],
-                    "posx" => $npcRow['posx'],
-                    "posy" => $npcRow['posy'],
-                    "posz" => 0,
-                    "audioURL" => $npcRow['audioURL']
-                ));
-            }
-            mysqli_free_result($npcResult);
-            sendJSON($arrayJSON);
+            $newZone = true;
         }
-        //check for: neaby players in zone
         //update playerinfo
         query("UPDATE playerinfo SET posx=".prepVar($posx).",posy=".prepVar($posy).",zone=".prepVar($zone)." WHERE id=".prepVar($_SESSION['playerID']));
+        //prepare array to send
+        $arrayJSON = array();
+        //get npcs in zone
+        $npcResult = queryMulti("select id,posx,posy,type,audioURL from npcinfo where zone=".prepVar($zone));
+        //if in a new zone
+        if($newZone){
+            $arrayJSON[0] = array("newZone" => true);
+        }
+        $time = time();
+        //loop though npcs
+        while($npcRow = mysqli_fetch_array($npcResult)){
+            //loading
+            if($newZone){
+                //send npc info
+                $arrayJSON[] = (array(
+                "success" => true,
+                "id" => $npcRow['id'],
+                "type" => $npcRow['type'],
+                "posx" => $npcRow['posx'],
+                "posy" => $npcRow['posy'],
+                "posz" => 0,
+                "audioURL" => $npcRow['audioURL']
+                ));
+            }
+            //updating
+            $audioType = inRange($posx,$posy,$npcRow['posx'],$npcRow['posy'],$npcRow['type']);
+            //if in range
+            if($audioType){
+                //check if event exists for this npc
+                $eventRow = query("select 1 from events where npcid=".prepVar($npcRow['id'])." and time<".prepVar($time+constants::secBetweenevents));
+                if(!$eventRow){
+                    //add event
+                    query("insert into events (zone,npcid,audiotype) values (".prepVar($zone).",".prepVar($npcRow['id']).",".prepVar($audioType).")");
+                }
+            }
+        }
+        mysqli_free_result($npcResult);
+        //remove old events
+        query("delete from events where time>".prepVar($time+constants::secBetweenevents));
+        //check nearby players
+        //return events
+        $eventsResult = multiQuery("select npcid,audiotype from events where zone=".prepVar($zone)." and time>".prepVar($_SESSION['lastEventTime']));
+        while($eventRow = mysqli_fetch_array($eventResult)){
+            $arrayJSON[] = (array(
+                "event" => true,
+                "npcid" => $eventRow['npcid'],
+                "audiotype" => $eventRow['audiotype']
+            ));
+        }
+        mysqli_free_result($eventResult);
+        sendJSON($arrayJSON);
+        //update last event time
+        $_SESSION['lastEventTime'] = $time;
         break;
     
     case('login'):
@@ -112,15 +199,20 @@ switch($_POST['function']){
         }
         //set session
         $_SESSION['playerID'] = $playerRow['id'];
-        
-        sendJSON(array(array(
+        $_SESSION['lastEventTime'] = 0;
+        $arrayJSON = array();
+        //new zone
+        $arrayJSON[0] = array("newZone" => true);
+        //loging info
+        $arrayJSON[1] = array(
             "login" => true,
             "success" => true,
             "peerID" => $playerRow['peerid'],
             "posX" => $playerRow['posx'],
             "posY" => $playerRow['posy'],
             "audioURL" => "carpetStep.wav"//walking audio
-        )));
+        );
+        sendJSON($arrayJSON);
         break;
     
     //called when the logout button is clicked

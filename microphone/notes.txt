@@ -1,0 +1,11 @@
+js:
+ send: x,y pos to db
+ get:  sound buffers on new zone, when to play sounds in zone
+
+db: 
+ get:  x,y pos
+ send: what sounds to play when, buffers on new zone, [zone player locations?]
+
+ptp:
+ send: voice, [location if not from server]
+ get:  play voice from location
