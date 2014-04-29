@@ -1,7 +1,6 @@
 window.onerror = function(msg, url, line) {
     alert("Error: "+msg+" url: "+url+" line: "+line);
 };
-
 var peer;
 
 window.URL = window.URL || window.webkitURL;
@@ -19,50 +18,51 @@ var walkObject;
 
 var npcs=[];
 
-function loadObject(object){
-    log("requesting: "+object.audioURL);
-    //hide url, prevent downloading
-    //request multiple at once so its faster
-    var request = new XMLHttpRequest();
-    request.open("GET",object.audioURL,true/*asynchronous*/);
-    request.responseType = "arraybuffer";
-    request.onload = function(){
-        //set play's buffer
-        object.buffer = context.createBuffer(request.response, true/*make mono*/);
-    }
-    request.send();
+var types = {
+    ambient_noise:0,
+    enemy: 1
 }
 
-function playObject(object){
-    if (object.playing) {
-        return false;
-    } else{
-        log("starting: "+object.audioURL);
-        if (object.posx==null) {
-            //no panner
-            object.audioSource = createAudioSource(object.buffer,false/*no panner*/);
-        } else{
-            //with panner
-            object.audioSource = createAudioSource(object.buffer,true/*panner*/,object.posx,object.posy,object.posz);
+function loadObject(object){
+    object.audioURL = object.audioURL.split(",");
+    object.buffer = [];
+    for(u in object.audioURL){
+        log("requesting: "+object.audioURL[u]);
+        var request = new XMLHttpRequest();
+        request.open("GET",object.audioURL,true/*asynchronous*/);
+        request.responseType = "arraybuffer";
+        request.onload = function(u){
+            //set play's buffer
+            object.buffer.push(context.createBuffer(request.response, true/*make mono*/));
         }
-        if (object.loop) {
-            //loop or not
-            object.audioSource.loop = true;
-        }
-        object.playing = true;
-        object.audioSource.start();
-        return true;
+        request.send();
     }
+    //hide url, prevent downloading
+    //request multiple at once so its faster
+}
+
+function playObject(object, audioNum){
+    log("starting: "+object.audioURL[audioNum]);
+    if (object.posx==null) {
+        //no panner
+        object.audioSource = createAudioSource(object.buffer[audioNum],false/*no panner*/);
+    } else{
+        //with panner
+        object.audioSource = createAudioSource(object.buffer[audioNum],true/*panner*/,object.posx,object.posy,object.posz);
+    }
+    if (object.loop[audioNum]) {
+        //loop or not
+        object.audioSource.loop = true;
+    }
+    object.audioSource.start();
+    return true;
 }
 
 function stopObject(object){
-    if (!object.playing) {
-        return false;
-    } else{
+    if(object.audioSource){
         object.audioSource.stop();
-        object.playing = false;
-        return true;
     }
+    return true;
 }
 
 var updater;
@@ -92,6 +92,9 @@ var controls = control_options.WASD;
  *checks which sounds were recived and calls setAudioBuffer for them
  */
 function checkUpdateResponse(response) {
+    if (response == "") {
+        return;
+    }
     //reset npcs 
     if (response[0].newZone) {
         log("new zone");
@@ -99,13 +102,15 @@ function checkUpdateResponse(response) {
         for(j in response){
             var data = response[j];
             if (data.type == types.ambient_noise) {
-                data.loop = true;
+                data.loop = [];
+                data.loop[0] = true;
                 var o = data;
                 npcs.push(o);
                 loadObject(o);//load all objects at once, would be faster
             }
             else if (data.type == types.enemy) {
-                data.loop = false;
+                data.loop = [];
+                data.loop[0] = false;
                 var o = data;
                 npcs.push(o);
                 loadObject(o);//load all objects at once, would be faster
@@ -118,13 +123,15 @@ function checkUpdateResponse(response) {
                 posX = parseInt(data.posX);
                 posY = parseInt(data.posY);
                 //create walk sound
-                walkObject = data
-                walkObject.loop = true;
+                walkObject = data;
+                walkObject.loop = [];
+                walkObject.loop[0] = true;
                 loadObject(walkObject);
             }
         }
         //sort npc[] by npc id
     } else{
+        log("recieved event");
         //play events
         for(j in response){
             var data = response[j];
@@ -132,12 +139,12 @@ function checkUpdateResponse(response) {
                 //search by npc id
                 for(n in npcs){
                     if (npcs[n].id == data.npcid) {
-                        //npcs[data.audiotypes].play(); store buffers by audio type
+                        playObject(npcs[n], data.audioType);
                     }
                 }
             }
         }
-        //nreaby players
+        //nearby players
     }
 }
 
@@ -149,7 +156,7 @@ function checkUpdateResponse(response) {
 function tick(){
     if (pressedA || pressedD || pressedS || pressedW) {
         //play walk audio
-        playObject(walkObject);
+        playObject(walkObject,0);
         //find walk angle
         var walkAngle = getWalkAngle();
         //update position based on angle
@@ -446,7 +453,7 @@ request.setRequestHeader("Content-length", params.length);
 request.setRequestHeader("Connection", "close");
     request.onreadystatechange = function(){
         if (this.readyState==4 && this.status==200){
-            //alert(this.responseText);
+            log("response: "+this.responseText);
             if (!this.responseText) {
                 return;
             }

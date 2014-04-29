@@ -7,7 +7,7 @@ $con = _getConnection();
 final class constants {
     const zoneWidth = 50;
     const numZonesSrt = 2;//should be a square
-    const secBetweenevents = 20;
+    const msecBetweenevents = 700;
 }
 /**
  *the distances at which certain audio starts
@@ -94,12 +94,12 @@ function inRange($px,$py,$x,$y,$npcType){
     switch($npcType){
         case(npcTypes::ambient):
             if($dist < distances::ambientNotice){
-                return audioTypes::encounter;
+                return 0;//audioTypes::encounter;
             }
             break;
         case(npcTypes::enemy):
             if($dist < distances::enemyNotice){
-                return audioTypes::attack;
+                return 0;//audioTypes::attack;
             }
             break;
     }
@@ -150,29 +150,30 @@ switch($_POST['function']){
             //updating
             $audioType = inRange($posx,$posy,$npcRow['posx'],$npcRow['posy'],$npcRow['type']);
             //if in range
-            if($audioType){
+            if(is_numeric($audioType)){
                 //check if event exists for this npc
-                $eventRow = query("select 1 from events where npcid=".prepVar($npcRow['id'])." and time<".prepVar($time+constants::secBetweenevents));
-                if(!$eventRow){
+                $eventRow = query("select 1 from events where npcid=".prepVar($npcRow['id'])." and time > ".prepVar($time-constants::msecBetweenevents));
+                if($eventRow){
                     //add event
-                    query("insert into events (zone,npcid,audiotype) values (".prepVar($zone).",".prepVar($npcRow['id']).",".prepVar($audioType).")");
+                    $audioType = 0;
+                    query("insert into events (time,zone,npcid,audiotype) values (".prepVar($time).",".prepVar($zone).",".prepVar($npcRow['id']).",".prepVar($audioType).")");
                 }
             }
         }
         mysqli_free_result($npcResult);
         //remove old events
-        query("delete from events where time>".prepVar($time+constants::secBetweenevents));
+        query("delete from events where time < ".prepVar($time+constants::msecBetweenevents));
         //check nearby players
         //return events
-        $eventsResult = multiQuery("select npcid,audiotype from events where zone=".prepVar($zone)." and time>".prepVar($_SESSION['lastEventTime']));
-        while($eventRow = mysqli_fetch_array($eventResult)){
+        $eventsResult = queryMulti("select npcid,audiotype from events where zone=".prepVar($zone)." and time>".prepVar($_SESSION['lastEventTime']));
+        while($eventRow = mysqli_fetch_array($eventsResult)){
             $arrayJSON[] = (array(
                 "event" => true,
                 "npcid" => $eventRow['npcid'],
-                "audiotype" => $eventRow['audiotype']
+                "audioType" => $eventRow['audiotype']
             ));
         }
-        mysqli_free_result($eventResult);
+        mysqli_free_result($eventsResult);
         sendJSON($arrayJSON);
         //update last event time
         $_SESSION['lastEventTime'] = $time;
