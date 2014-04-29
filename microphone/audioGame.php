@@ -20,8 +20,7 @@ final class distances {
  *a number which descibes the general behavior of differnt npcs
  */
 final class npcTypes {
-    const ambient = 15;
-    //const ambient = 0;
+    const ambient = 0;
     const enemy = 1;
 }
 
