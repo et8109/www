@@ -7,7 +7,7 @@ $con = _getConnection();
 final class constants {
     const zoneWidth = 50;
     const numZonesSrt = 2;//should be a square
-    const msecBetweenevents = 700;
+    const secBetweenevents = 6;
 }
 /**
  *the distances at which certain audio starts
@@ -131,7 +131,10 @@ switch($_POST['function']){
         if($newZone){
             $arrayJSON[0] = array("newZone" => true);
         }
+        //set current time
         $time = time();
+        //remove old events
+        query("delete from events where time < ".prepVar($time-constants::secBetweenevents));
         //loop though npcs
         while($npcRow = mysqli_fetch_array($npcResult)){
             //loading
@@ -152,8 +155,8 @@ switch($_POST['function']){
             //if in range
             if(is_numeric($audioType)){
                 //check if event exists for this npc
-                $eventRow = query("select 1 from events where npcid=".prepVar($npcRow['id'])." and time > ".prepVar($time-constants::msecBetweenevents));
-                if($eventRow){
+                $eventRow = query("select 1 from events where npcid=".prepVar($npcRow['id'])/*." and time > ".prepVar($time-constants::secBetweenevents)*/);
+                if($eventRow[0] != 1){
                     //add event
                     $audioType = 0;
                     query("insert into events (time,zone,npcid,audiotype) values (".prepVar($time).",".prepVar($zone).",".prepVar($npcRow['id']).",".prepVar($audioType).")");
@@ -161,14 +164,13 @@ switch($_POST['function']){
             }
         }
         mysqli_free_result($npcResult);
-        //remove old events
-        query("delete from events where time < ".prepVar($time+constants::msecBetweenevents));
         //check nearby players
         //return events
-        $eventsResult = queryMulti("select npcid,audiotype from events where zone=".prepVar($zone)." and time>".prepVar($_SESSION['lastEventTime']));
+        $eventsResult = queryMulti("select npcid,audiotype,time from events where zone=".prepVar($zone)." and time>".prepVar($_SESSION['lastEventTime']));
         while($eventRow = mysqli_fetch_array($eventsResult)){
             $arrayJSON[] = (array(
                 "event" => true,
+                "time" => $eventRow['time'],
                 "npcid" => $eventRow['npcid'],
                 "audioType" => $eventRow['audiotype']
             ));
