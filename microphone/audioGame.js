@@ -69,24 +69,6 @@ var updater;
 var ticker;
 var posX=0;
 var posY=0;
-var angle=Math.PI/2;
-var compassConstant = (window.innerWidth/Math.PI);
-
-var pressedW = false;
-var pressedA = false;
-var pressedS = false;
-var pressedD = false;
-
-var control_options = {
-    WASD: 0,
-    WASD_JL: 1,
-    WASD_MOUSE: 2,
-    MOUSE: 3
-};
-var controls = control_options.WASD;
-
-//var lastMouseX=0;
-//var lookSpeed = .0005;
 
 /**
  *checks which sounds were recived and calls setAudioBuffer for them
@@ -104,16 +86,14 @@ function checkUpdateResponse(response) {
             if (data.type == types.ambient_noise) {
                 data.loop = [];
                 data.loop[0] = true;
-                var o = data;
-                npcs.push(o);
-                loadObject(o);//load all objects at once, would be faster
+                npcs[data.id] = data;
+                loadObject(data);//load all objects at once, would be faster
             }
             else if (data.type == types.enemy) {
                 data.loop = [];
                 data.loop[0] = false;
-                var o = data;
-                npcs.push(o);
-                loadObject(o);//load all objects at once, would be faster
+                npcs[data.id] = data;
+                loadObject(data);//load all objects at once, would be faster
             }
             //on login
             if (data.login) {
@@ -129,22 +109,15 @@ function checkUpdateResponse(response) {
                 loadObject(walkObject);
             }
         }
-        //sort npc[] by npc id
     } else{
-        log("recieved event");
         //play events
         for(j in response){
             var data = response[j];
             if (data.event) {
-                //search by npc id
-                for(n in npcs){
-                    if (npcs[n].id == data.npcid) {
-                        playObject(npcs[n], data.audioType);
-                    }
-                }
+                playObject(npcs[data.npcid], data.audioType);
             }
+            //nearby players
         }
-        //nearby players
     }
 }
 
@@ -169,43 +142,6 @@ function tick(){
         //stop walk audio
         stopObject(walkObject);
     }
-}
-
-/**
- *returns the angle at which the player is walking
- */
-function getWalkAngle() {
-    if (pressedW) {
-        if (pressedA) {
-            //a-w-
-            return angle+(Math.PI/4);
-        } else if (pressedD) {
-            //-w-d
-            return angle-(Math.PI/4);
-        } else{
-            //-w-
-            return angle;
-        }
-    } else if (pressedS) {
-        if (pressedA) {
-            //a-s-
-            return angle+Math.PI-(Math.PI/4);
-        } else if (pressedD) {
-            //-s-d
-            return angle+Math.PI+(Math.PI/4);
-        } else{
-            //-s-
-            return angle+Math.PI;
-        }
-    } else if (pressedA) {
-        //a--
-        return angle+(Math.PI/2);
-    } else if (pressedD) {
-        //--d
-        return angle-(Math.PI/2);
-    }
-    log("walk angle not found");
-    return false;
 }
 
 //navigator.getMedia(
@@ -323,108 +259,11 @@ function logout() {
 }
 
 /**
- *changes the angle the player is facing
- */
-/*function mouseMoved(e){
-    var x = e.clientX - screen.width/2;
-    var changeX = x - lastMouseX;
-    lastMouseX = x;
-    angle += changeX * lookSpeed;
-    angle = angle%(Math.PI*2);
-    var compass = document.getElementById("compass");
-    var compassX = (screen.width/2) + (angle-Math.PI/2)*(screen.width/Math.PI)*10;
-    compass.style.marginLeft = compassX + "px";
-    //update audio context dir.
-}*/
-
-/**
- *tracks when the wasd keys are pressed
- */
-function keyPressed(e){
-    //more control options, using mouse moved above^
-    //movement
-    //pressed w
-    if(event.keyCode == 119 || event.keyCode == 87){
-        pressedW = true;
-    }
-    //pressed w
-    else if (event.keyCode == 65 || event.keyCode == 97) {
-        pressedA = true;
-    }
-    //pressed s
-    else if (event.keyCode == 83 || event.keyCode == 115) {
-        pressedS = true;
-    }
-    //pressed d
-    else if (event.keyCode == 68 || event.keyCode == 100) {
-        pressedD = true;
-    }
-    if (controls == control_options.WASD_JL) {
-        //turning
-        //pressed j
-        if (event.keyCode == 74 || event.keyCode == 106) {
-            updateAngle(false/*to right*/);
-        }
-        //pressed l
-        else if (event.keyCode == 76 || event.keyCode == 108) {
-            updateAngle(true/*to right*/);
-        }
-    }
-}
-
-/**
- *updates the compass and audio diretion
- */
-function updateAngle(toRight) {
-    if (toRight) {
-        angle -= .2;
-    } else{
-        angle += .2;
-    }
-    if (angle>Math.PI*2) {
-        angle = Math.PI*2 - angle;
-    } else if (angle<0) {
-        angle = Math.PI*2 + angle;
-    }
-    document.getElementById("compass").style.marginLeft = ((window.innerWidth/2) + (angle-Math.PI/2)*compassConstant) + "px";
-}
-
-/**
- *tracks when the wasd keys are released
- */
-function keyUp(e){
-    //pressed w
-    if(event.keyCode == 119 || event.keyCode == 87){
-        pressedW = false;
-    }
-    //pressed w
-    else if (event.keyCode == 65 || event.keyCode == 97) {
-        pressedA = false;
-    }
-    //pressed s
-    else if (event.keyCode == 83 || event.keyCode == 115) {
-        pressedS = false;
-    }
-    //pressed d
-    else if (event.keyCode == 68 || event.keyCode == 100) {
-        pressedD = false;
-    }
-}
-
-/**
  *initialized the peer of the player
  */
 function createPeer(peerID){
     peer = new Peer(peerID);
     peer.options.key = "kf8l60l4w3f03sor";
-}
-
-function hideCompass(){
-    document.getElementById('compass').style.visibility = "hidden";
-}
-
-function showCompass() {
-    document.getElementById('compass').style.visibility = "visible";
 }
 
 function showLogin(){

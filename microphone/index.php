@@ -2,6 +2,7 @@
     <head>
         <script src="http://cdn.peerjs.com/0.3/peer.js"></script>
         <script src="audioGame.js"></script>
+        <script src="controls.js"></script>
         <style>
             body{
                 background-color: black;
