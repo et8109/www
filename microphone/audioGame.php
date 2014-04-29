@@ -18,14 +18,18 @@ final class distances {
 }
 /**
  *a number which descibes the general behavior of differnt npcs
+ *the field in the db
+ **repeated in js
  */
 final class npcTypes {
     const ambient = 0;
     const enemy = 1;
+    const walkAudio = 2;
 }
 
 /**
  *Which audio of an npc is played
+ *the position in url array
  */
 final class audioTypes {
     const encounter = 0;
@@ -202,19 +206,13 @@ switch($_POST['function']){
         //set session
         $_SESSION['playerID'] = $playerRow['id'];
         $_SESSION['lastEventTime'] = 0;
-        $arrayJSON = array();
-        //new zone
-        $arrayJSON[0] = array("newZone" => true);
-        //loging info
-        $arrayJSON[1] = array(
+        sendJSON(array(
             "login" => true,
             "success" => true,
             "peerID" => $playerRow['peerid'],
             "posX" => $playerRow['posx'],
-            "posY" => $playerRow['posy'],
-            "audioURL" => "carpetStep.wav"//walking audio
-        );
-        sendJSON($arrayJSON);
+            "posY" => $playerRow['posy']
+        ));
         break;
     
     //called when the logout button is clicked

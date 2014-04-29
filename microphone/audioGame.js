@@ -1,6 +1,9 @@
 window.onerror = function(msg, url, line) {
     alert("Error: "+msg+" url: "+url+" line: "+line);
 };
+
+var loading = true;
+
 var peer;
 
 window.URL = window.URL || window.webkitURL;
@@ -18,9 +21,13 @@ var walkObject;
 
 var npcs=[];
 
+/**
+ *repeated in db
+ */
 var types = {
     ambient_noise:0,
-    enemy: 1
+    enemy: 1,
+    walk_audio: 2
 }
 
 function loadObject(object){
@@ -31,7 +38,7 @@ function loadObject(object){
         var request = new XMLHttpRequest();
         request.open("GET",object.audioURL,true/*asynchronous*/);
         request.responseType = "arraybuffer";
-        request.onload = function(u){
+        request.onload = function(){
             //set play's buffer
             object.buffer.push(context.createBuffer(request.response, true/*make mono*/));
         }
@@ -59,7 +66,7 @@ function playObject(object, audioNum){
 }
 
 function stopObject(object){
-    if(object.audioSource){
+    if(object && object.audioSource){
         object.audioSource.stop();
     }
     return true;
@@ -74,6 +81,7 @@ var posY=0;
  *checks which sounds were recived and calls setAudioBuffer for them
  */
 function checkUpdateResponse(response) {
+    loading = false;
     if (response == "") {
         return;
     }
@@ -81,31 +89,29 @@ function checkUpdateResponse(response) {
     if (response[0].newZone) {
         log("new zone");
         npcs = [];
+        //load all objects at once, would be faster
         for(j in response){
             var data = response[j];
             if (data.type == types.ambient_noise) {
                 data.loop = [];
                 data.loop[0] = true;
                 npcs[data.id] = data;
-                loadObject(data);//load all objects at once, would be faster
+                loadObject(data);
             }
             else if (data.type == types.enemy) {
                 data.loop = [];
                 data.loop[0] = false;
                 npcs[data.id] = data;
-                loadObject(data);//load all objects at once, would be faster
+                loadObject(data);
             }
-            //on login
-            if (data.login) {
-                //create peer
-                createPeer(data.peerID);
-                //set position
-                posX = parseInt(data.posX);
-                posY = parseInt(data.posY);
-                //create walk sound
+            else if (data.type == types.walk_audio) {//walk audio
+                data.loop = [];
+                data.loop[0] = true;
+                data.posx = null;
+                data.posy = null;
+                data.posz = null;
+                data.playing = false;
                 walkObject = data;
-                walkObject.loop = [];
-                walkObject.loop[0] = true;
                 loadObject(walkObject);
             }
         }
@@ -127,9 +133,15 @@ function checkUpdateResponse(response) {
  *updates audio
  */
 function tick(){
+    if (loading) {
+        return;
+    }
     if (pressedA || pressedD || pressedS || pressedW) {
         //play walk audio
-        playObject(walkObject,0);
+        if (!walkObject.playing) {
+            playObject(walkObject,0);
+            walkObject.playing = true;
+        }
         //find walk angle
         var walkAngle = getWalkAngle();
         //update position based on angle
@@ -140,7 +152,10 @@ function tick(){
         context.listener.setOrientation(Math.cos(angle),Math.sin(angle),0,0,0,1);
     } else{
         //stop walk audio
-        stopObject(walkObject);
+        if (walkObject.playing) {
+            stopObject(walkObject);
+            walkObject.playing = false;
+        }
     }
 }
 
@@ -200,11 +215,14 @@ function login(){
                     document.getElementById("uname").value="";
                     document.getElementById("pass").value="";
                     log("logged in as "+uname);
+                    //create peer
+                    createPeer(response.peerID);
+                    //set position
+                    posX = parseInt(response.posX);
+                    posY = parseInt(response.posY);
                     //start updater
                     updater = setInterval("update()", 3000);
                     ticker = setInterval("tick()",1000);
-                    //set initial sounds
-                    checkUpdateResponse(response);
                 });
 }
 
@@ -292,7 +310,7 @@ request.setRequestHeader("Content-length", params.length);
 request.setRequestHeader("Connection", "close");
     request.onreadystatechange = function(){
         if (this.readyState==4 && this.status==200){
-            log("response: "+this.responseText);
+            //log("response: "+this.responseText);
             if (!this.responseText) {
                 return;
             }
