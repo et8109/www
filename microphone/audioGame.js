@@ -55,16 +55,13 @@ function loadObject(object){
 
 function playObject(object, audioNum){
     log("starting: "+object.audioURL[audioNum]);
+    object.audioSource.stop();
     if (object.posx==null) {
         //no panner
         object.audioSource = createAudioSource(object.buffer[audioNum],false/*no panner*/);
     } else{
         //with panner
         object.audioSource = createAudioSource(object.buffer[audioNum],true/*panner*/,object.posx,object.posy,object.posz);
-    }
-    if (object.loop[audioNum]) {
-        //loop or not
-        object.audioSource.loop = true;
     }
     object.audioSource.start();
     return true;
@@ -97,14 +94,10 @@ function checkUpdateResponse(response) {
         for(j in response){
             var data = response[j];
             if (data.type == types.ambient_noise) {
-                data.loop = [];
-                data.loop[0] = true;
                 npcs[data.id] = data;
                 loadObject(data);
             }
             else if (data.type == types.enemy) {
-                data.loop = [];
-                data.loop[0] = false;
                 npcs[data.id] = data;
                 loadObject(data);
             }
