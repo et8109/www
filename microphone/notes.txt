@@ -9,3 +9,9 @@ db:
 ptp:
  send: voice, [location if not from server]
  get:  play voice from location
+
+
+js variables can be changed, like teleporting
+audio can be downloaded
+loading all objects at once would be faster
+more control options

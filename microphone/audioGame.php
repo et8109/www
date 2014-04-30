@@ -8,6 +8,7 @@ final class constants {
     const zoneWidth = 50;
     const numZonesSrt = 2;//should be a square
     const secBetweenevents = 6;
+    const maxHealth = 4;
 }
 /**
  *the distances at which certain audio starts
@@ -79,7 +80,7 @@ function sendError($msg){
  *returns the audioType the player is in range of w/ the given x,y coords
  *returns false if no range
  */
-function inRange($px,$py,$x,$y,$npcType,/*just for access*/&$arrayJSON){
+function inRange($px,$py,$x,$y,$npcType,/*just for access:*/&$arrayJSON,$playerQuery){
     $dist = abs($px-$x);
     $dist2 = abs($py-$y);
     $dist = $dist > $dist2 ? $dist : $dist2;
@@ -91,11 +92,33 @@ function inRange($px,$py,$x,$y,$npcType,/*just for access*/&$arrayJSON){
             break;
         case(npcTypes::enemy):
             if($dist < distances::enemyAttack){
+                $health = $playerQuery['health'];
+                //if dead
+                if($health < 2){
+                    //new coords
+                    $arrayJSON[] = (array(
+                        "playerInfo" => true,
+                        "posX" => 0,
+                        "posY" => 0
+                    ));
+                    //update player
+                    query("update playerinfo set health=".prepVar(constants::maxHealth).",posx=0, posy=0 where id=".prepVar($_SESSION['playerID']));
+                    //death sound as event
+                    //sprite says you're dead
+                    $arrayJSON[] = (array(
+                        "spriteEvent" => true,
+                        "audioType" => 1 //you're dead audio
+                    ));
+                    return 1;
+                }
                 //lower player health
-                $arrayJSON[] = (array(
-                    "spriteEvent" => true,
-                    "audioType" => 0 //low health audio
-                ));
+                if($health < 3){
+                    $arrayJSON[] = (array(
+                        "spriteEvent" => true,
+                        "audioType" => 0 //low health audio
+                    ));
+                }
+                query("update playerinfo set health=health-1 where id=".prepVar($_SESSION['playerID']));
                 return 1;
             }
             if($dist < distances::enemyNotice){
@@ -116,9 +139,9 @@ switch($_POST['function']){
         $zone = floor($posx/constants::zoneWidth);
         $zone += constants::numZonesSrt * floor($posy/constants::zoneWidth);
         //check if zone change
-        $zoneQuery = query("select 1 from playerinfo where zone!=".prepVar($zone)." and id=".prepVar($_SESSION['playerID']));
+        $playerQuery = query("select zone, health from playerinfo where id=".prepVar($_SESSION['playerID']));
         $newZone = false;
-        if($zoneQuery){
+        if($playerQuery['zone'] != $zone){
             $newZone = true;
         }
         //update playerinfo
@@ -154,7 +177,7 @@ switch($_POST['function']){
             $eventRow = query("select 1 from events where npcid=".prepVar($npcRow['id']));
             if($eventRow[0] != 1){
                 //check if in range of npc
-                $audioType = inRange($posx,$posy,$npcRow['posx'],$npcRow['posy'],$npcRow['type'],/*for access*/$arrayJSON);
+                $audioType = inRange($posx,$posy,$npcRow['posx'],$npcRow['posy'],$npcRow['type'],/*for access:*/$arrayJSON,$playerQuery);
                 if(is_numeric($audioType)){
                     //add event
                     query("insert into events (time,zone,npcid,audiotype) values (".prepVar($time).",".prepVar($zone).",".prepVar($npcRow['id']).",".prepVar($audioType).")");
@@ -206,7 +229,7 @@ switch($_POST['function']){
             "peerID" => $playerRow['peerid'],
             "posX" => $playerRow['posx'],
             "posY" => $playerRow['posy'],
-            "spriteaudioURL" => array("Lowlife.mp3")
+            "spriteaudioURL" => array("Lowlife.mp3","Dead.mp3")
         ));
         break;
     

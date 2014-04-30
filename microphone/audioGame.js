@@ -90,7 +90,6 @@ function checkUpdateResponse(response) {
         log("new zone");
         npcs = [];
         var requestArray = [];
-        //load all objects at once, would be faster
         for(j in response){
             var data = response[j];
             if (data.type == types.ambient_noise) {
@@ -132,6 +131,10 @@ function checkUpdateResponse(response) {
                 playObject(npcs[data.npcid], data.audioType);
             } else if (data.spriteEvent) {
                 playObject(spriteObject, data.audioType);
+            } else if (data.playerInfo) {
+                //update position
+                posX = data.posX;
+                posY = data.posY;
             }
             //nearby players
         }
