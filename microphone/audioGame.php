@@ -164,7 +164,6 @@ switch($_POST['function']){
         while($eventRow = mysqli_fetch_array($eventsResult)){
             $arrayJSON[] = (array(
                 "event" => true,
-                "time" => $eventRow['time'],
                 "npcid" => $eventRow['npcid'],
                 "audioType" => $eventRow['audiotype']
             ));
@@ -202,7 +201,8 @@ switch($_POST['function']){
             "success" => true,
             "peerID" => $playerRow['peerid'],
             "posX" => $playerRow['posx'],
-            "posY" => $playerRow['posy']
+            "posY" => $playerRow['posy'],
+            "spriteURLs" => array("spriteURL1","spriteURL2")
         ));
         break;
     

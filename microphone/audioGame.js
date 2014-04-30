@@ -18,6 +18,7 @@ var context = new webkitAudioContext();
  *The audio source with the sound for walking.
  */
 var walkObject;
+var spriteObject;
 
 var npcs=[];
 
@@ -225,6 +226,14 @@ function login(){
                     document.getElementById("uname").value="";
                     document.getElementById("pass").value="";
                     log("logged in as "+uname);
+                    //load sprite audio
+                    spriteObject.buffer = [];
+                    spriteObject.audioURL = response.audioURL;
+                    var requestArray = [];
+                    for(u in spriteObject.audioURL){
+                        requestArray.push([spriteObject,spriteObject.audioURL[u]]);
+                    }
+                    loadRequestArray(requestArray,0,requestArray.length-1);
                     //create peer
                     createPeer(response.peerID);
                     //set position
