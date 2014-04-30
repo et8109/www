@@ -33,21 +33,22 @@ var types = {
 function loadObject(object){
     object.audioURL = object.audioURL.split(",");
     object.buffer = [];
+    var requests = [];
     for(u in object.audioURL){
         log("requesting: "+object.audioURL[u]);
-        //alert(u); when response was null this seemed to prevent it
-        var request = new XMLHttpRequest();
-        request.open("GET",object.audioURL[u],true/*asynchronous*/);
-        request.responseType = "arraybuffer";
-        request.onload = function(){
-            if (request.response == null) {
-                log("error loading audio");
+        //alert(u); //when response was null this seemed to prevent it
+        requests[u] = new XMLHttpRequest();
+        requests[u].open("GET",object.audioURL[u],true/*asynchronous*/);
+        requests[u].responseType = "arraybuffer";
+        requests[u].onload = function(){
+            if (requests[u].response == null) {
+                log("error loading");
                 return;
             }
             //set play's buffer
-            object.buffer.push(context.createBuffer(request.response, true/*make mono*/));
+            object.buffer.push(context.createBuffer(requests[u].response, true/*make mono*/));
         }
-        request.send();
+        requests[u].send();
     }
     //hide url, prevent downloading
     //request multiple at once so its faster
@@ -55,7 +56,7 @@ function loadObject(object){
 
 function playObject(object, audioNum){
     log("starting: "+object.audioURL[audioNum]);
-    object.audioSource.stop();
+    object.audioSource && object.audioSource.stop();
     if (object.posx==null) {
         //no panner
         object.audioSource = createAudioSource(object.buffer[audioNum],false/*no panner*/);
