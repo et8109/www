@@ -29,29 +29,23 @@ var types = {
     enemy: 1,
     walk_audio: 2
 }
-
-function loadObject(object){
-    object.audioURL = object.audioURL.split(",");
-    object.buffer = [];
-    var requests = [];
-    for(u in object.audioURL){
-        log("requesting: "+object.audioURL[u]);
-        //alert(u); //when response was null this seemed to prevent it
-        requests[u] = new XMLHttpRequest();
-        requests[u].open("GET",object.audioURL[u],true/*asynchronous*/);
-        requests[u].responseType = "arraybuffer";
-        requests[u].onload = function(){
-            if (requests[u].response == null) {
-                log("error loading");
-                return;
-            }
-            //set play's buffer
-            object.buffer.push(context.createBuffer(requests[u].response, true/*make mono*/));
-        }
-        requests[u].send();
+//[id,url]
+function loadRequestArray(requestArray, i, num){
+    if (i > num) {
+        return;
     }
-    //hide url, prevent downloading
-    //request multiple at once so its faster
+    request = new XMLHttpRequest();
+    request.open("GET",requestArray[i][1],true/*asynchronous*/);
+    request.responseType = "arraybuffer";
+    request.onload = function(){
+        if (request.response == null) {
+            log("error loading");
+        }
+        //set play's buffer
+        requestArray[i][0].buffer.push(context.createBuffer(request.response, true/*make mono*/));
+        loadRequestArray(requestArray, i+1);
+    }
+    request.send()
 }
 
 function playObject(object, audioNum){
@@ -63,6 +57,9 @@ function playObject(object, audioNum){
     } else{
         //with panner
         object.audioSource = createAudioSource(object.buffer[audioNum],true/*panner*/,object.posx,object.posy,object.posz);
+    }
+    if (object.loop){
+        object.audioSource.loop = true;//for walking
     }
     object.audioSource.start();
     return true;
@@ -91,28 +88,42 @@ function checkUpdateResponse(response) {
     if (response[0].newZone) {
         log("new zone");
         npcs = [];
+        var requestArray = [];
         //load all objects at once, would be faster
         for(j in response){
             var data = response[j];
             if (data.type == types.ambient_noise) {
                 npcs[data.id] = data;
-                loadObject(data);
+                npcs[data.id].buffer = [];
+                npcs[data.id].audioURL = npcs[data.id].audioURL.split(",");
+                for(u in npcs[data.id].audioURL){
+                    log("adding: "+data.audioURL[u]);
+                    requestArray.push([npcs[data.id],npcs[data.id].audioURL[u]]);
+                }
+                //loadObject(data);
             }
             else if (data.type == types.enemy) {
                 npcs[data.id] = data;
-                loadObject(data);
+                npcs[data.id].buffer = [];
+                npcs[data.id].audioURL = npcs[data.id].audioURL.split(",");
+                for(u in npcs[data.id].audioURL){
+                    requestArray.push([npcs[data.id],npcs[data.id].audioURL[u]]);
+                }
+                //loadObject(npcs[data.id]);
             }
             else if (data.type == types.walk_audio) {//walk audio
-                data.loop = [];
-                data.loop[0] = true;
+                data.loop = true;
                 data.posx = null;
                 data.posy = null;
                 data.posz = null;
                 data.playing = false;
                 walkObject = data;
-                loadObject(walkObject);
+                walkObject.buffer = [];
+                walkObject.audioURL = walkObject.audioURL.split(",");
+                requestArray.push([walkObject,walkObject.audioURL[0]]);
             }
         }
+        loadRequestArray(requestArray,0,requestArray.length-1);
     } else{
         //play events
         for(j in response){
