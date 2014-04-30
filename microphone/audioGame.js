@@ -18,7 +18,7 @@ var context = new webkitAudioContext();
  *The audio source with the sound for walking.
  */
 var walkObject;
-var spriteObject;
+var spriteObject="so";//defined before attributes are assigned
 
 var npcs=[];
 
@@ -98,7 +98,6 @@ function checkUpdateResponse(response) {
                 npcs[data.id].buffer = [];
                 npcs[data.id].audioURL = npcs[data.id].audioURL.split(",");
                 for(u in npcs[data.id].audioURL){
-                    log("adding: "+data.audioURL[u]);
                     requestArray.push([npcs[data.id],npcs[data.id].audioURL[u]]);
                 }
                 //loadObject(data);
@@ -131,6 +130,8 @@ function checkUpdateResponse(response) {
             var data = response[j];
             if (data.event) {
                 playObject(npcs[data.npcid], data.audioType);
+            } else if (data.spriteEvent) {
+                playObject(spriteObject, data.audioType);
             }
             //nearby players
         }
@@ -227,8 +228,9 @@ function login(){
                     document.getElementById("pass").value="";
                     log("logged in as "+uname);
                     //load sprite audio
+                    spriteObject = function(){};
                     spriteObject.buffer = [];
-                    spriteObject.audioURL = response.audioURL;
+                    spriteObject.audioURL = response.spriteaudioURL;
                     var requestArray = [];
                     for(u in spriteObject.audioURL){
                         requestArray.push([spriteObject,spriteObject.audioURL[u]]);
@@ -329,7 +331,7 @@ request.setRequestHeader("Content-length", params.length);
 request.setRequestHeader("Connection", "close");
     request.onreadystatechange = function(){
         if (this.readyState==4 && this.status==200){
-            //log("response: "+this.responseText);
+            log("response: "+this.responseText);
             if (!this.responseText) {
                 return;
             }

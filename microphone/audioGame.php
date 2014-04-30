@@ -79,7 +79,7 @@ function sendError($msg){
  *returns the audioType the player is in range of w/ the given x,y coords
  *returns false if no range
  */
-function inRange($px,$py,$x,$y,$npcType){
+function inRange($px,$py,$x,$y,$npcType,/*just for access*/&$arrayJSON){
     $dist = abs($px-$x);
     $dist2 = abs($py-$y);
     $dist = $dist > $dist2 ? $dist : $dist2;
@@ -91,6 +91,11 @@ function inRange($px,$py,$x,$y,$npcType){
             break;
         case(npcTypes::enemy):
             if($dist < distances::enemyAttack){
+                //lower player health
+                $arrayJSON[] = (array(
+                    "spriteEvent" => true,
+                    "audioType" => 0 //low health audio
+                ));
                 return 1;
             }
             if($dist < distances::enemyNotice){
@@ -145,13 +150,12 @@ switch($_POST['function']){
                 "audioURL" => $npcRow['audioURL']
                 ));
             }
-            //updating
-            $audioType = inRange($posx,$posy,$npcRow['posx'],$npcRow['posy'],$npcRow['type']);
-            //if in range
-            if(is_numeric($audioType)){
-                //check if event exists for this npc
-                $eventRow = query("select 1 from events where npcid=".prepVar($npcRow['id']));
-                if($eventRow[0] != 1){
+            //check if npc is busy with something else
+            $eventRow = query("select 1 from events where npcid=".prepVar($npcRow['id']));
+            if($eventRow[0] != 1){
+                //check if in range of npc
+                $audioType = inRange($posx,$posy,$npcRow['posx'],$npcRow['posy'],$npcRow['type'],/*for access*/$arrayJSON);
+                if(is_numeric($audioType)){
                     //add event
                     query("insert into events (time,zone,npcid,audiotype) values (".prepVar($time).",".prepVar($zone).",".prepVar($npcRow['id']).",".prepVar($audioType).")");
                 }
@@ -202,7 +206,7 @@ switch($_POST['function']){
             "peerID" => $playerRow['peerid'],
             "posX" => $playerRow['posx'],
             "posY" => $playerRow['posy'],
-            "spriteURLs" => array("spriteURL1","spriteURL2")
+            "spriteaudioURL" => array("Lowlife.mp3")
         ));
         break;
     
