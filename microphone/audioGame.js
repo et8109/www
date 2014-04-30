@@ -35,11 +35,15 @@ function loadObject(object){
     object.buffer = [];
     for(u in object.audioURL){
         log("requesting: "+object.audioURL[u]);
+        //alert(u); when response was null this seemed to prevent it
         var request = new XMLHttpRequest();
         request.open("GET",object.audioURL[u],true/*asynchronous*/);
         request.responseType = "arraybuffer";
         request.onload = function(){
-            alert(object.audioURL[u]);
+            if (request.response == null) {
+                log("error loading audio");
+                return;
+            }
             //set play's buffer
             object.buffer.push(context.createBuffer(request.response, true/*make mono*/));
         }
