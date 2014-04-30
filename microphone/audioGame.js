@@ -36,9 +36,10 @@ function loadObject(object){
     for(u in object.audioURL){
         log("requesting: "+object.audioURL[u]);
         var request = new XMLHttpRequest();
-        request.open("GET",object.audioURL,true/*asynchronous*/);
+        request.open("GET",object.audioURL[u],true/*asynchronous*/);
         request.responseType = "arraybuffer";
         request.onload = function(){
+            alert(object.audioURL[u]);
             //set play's buffer
             object.buffer.push(context.createBuffer(request.response, true/*make mono*/));
         }
@@ -81,7 +82,6 @@ var posY=0;
  *checks which sounds were recived and calls setAudioBuffer for them
  */
 function checkUpdateResponse(response) {
-    loading = false;
     if (response == "") {
         return;
     }
@@ -125,6 +125,7 @@ function checkUpdateResponse(response) {
             //nearby players
         }
     }
+    loading = false;
 }
 
 /**

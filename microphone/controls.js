@@ -74,6 +74,9 @@ function getWalkAngle() {
  *tracks when the wasd keys are pressed
  */
 function keyPressed(e){
+    if (loading) {
+        return;
+    }
     //more control options, using mouse moved above^
     //movement
     //pressed w
@@ -126,6 +129,9 @@ function updateAngle(toRight) {
  *tracks when the wasd keys are released
  */
 function keyUp(e){
+    if (loading) {
+        return;
+    }
     //pressed w
     if(event.keyCode == 119 || event.keyCode == 87){
         pressedW = false;

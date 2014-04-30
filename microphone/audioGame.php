@@ -15,29 +15,18 @@ final class constants {
 final class distances {
     const ambientNotice = 15;
     const enemyNotice = 10;
+    const enemyAttack = 4;
 }
 /**
  *a number which descibes the general behavior of differnt npcs
  *the field in the db
  **repeated in js
  */
-final class npcTypes {
-    const ambient = 0;
-    const enemy = 1;
-    const walkAudio = 2;
+final class npcTypes {//audios commented
+    const ambient = 0;//[listen]
+    const enemy = 1;//[notice, attack]
+    const walkAudio = 2;//[walk]
 }
-
-/**
- *Which audio of an npc is played
- *the position in url array
- */
-final class audioTypes {
-    const encounter = 0;
-    const attack = 1;
-}
-
-
-
 
 function _getConnection(){
     $con = mysqli_connect("localhost","root","","audio_game");
@@ -97,12 +86,15 @@ function inRange($px,$py,$x,$y,$npcType){
     switch($npcType){
         case(npcTypes::ambient):
             if($dist < distances::ambientNotice){
-                return 0;//audioTypes::encounter;
+                return 0;
             }
             break;
         case(npcTypes::enemy):
+            if($dist < distances::enemyAttack){
+                return 1;
+            }
             if($dist < distances::enemyNotice){
-                return 0;//audioTypes::attack;
+                return 0;
             }
             break;
     }
@@ -158,10 +150,9 @@ switch($_POST['function']){
             //if in range
             if(is_numeric($audioType)){
                 //check if event exists for this npc
-                $eventRow = query("select 1 from events where npcid=".prepVar($npcRow['id'])/*." and time > ".prepVar($time-constants::secBetweenevents)*/);
+                $eventRow = query("select 1 from events where npcid=".prepVar($npcRow['id']));
                 if($eventRow[0] != 1){
                     //add event
-                    $audioType = 0;
                     query("insert into events (time,zone,npcid,audiotype) values (".prepVar($time).",".prepVar($zone).",".prepVar($npcRow['id']).",".prepVar($audioType).")");
                 }
             }
