@@ -77,17 +77,16 @@ function sendError($msg){
         ));
 }
 /**
- *returns the audioType the player is in range of w/ the given x,y coords
- *returns false if no range
+ *adds events and sends audio back to the palyer
  */
-function inRange($px,$py,$x,$y,$npcType,/*just for access:*/&$arrayJSON,$playerQuery){
+function addEvents($px,$py,$x,$y,$npcType,$npcID,$zone,$time,/*just for access:*/&$arrayJSON,$playerQuery){
     $dist = abs($px-$x);
     $dist2 = abs($py-$y);
     $dist = $dist > $dist2 ? $dist : $dist2;
     switch($npcType){
         case(npcTypes::ambient):
             if($dist < distances::ambientNotice){
-                return 0;
+                addNpcEvent(0, $npcID, $zone, $time);//ambient audio
             }
             break;
         case(npcTypes::enemy):
@@ -103,32 +102,63 @@ function inRange($px,$py,$x,$y,$npcType,/*just for access:*/&$arrayJSON,$playerQ
                     ));
                     //update player
                     query("update playerinfo set health=".prepVar(constants::maxHealth).",posx=0, posy=0 where id=".prepVar($_SESSION['playerID']));
-                    //death sound as event
-                    //sprite says you're dead
-                    $arrayJSON[] = (array(
-                        "spriteEvent" => true,
-                        "audioType" => 1 //you're dead audio
-                    ));
-                    return 1;
+                    addPlayerEvent(0, $arrayJSON);//death sound as event
+                    addSpriteEvent(1, $arrayJSON);//you're dead msg
+                    addNpcEvent(1, $npcID, $zone, $time);//attack audio
+                    return;
                 }
-                //lower player health
-                if($health < 3){
-                    $arrayJSON[] = (array(
-                        "spriteEvent" => true,
-                        "audioType" => 0 //low health audio
-                    ));
+                //if alive
+                addPlayerEvent(1, $arrayJSON);//player attack
+                if(addNpcEvent(1, $npcID, $zone, $time)){//attack audio
+                    //lower player health
+                    query("update playerinfo set health=health-1 where id=".prepVar($_SESSION['playerID']));
+                    if($health < 3){
+                        addSpriteEvent(0, $arrayJSON);//low health msg
+                    }
                 }
-                query("update playerinfo set health=health-1 where id=".prepVar($_SESSION['playerID']));
-                return 1;
+                //lower enemy health
+                return;
             }
             if($dist < distances::enemyNotice){
-                return 0;
+                addNpcEvent(0, $npcID, $zone, $time);//notice audio
             }
             break;
     }
-    return false;
 }
 
+/**
+ *npc events can be heard by everyone nearby
+ */
+function addNpcEvent($audioType, $npcID, $zone, $time){
+    //if checked before. would need a global
+    /*if(isset($checkedNpcs[$npcID])){
+        return;
+    }
+    checkedNpcs[$npcID] = true;*/
+    //if there is already an event fromt that npc
+    $eventRow = query("select 1 from events where npcid=".prepVar($npcID));
+    if($eventRow[0] == 1){
+        return false;
+    }
+    //if empty, add event
+    query("insert into events (time,zone,npcid,audiotype) values (".prepVar($time).",".prepVar($zone).",".prepVar($npcID).",".prepVar($audioType).")");
+    return true;
+}
+/**
+ *sprite events can only be heard by the player
+ */
+function addSpriteEvent($audioType, &$arrayJSON){
+    $arrayJSON[] = (array(
+        "spriteEvent" => true,
+        "audioType" => $audioType
+    ));
+}
+/**
+ *player events can be heard by everyone
+ */
+function addPlayerEvent($audioType, &$arrayJSON){
+    //query("insert into events (time,zone,npcid,audiotype) values (".prepVar(time()).",".prepVar($zone).",".prepVar($npcID).",".prepVar($audioType).")");
+}
 try{
 switch($_POST['function']){
     
@@ -173,16 +203,7 @@ switch($_POST['function']){
                 "audioURL" => $npcRow['audioURL']
                 ));
             }
-            //check if npc is busy with something else
-            $eventRow = query("select 1 from events where npcid=".prepVar($npcRow['id']));
-            if($eventRow[0] != 1){
-                //check if in range of npc
-                $audioType = inRange($posx,$posy,$npcRow['posx'],$npcRow['posy'],$npcRow['type'],/*for access:*/$arrayJSON,$playerQuery);
-                if(is_numeric($audioType)){
-                    //add event
-                    query("insert into events (time,zone,npcid,audiotype) values (".prepVar($time).",".prepVar($zone).",".prepVar($npcRow['id']).",".prepVar($audioType).")");
-                }
-            }
+            addEvents($posx,$posy,$npcRow['posx'],$npcRow['posy'],$npcRow['type'],$npcRow['id'],$zone,$time,/*for access:*/$arrayJSON,$playerQuery);
         }
         mysqli_free_result($npcResult);
         //check nearby players
