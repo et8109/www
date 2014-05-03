@@ -102,13 +102,13 @@ function addEvents($px,$py,$x,$y,$npcType,$npcID,$zone,$time,/*just for access:*
                     ));
                     //update player
                     query("update playerinfo set health=".prepVar(constants::maxHealth).",posx=0, posy=0 where id=".prepVar($_SESSION['playerID']));
-                    addPlayerEvent(0, $arrayJSON);//death sound as event
+                    //addPlayerEvent(1, $zone, $time);//death sound as event
                     addSpriteEvent(1, $arrayJSON);//you're dead msg
                     addNpcEvent(1, $npcID, $zone, $time);//attack audio
                     return;
-                }
+                } else{
                 //if alive
-                addPlayerEvent(1, $arrayJSON);//player attack
+                addPlayerEvent(0, $zone, $time);//player attack
                 if(addNpcEvent(1, $npcID, $zone, $time)){//attack audio
                     //lower player health
                     query("update playerinfo set health=health-1 where id=".prepVar($_SESSION['playerID']));
@@ -118,8 +118,9 @@ function addEvents($px,$py,$x,$y,$npcType,$npcID,$zone,$time,/*just for access:*
                 }
                 //lower enemy health
                 return;
+                }
             }
-            if($dist < distances::enemyNotice){
+            else if($dist < distances::enemyNotice){
                 addNpcEvent(0, $npcID, $zone, $time);//notice audio
             }
             break;
@@ -130,18 +131,13 @@ function addEvents($px,$py,$x,$y,$npcType,$npcID,$zone,$time,/*just for access:*
  *npc events can be heard by everyone nearby
  */
 function addNpcEvent($audioType, $npcID, $zone, $time){
-    //if checked before. would need a global
-    /*if(isset($checkedNpcs[$npcID])){
-        return;
-    }
-    checkedNpcs[$npcID] = true;*/
     //if there is already an event fromt that npc
-    $eventRow = query("select 1 from events where npcid=".prepVar($npcID));
+    $eventRow = query("select 1 from events where id=".prepVar($npcID)." and isnpc=1");
     if($eventRow[0] == 1){
         return false;
     }
     //if empty, add event
-    query("insert into events (time,zone,npcid,audiotype) values (".prepVar($time).",".prepVar($zone).",".prepVar($npcID).",".prepVar($audioType).")");
+    query("insert into events (time,zone,id,audiotype,isnpc) values (".prepVar($time).",".prepVar($zone).",".prepVar($npcID).",".prepVar($audioType).",1)");
     return true;
 }
 /**
@@ -156,8 +152,13 @@ function addSpriteEvent($audioType, &$arrayJSON){
 /**
  *player events can be heard by everyone
  */
-function addPlayerEvent($audioType, &$arrayJSON){
-    //query("insert into events (time,zone,npcid,audiotype) values (".prepVar(time()).",".prepVar($zone).",".prepVar($npcID).",".prepVar($audioType).")");
+function addPlayerEvent($audioType, $zone, $time){
+    //if there is already an event fromt that player
+    $eventRow = query("select 1 from events where id=".prepVar($_SESSION['playerID'])." and isnpc=0");
+    if($eventRow[0] == 1){
+        return false;
+    }
+    query("insert into events (time,zone,id,audiotype,isnpc) values (".prepVar($time).",".prepVar($zone).",".prepVar($_SESSION['playerID']).",".prepVar($audioType).",0)");
 }
 try{
 switch($_POST['function']){
@@ -208,11 +209,12 @@ switch($_POST['function']){
         mysqli_free_result($npcResult);
         //check nearby players
         //return events
-        $eventsResult = queryMulti("select npcid,audiotype,time from events where zone=".prepVar($zone)." and time>".prepVar($_SESSION['lastEventTime']));
+        $eventsResult = queryMulti("select id,audiotype,time,isnpc from events where zone=".prepVar($zone)." and time>".prepVar($_SESSION['lastEventTime']));
         while($eventRow = mysqli_fetch_array($eventsResult)){
             $arrayJSON[] = (array(
                 "event" => true,
-                "npcid" => $eventRow['npcid'],
+                "isnpc" => $eventRow['isnpc'],
+                "id" => $eventRow['id'],
                 "audioType" => $eventRow['audiotype']
             ));
         }
@@ -237,7 +239,7 @@ switch($_POST['function']){
             throw new Exception("Enter a valid password");
         }
         //get username, password
-        $playerRow = query("select id,peerid,posx,posy from playerinfo where uname=".prepVar($uname)." and pass=".prepVar($pass));
+        $playerRow = query("select id,peerid,posx,posy,audioURL from playerinfo where uname=".prepVar($uname)." and pass=".prepVar($pass));
         if($playerRow == false){
             throw new Exception("Incorrect username or password");
         }
@@ -250,7 +252,9 @@ switch($_POST['function']){
             "peerID" => $playerRow['peerid'],
             "posX" => $playerRow['posx'],
             "posY" => $playerRow['posy'],
-            "spriteaudioURL" => array("Lowlife.mp3","Dead.mp3")
+            "spriteaudioURL" => "Lowlife.mp3,Dead.mp3",
+            "playeraudioURL" => $playerRow['audioURL'],
+            "playerID" => $playerRow['id']
         ));
         break;
     

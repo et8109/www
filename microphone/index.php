@@ -26,6 +26,9 @@
             #logout{
                 /*display: none;*/
             }
+            #options{
+                display: none;
+            }
             #compass{
                 visibility: hidden;
                 color: white;
@@ -58,6 +61,9 @@
             </div>
             <div id="logout">
                 <input type="button" value="logout" onclick="logout()">
+            </div>
+            <div id="options">
+                <input type="button" value="record attack [2 seconds]" onclick="record(recordedAttack())">
             </div>
         </div>
     </body>
