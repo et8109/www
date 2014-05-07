@@ -57,6 +57,10 @@ function queryMulti($sql){
     return $result;
 }
 
+function lastQueryNumRows(){
+    return mysqli_affected_rows($GLOBALS['con']);
+}
+
 function prepVar($var){
     $var = mysqli_real_escape_string($GLOBALS['con'],$var);
     //replace ' with ''
@@ -91,34 +95,38 @@ function addEvents($px,$py,$x,$y,$npcType,$npcID,$zone,$time,/*just for access:*
             break;
         case(npcTypes::enemy):
             if($dist < distances::enemyAttack){
-                $health = $playerQuery['health'];
-                //if dead
-                if($health < 2){
-                    //new coords
-                    $arrayJSON[] = (array(
-                        "playerInfo" => true,
-                        "posX" => 0,
-                        "posY" => 0
-                    ));
-                    //update player
-                    query("update playerinfo set health=".prepVar(constants::maxHealth).",posx=0, posy=0 where id=".prepVar($_SESSION['playerID']));
-                    //addPlayerEvent(1, $zone, $time);//death sound as event
-                    addSpriteEvent(1, $arrayJSON);//you're dead msg
-                    addNpcEvent(1, $npcID, $zone, $time);//attack audio
-                    return;
-                } else{
-                //if alive
-                addPlayerEvent(0, $zone, $time);//player attack
-                if(addNpcEvent(1, $npcID, $zone, $time)){//attack audio
-                    //lower player health
-                    query("update playerinfo set health=health-1 where id=".prepVar($_SESSION['playerID']));
-                    if($health < 3){
-                        addSpriteEvent(0, $arrayJSON);//low health msg
+                if(addPlayerEvent(0, $zone, $time)){//if player attacks
+                    //lower monster health
+                    query("update npcs set health=health-1 where id=".prepVar($npcID)." and posx=".prepVar($x)." and posy=".prepVar($y)." and health>1");
+                    if(lastQueryNumRows != 1){
+                        //enemy is killed
                     }
                 }
-                //lower enemy health
-                return;
-                }
+                if(addNpcEvent(1, $npcID, $zone, $time)){//if enemy attacks
+                    //lower player health
+                    query("update playerinfo set health=health-1 where id=".prepVar($_SESSION['playerID']));
+                    $health = $playerQuery['health'];
+                    //if dead
+                    if($health < 2){
+                        //new coords
+                        $arrayJSON[] = (array(
+                            "playerInfo" => true,
+                            "posX" => 0,
+                            "posY" => 0
+                        ));
+                        //update player
+                        query("update playerinfo set health=".prepVar(constants::maxHealth).",posx=0, posy=0 where id=".prepVar($_SESSION['playerID']));
+                        //addPlayerEvent(1, $zone, $time);//death sound as event
+                        addSpriteEvent(1, $arrayJSON);//you're dead msg
+                        addNpcEvent(1, $npcID, $zone, $time);//attack audio
+                        return;
+                    }
+                    //if low health
+                    else if($health < 3){
+                        addSpriteEvent(0, $arrayJSON);//low health msg
+                        return;
+                    }
+                } 
             }
             else if($dist < distances::enemyNotice){
                 addNpcEvent(0, $npcID, $zone, $time);//notice audio
@@ -180,7 +188,7 @@ switch($_POST['function']){
         //prepare array to send
         $arrayJSON = array();
         //get npcs in zone
-        $npcResult = queryMulti("select id,posx,posy, from npcs where zone=".prepVar($zone));
+        $npcResult = queryMulti("select id,posx,posy from npcs where zone=".prepVar($zone));
         //if in a new zone
         if($newZone){
             $arrayJSON[0] = array("newZone" => true);

@@ -108,7 +108,6 @@ function queryMulti($sql){
 function lastIDQuery($sql){
     mysqli_query($GLOBALS['con'], $sql);
     return mysqli_insert_id($GLOBALS['con']);
-        
 }
 /**
  *returns the number of rows affected by the last query
