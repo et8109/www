@@ -180,7 +180,7 @@ switch($_POST['function']){
         //prepare array to send
         $arrayJSON = array();
         //get npcs in zone
-        $npcResult = queryMulti("select id,posx,posy,type,audioURL from npcinfo where zone=".prepVar($zone));
+        $npcResult = queryMulti("select id,posx,posy, from npcs where zone=".prepVar($zone));
         //if in a new zone
         if($newZone){
             $arrayJSON[0] = array("newZone" => true);
@@ -191,20 +191,21 @@ switch($_POST['function']){
         query("delete from events where time < ".prepVar($time-constants::secBetweenevents));
         //loop though npcs
         while($npcRow = mysqli_fetch_array($npcResult)){
+            $npcinfo=query("select type,audioURL from npcinfo where id=".prepVar($npcRow['id']));
             //loading
             if($newZone){
                 //send npc info
                 $arrayJSON[] = (array(
                 "success" => true,
                 "id" => $npcRow['id'],
-                "type" => $npcRow['type'],
+                "type" => $npcinfo['type'],
                 "posx" => $npcRow['posx'],
                 "posy" => $npcRow['posy'],
                 "posz" => 0,
-                "audioURL" => $npcRow['audioURL']
+                "audioURL" => $npcinfo['audioURL']
                 ));
             }
-            addEvents($posx,$posy,$npcRow['posx'],$npcRow['posy'],$npcRow['type'],$npcRow['id'],$zone,$time,/*for access:*/$arrayJSON,$playerQuery);
+            addEvents($posx,$posy,$npcRow['posx'],$npcRow['posy'],$npcinfo['type'],$npcRow['id'],$zone,$time,/*for access:*/$arrayJSON,$playerQuery);
         }
         mysqli_free_result($npcResult);
         //check nearby players
