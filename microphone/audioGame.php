@@ -90,7 +90,7 @@ function addEvents($px,$py,$x,$y,$npcType,$npcID,$zone,$time,/*just for access:*
     switch($npcType){
         case(npcTypes::ambient):
             if($dist < distances::ambientNotice){
-                addNpcEvent(0, $npcID, $zone, $time);//ambient audio
+                addNpcEvent(0, $npcID, $zone, $time,/*override*/false);//ambient aud
             }
             break;
         case(npcTypes::enemy):
@@ -98,11 +98,13 @@ function addEvents($px,$py,$x,$y,$npcType,$npcID,$zone,$time,/*just for access:*
                 if(addPlayerEvent(0, $zone, $time)){//if player attacks
                     //lower monster health
                     query("update npcs set health=health-1 where id=".prepVar($npcID)." and posx=".prepVar($x)." and posy=".prepVar($y)." and health>1");
-                    if(lastQueryNumRows != 1){
+                    if(lastQueryNumRows() != 1){
                         //enemy is killed
+                        addNpcEvent(2, $npcID, $zone, $time,/*override*/true);//death audio
+                        query("update npcs set health=3 where id=".prepVar($npcID)." and posx=".prepVar($x)." and posy=".prepVar($y));
                     }
                 }
-                if(addNpcEvent(1, $npcID, $zone, $time)){//if enemy attacks
+                if(addNpcEvent(1, $npcID, $zone, $time,/*override*/false)){//if enemy attacks
                     //lower player health
                     query("update playerinfo set health=health-1 where id=".prepVar($_SESSION['playerID']));
                     $health = $playerQuery['health'];
@@ -118,7 +120,6 @@ function addEvents($px,$py,$x,$y,$npcType,$npcID,$zone,$time,/*just for access:*
                         query("update playerinfo set health=".prepVar(constants::maxHealth).",posx=0, posy=0 where id=".prepVar($_SESSION['playerID']));
                         //addPlayerEvent(1, $zone, $time);//death sound as event
                         addSpriteEvent(1, $arrayJSON);//you're dead msg
-                        addNpcEvent(1, $npcID, $zone, $time);//attack audio
                         return;
                     }
                     //if low health
@@ -129,7 +130,7 @@ function addEvents($px,$py,$x,$y,$npcType,$npcID,$zone,$time,/*just for access:*
                 } 
             }
             else if($dist < distances::enemyNotice){
-                addNpcEvent(0, $npcID, $zone, $time);//notice audio
+                addNpcEvent(0, $npcID, $zone, $time,/*override*/false);//notice audio
             }
             break;
     }
@@ -138,13 +139,13 @@ function addEvents($px,$py,$x,$y,$npcType,$npcID,$zone,$time,/*just for access:*
 /**
  *npc events can be heard by everyone nearby
  */
-function addNpcEvent($audioType, $npcID, $zone, $time){
+function addNpcEvent($audioType, $npcID, $zone, $time,$override){
     //if there is already an event fromt that npc
-    $eventRow = query("select 1 from events where id=".prepVar($npcID)." and isnpc=1");
-    if($eventRow[0] == 1){
+    $eventRow = query("select 1 from events where id=".prepVar($npcID)." and isnpc=1 limit 1");
+    if($eventRow[0] == 1 && !$override){
         return false;
     }
-    //if empty, add event
+    //if empty or override, add event
     query("insert into events (time,zone,id,audiotype,isnpc) values (".prepVar($time).",".prepVar($zone).",".prepVar($npcID).",".prepVar($audioType).",1)");
     return true;
 }
@@ -162,11 +163,12 @@ function addSpriteEvent($audioType, &$arrayJSON){
  */
 function addPlayerEvent($audioType, $zone, $time){
     //if there is already an event fromt that player
-    $eventRow = query("select 1 from events where id=".prepVar($_SESSION['playerID'])." and isnpc=0");
+    $eventRow = query("select 1 from events where id=".prepVar($_SESSION['playerID'])." and isnpc=0 limit 1");
     if($eventRow[0] == 1){
         return false;
     }
     query("insert into events (time,zone,id,audiotype,isnpc) values (".prepVar($time).",".prepVar($zone).",".prepVar($_SESSION['playerID']).",".prepVar($audioType).",0)");
+    return true;
 }
 try{
 switch($_POST['function']){
