@@ -17,6 +17,7 @@ final class distances {
     const ambientNotice = 15;
     const enemyNotice = 10;
     const enemyAttack = 4;
+    const personTalk = 10;
 }
 /**
  *a number which descibes the general behavior of differnt npcs
@@ -27,6 +28,7 @@ final class npcTypes {//audios commented
     const ambient = 0;//[listen]
     const enemy = 1;//[notice, attack]
     const walkAudio = 2;//[walk]
+    const person = 3;//[]
 }
 
 function _getConnection(){
@@ -131,6 +133,11 @@ function addEvents($px,$py,$x,$y,$npcType,$npcID,$zone,$time,/*just for access:*
             }
             else if($dist < distances::enemyNotice){
                 addNpcEvent(0, $npcID, $zone, $time,/*override*/false);//notice audio
+            }
+            break;
+        case(npcTypes::person):
+            if($dist < distances::ambientNotice){
+                addNpcEvent(0, $npcID, $zone, $time,/*override*/false);//person talk
             }
             break;
     }

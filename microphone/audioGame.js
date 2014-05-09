@@ -30,7 +30,8 @@ var players=[];
 var types = {
     ambient_noise:0,
     enemy: 1,
-    walk_audio: 2
+    walk_audio: 2,
+    person: 3
 }
 /**
  *gives the object a buffer array and loads audio urls
@@ -123,6 +124,10 @@ function checkUpdateResponse(response) {
                 data.playing = false;
                 walkObject = data;
                 addUrlRequest(walkObject, walkObject.audioURL);
+            }
+            else if (data.type == types.person){
+                npcs[data.id] = data;
+                addUrlRequest(npcs[data.id], data.audioURL);
             }
         }
         loadRequestArray(requestArray);
