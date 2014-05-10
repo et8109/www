@@ -20,6 +20,16 @@ final class distances {
     const personTalk = 10;
 }
 /**
+ *cooldowns for each npc type
+ */
+$cooldowns=[
+    0 => 6, //ambient
+    1 => 4, //enemy
+    //2: walking
+    3 => 8, //person
+];
+
+/**
  *a number which descibes the general behavior of differnt npcs
  *the field in the db
  **repeated in js
@@ -204,11 +214,13 @@ switch($_POST['function']){
         }
         //set current time
         $time = time();
-        //remove old events
-        query("delete from events where time < ".prepVar($time-constants::secBetweenevents));
         //loop though npcs
         while($npcRow = mysqli_fetch_array($npcResult)){
             $npcinfo=query("select type,audioURL from npcinfo where id=".prepVar($npcRow['id']));
+            //remove old events
+            if(isset($cooldowns[$npcinfo['type']])){
+                query("delete from events where id=".prepVar($npcRow['id'])." and time < ".prepVar($time-$cooldowns[$npcinfo['type']]));
+            }
             //loading
             if($newZone){
                 //send npc info
