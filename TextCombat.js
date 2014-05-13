@@ -26,6 +26,9 @@ var frontLoadKeywords;
             frontLoadSceneText = parseInt(response[3]);
             frontLoadKeywords = parseInt(response[4]);
             enableInput();
+            addText("Welcome!");
+            addText("'/look' to look around.");
+            addText("'/help' for a link to the guide.");
         }
     ); 
 }());

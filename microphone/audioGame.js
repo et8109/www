@@ -19,9 +19,13 @@ var context = new webkitAudioContext();
  */
 var walkObject;
 var spriteObject=function(){};
+var question = false;
+var answer = null;
 
 var requestArray=[];
 var npcs=[];
+var enemies = [];
+var ambient =[];
 var players=[];
 
 /**
@@ -105,18 +109,18 @@ function checkUpdateResponse(response) {
     //reset npcs 
     if (response[0].newZone) {
         log("new zone");
+        //stop all old npcs
         npcs = [];
+        //stop all old ambient
+        ambient = [];
+        //stop all old enemies
+        enemies = [];
         for(j in response){
             var data = response[j];
-            if (data.type == types.ambient_noise) {
-                npcs[data.id] = data;
-                addUrlRequest(npcs[data.id], data.audioURL);
-            }
-            else if (data.type == types.enemy) {
-                npcs[data.id] = data;
-                addUrlRequest(npcs[data.id], data.audioURL);
-            }
-            else if (data.type == types.walk_audio){//walk audio
+            if (data.ambient) {//make sure ambient loops until stopped
+                ambient.push(data);
+                addUrlRequest(ambient[ambient.length-1], data.audioURL);
+            } else if (data.movement) {//still needed?
                 data.loop = true;
                 data.posx = null;
                 data.posy = null;
@@ -124,8 +128,10 @@ function checkUpdateResponse(response) {
                 data.playing = false;
                 walkObject = data;
                 addUrlRequest(walkObject, walkObject.audioURL);
-            }
-            else if (data.type == types.person){
+            } else if (data.enemy) {
+                enemies[data.id] = data;
+                addUrlRequest(enemies[data.id], data.audioURL);
+            } else if (data.npc) {
                 npcs[data.id] = data;
                 addUrlRequest(npcs[data.id], data.audioURL);
             }
@@ -137,11 +143,10 @@ function checkUpdateResponse(response) {
             var data = response[j];
             if (data.event) {
                 //if npc event
-                if (data.isnpc == 1) {
+                if (data.npc) {
                     playObject(npcs[data.id], data.audioType);
-                } else{
-                    //if player event
-                    playObject(players[data.id], data.audioType);
+                } else if(data.enemy){
+                } else if (data.player) {
                 }
             } else if (data.spriteEvent) {
                 playObject(spriteObject, data.audioType);
@@ -149,6 +154,8 @@ function checkUpdateResponse(response) {
                 //update position
                 posX = data.posX;
                 posY = data.posY;
+            } else if(data.question){
+                question = true;
             }
             //nearby players
             //add to players array players[id]
@@ -164,6 +171,16 @@ function checkUpdateResponse(response) {
  */
 function tick(){
     if (loading) {
+        return;
+    }
+    if (question) {
+        if (pressedA && pressedD) {
+            answer = false;
+        }
+        else if (pressedW && pressedS) {
+            answer = true;
+        }
+        question = false;
         return;
     }
     if (pressedA || pressedD || pressedS || pressedW) {
@@ -287,7 +304,7 @@ function login(){
 function update(){
     log("u: "+posX+" x "+posY);
     sendRequest("audioGame.php",
-                "function=update&posx="+Math.floor(posX)+"&posy="+Math.floor(posY),
+                "function=update&posx="+Math.floor(posX)+"&posy="+Math.floor(posY)+"&ans="+answer,
                 function(response){
                     checkUpdateResponse(response);
                 }
