@@ -146,6 +146,7 @@ function checkUpdateResponse(response) {
                 if (data.npc) {
                     playObject(npcs[data.id], data.audioType);
                 } else if(data.enemy){
+                    playObject(enemies[data.id], data.audioType);
                 } else if (data.player) {
                 }
             } else if (data.spriteEvent) {

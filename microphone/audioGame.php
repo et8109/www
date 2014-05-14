@@ -73,43 +73,43 @@ function sendError($msg){
         ));
 }
 
-function addNpcEvent($px,$py,$x,$y,$npcID,$time){
+function addNpcEvent($px,$py,$x,$y,$npcID,$time,$busy,&$arrayJSON){
     $dist = findDist($px,$py,$x,$y);
-    if($dist < distances::personTalk){
+    if($dist < distances::personTalk && !$busy){
         //if answered
         if(isset($ans)){
             if($ans){
-                _addNpcEvent(2,$npcID,$time);//yes
+                _addNpcEvent(2,$npcID,$time, $arrayJSON);//yes
             } else if(!$ans){
-                _addNpcEvent(3,$npcID,$time);//no
+                _addNpcEvent(3,$npcID,$time, $arrayJSON);//no
             }
         } else{
             //not answered
-            _addNpcEvent(1,$npcID,$time);//ask q
+            _addNpcEvent(1,$npcID,$time, $arrayJSON);//ask q
             //askQuestion();
         }
     }
-    else if($dist < distances::personNotice){
-        _addNpcEvent(0,$npcID,$time);//welcome
+    else if($dist < distances::personNotice && !$busy){
+        _addNpcEvent(0,$npcID,$time, $arrayJSON);//welcome
     }
 }
 
-function addEnemyEvent($px,$py,$x,$y,$enemyID,$time){
+function addEnemyEvent($px,$py,$x,$y,$enemyID,$time,/*player:*/$zone,$health,$busy,&$arrayJSON){
     $dist = findDist($px,$py,$x,$y);
     if($dist < distances::enemyAttack){
-        if(_addPlayerEvent(0,$time)){//if player attacks
+        if(_addPlayerEvent(0,$time, $zone,false)){//if player attacks
             //lower monster health
             query("update enemies set health=health-1 where id=".prepVar($enemyID)." and posx=".prepVar($x)." and posy=".prepVar($y)." and health>1");
             if(lastQueryNumRows() != 1){
                 //enemy is killed
-                _addEnemyEvent(2, $enemyID, $time);//death audio
+                _addEnemyEvent(2, $enemyID, $time, $arrayJSON);//death audio
                 query("update enemies set health=3 where id=".prepVar($enemyID)." and posx=".prepVar($x)." and posy=".prepVar($y));
             }
         }
-        if(_addNpcEvent(1, $enemyID, $time)){//if enemy attacks
+        if(!$busy){//if enemy attacks
+            _addEnemyEvent(1, $enemyID, $time, $arrayJSON);//attacking
             //lower player health
             query("update playerinfo set health=health-1 where id=".prepVar($_SESSION['playerID']));
-            $health = $playerQuery['health'];
             //if dead
             if($health < 2){
                 //new coords
@@ -120,7 +120,7 @@ function addEnemyEvent($px,$py,$x,$y,$enemyID,$time){
                 ));
                 //update player
                 query("update playerinfo set health=".prepVar(constants::maxHealth).",posx=0, posy=0 where id=".prepVar($_SESSION['playerID']));
-                _addPlayerEvent(1, $time);//death sound as event
+                _addPlayerEvent(1, $time, $zone,true);//death sound as event
                 _addSpriteEvent(1, $arrayJSON);//you're dead msg
                 return;
             }
@@ -131,27 +131,53 @@ function addEnemyEvent($px,$py,$x,$y,$enemyID,$time){
             }
         } 
     }
-    else if($dist < distances::enemyNotice){
-        _addNpcEvent(0, $npcID, $time);//notice audio
+    else if($dist < distances::enemyNotice && !$busy){
+        _addEnemyEvent(0, $enemyID, $time, $arrayJSON);//notice audio
     }
 }
 
-function _addNpcEvent($audio,$id,$time){
+/**
+ *overrides current event
+ */
+function _addNpcEvent($audio,$id,$time,&$arrayJSON){
     query("update npcs set start=".prepVar($time)." and finish=".prepVar($time+6)." and lastAudio=".prepVar($audio)." where id=".prepVar($id));
+    $arrayJSON[] = (array(
+        "event" => true,
+        "npc" => true,
+        "id" => $id,
+        "audioType" => $audio
+    ));
 }
-
-function _addEnemyEvent($audio,$id,$time){
+/**
+ *overrides current event
+ */
+function _addEnemyEvent($audio,$id,$time,&$arrayJSON){
     query("update enemies set start=".prepVar($time)." and finish=".prepVar($time+6)." and lastAudio=".prepVar($audio)." where id=".prepVar($id));
+    $arrayJSON[] = (array(
+        "event" => true,
+        "enemy" => true,
+        "id" => $id,
+        "audioType" => $audio
+    ));
 }
 
-function _addPlayerEvent($audio,$time){
-    //use SESSION_['playerid']
+/**
+ *returns false is player is busy
+ *true if event added
+ */
+function _addPlayerEvent($audio,$time,$zone, $override){
+    $checkRow = query("select 1 from playerevents where id=".prepVar($_SESSION['playerID'])." limit 1");
+    if(lastQueryNumRows() == 1 && !$override){
+        return false;
+    }
+    query("insert into playerevents (id,zone,audiotype,start,finish) values (".prepVar($_SESSION['playerID']).",".prepVar($zone).",".prepVar($audio).",".prepVar($time).",".prepVar($time+6).")");
+    return true;
 }
 
 /**
  *sprite events can only be heard by the player
  */
-function _addSpriteEvent($audioType, &$arrayJSON){
+function _addSpriteEvent($audioType,&$arrayJSON){
     $arrayJSON[] = (array(
         "spriteEvent" => true,
         "audioType" => $audioType
@@ -230,30 +256,30 @@ switch($_POST['function']){
             }
             mysqli_free_result($enemyResult);
             //send npcs
-            $npcResult = queryMulti("select id,posx,posy from npcs where zone=".prepVar($zone));
+            $npcResult = queryMulti("select id,posx,posy,audioURL from npcs where zone=".prepVar($zone));
             while($row = mysqli_fetch_array($npcResult)){
-                $audioRow = query("select audioURL from npcinfo where id=".prepVar($row['id']));
                 $arrayJSON[] = (array(
                     "npc" => true,
-                    "id" = $row['id'],
+                    "id" => $row['id'],
                     "posx" => $row['posx'],
                     "posy" => $row['posy'],
-                    "audioURL" => $audioRow['audioURL']
+                    "audioURL" => $row['audioURL']
                 ));
             }
             mysqli_free_result($npcResult);
+            sendJSON($arrayJSON);
+            return;
         }
         //set current time
         $time = time();
+        //remove old player events
+        query("delete from playerevents where finish<".prepVar($time));
         //get npcs in zone
         $npcResult = queryMulti("select id,posx,posy,finish,start,lastAudio from npcs where zone=".prepVar($zone));
         //loop though npcs
         while($npcRow = mysqli_fetch_array($npcResult)){
-            $npcinfo=query("select audioURL from npcinfo where id=".prepVar($npcRow['id']));
-            //if free to speak
-            if($time > $npcRow['finish']){
-                addNpcEvent($posx, $posy, $npcRow['posx'], $npcRow['posy'], $npcRow['id'],$time);
-            } else if($_SESSION['lastupdateTime'] < $npcRow['start']){
+            addNpcEvent($posx, $posy, $npcRow['posx'], $npcRow['posy'], $npcRow['id'],$time, $time < $npcRow['finish'],$arrayJSON);
+            if($_SESSION['lastupdateTime'] < $npcRow['start']){
                 //if new for this player
                 $arrayJSON[] = (array(
                     "event" => true,
@@ -266,14 +292,11 @@ switch($_POST['function']){
         mysqli_free_result($npcResult);
         
         //get enemies in zone
-        $enemyResult = queryMulti("select id,posx,posy,finish,start,lastAudio from npcs where zone=".prepVar($zone));
+        $enemyResult = queryMulti("select id,posx,posy,finish,start,lastAudio from enemies where zone=".prepVar($zone));
         //loop though npcs
         while($enemyRow = mysqli_fetch_array($enemyResult)){
-            $npcinfo=query("select audioURL from enemies where id=".prepVar($enemyRow['id']));
-            //if free to speak
-            if($time > $enemyRow['finish']){
-                addEnemyEvent($posx, $posy, $enemyRow['posx'], $enemyRow['posy'], $enemyRow['id'],$time);
-            } else if($_SESSION['lastupdateTime'] < $enemyRow['start']){
+            addEnemyEvent($posx, $posy, $enemyRow['posx'], $enemyRow['posy'], $enemyRow['id'],$time,$zone,$playerQuery['health'],$time < $enemyRow['finish'],$arrayJSON);
+            if($_SESSION['lastupdateTime'] < $enemyRow['start']){
                 //if new for this player
                 $arrayJSON[] = (array(
                     "event" => true,
@@ -311,7 +334,7 @@ switch($_POST['function']){
         }
         //set session
         $_SESSION['playerID'] = $playerRow['id'];
-        $_SESSION['lastEventTime'] = 0;
+        $_SESSION['lastupdateTime'] = 0;
         sendJSON(array(
             "login" => true,
             "success" => true,
