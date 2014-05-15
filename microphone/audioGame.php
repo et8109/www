@@ -140,7 +140,7 @@ function addEnemyEvent($px,$py,$x,$y,$enemyID,$time,/*player:*/$zone,$health,$bu
  *overrides current event
  */
 function _addNpcEvent($audio,$id,$time,$px,$py,&$arrayJSON){
-    query("update npcs set start=".prepVar($time)." and finish=".prepVar($time+6)." and lastAudio=".prepVar($audio)." where id=".prepVar($id));
+    query("update npcs set start=".prepVar($time).", finish=".prepVar($time+10).", lastAudio=".prepVar($audio)." where id=".prepVar($id));
     $arrayJSON[] = (array(
         "event" => true,
         "npc" => true,
@@ -154,7 +154,7 @@ function _addNpcEvent($audio,$id,$time,$px,$py,&$arrayJSON){
  *overrides current event
  */
 function _addEnemyEvent($audio,$id,$time,$px,$py,&$arrayJSON){
-    query("update enemies set start=".prepVar($time)." and finish=".prepVar($time+6)." and lastAudio=".prepVar($audio)." where id=".prepVar($id));
+    query("update enemies set start=".prepVar($time).", finish=".prepVar($time+10).", lastAudio=".prepVar($audio)." where id=".prepVar($id));
     $arrayJSON[] = (array(
         "event" => true,
         "enemy" => true,
