@@ -79,18 +79,18 @@ function addNpcEvent($px,$py,$x,$y,$npcID,$time,$busy,&$arrayJSON){
         //if answered
         if(isset($ans)){
             if($ans){
-                _addNpcEvent(2,$npcID,$time, $arrayJSON);//yes
+                _addNpcEvent(2,$npcID,$time,$px,$py,$arrayJSON);//yes
             } else if(!$ans){
-                _addNpcEvent(3,$npcID,$time, $arrayJSON);//no
+                _addNpcEvent(3,$npcID,$time,$px,$py,$arrayJSON);//no
             }
         } else{
             //not answered
-            _addNpcEvent(1,$npcID,$time, $arrayJSON);//ask q
+            _addNpcEvent(1,$npcID,$time,$px,$py,$arrayJSON);//ask q
             //askQuestion();
         }
     }
     else if($dist < distances::personNotice && !$busy){
-        _addNpcEvent(0,$npcID,$time, $arrayJSON);//welcome
+        _addNpcEvent(0,$npcID,$time,$px,$py,$arrayJSON);//welcome
     }
 }
 
@@ -102,12 +102,12 @@ function addEnemyEvent($px,$py,$x,$y,$enemyID,$time,/*player:*/$zone,$health,$bu
             query("update enemies set health=health-1 where id=".prepVar($enemyID)." and posx=".prepVar($x)." and posy=".prepVar($y)." and health>1");
             if(lastQueryNumRows() != 1){
                 //enemy is killed
-                _addEnemyEvent(2, $enemyID, $time, $arrayJSON);//death audio
+                _addEnemyEvent(2, $enemyID, $time,$px,$py,$arrayJSON);//death audio
                 query("update enemies set health=3 where id=".prepVar($enemyID)." and posx=".prepVar($x)." and posy=".prepVar($y));
             }
         }
         if(!$busy){//if enemy attacks
-            _addEnemyEvent(1, $enemyID, $time, $arrayJSON);//attacking
+            _addEnemyEvent(1, $enemyID, $time,$px,$py,$arrayJSON);//attacking
             //lower player health
             query("update playerinfo set health=health-1 where id=".prepVar($_SESSION['playerID']));
             //if dead
@@ -120,7 +120,7 @@ function addEnemyEvent($px,$py,$x,$y,$enemyID,$time,/*player:*/$zone,$health,$bu
                 ));
                 //update player
                 query("update playerinfo set health=".prepVar(constants::maxHealth).",posx=0, posy=0 where id=".prepVar($_SESSION['playerID']));
-                _addPlayerEvent(1, $time, $zone,true);//death sound as event
+                //_addPlayerEvent(1, $time, $zone,true);//death sound as event
                 _addSpriteEvent(1, $arrayJSON);//you're dead msg
                 return;
             }
@@ -132,31 +132,35 @@ function addEnemyEvent($px,$py,$x,$y,$enemyID,$time,/*player:*/$zone,$health,$bu
         } 
     }
     else if($dist < distances::enemyNotice && !$busy){
-        _addEnemyEvent(0, $enemyID, $time, $arrayJSON);//notice audio
+        _addEnemyEvent(0, $enemyID, $time,$px,$py,$arrayJSON);//notice audio
     }
 }
 
 /**
  *overrides current event
  */
-function _addNpcEvent($audio,$id,$time,&$arrayJSON){
+function _addNpcEvent($audio,$id,$time,$px,$py,&$arrayJSON){
     query("update npcs set start=".prepVar($time)." and finish=".prepVar($time+6)." and lastAudio=".prepVar($audio)." where id=".prepVar($id));
     $arrayJSON[] = (array(
         "event" => true,
         "npc" => true,
         "id" => $id,
+        "posx" => $px,
+        "posy" => $py,
         "audioType" => $audio
     ));
 }
 /**
  *overrides current event
  */
-function _addEnemyEvent($audio,$id,$time,&$arrayJSON){
+function _addEnemyEvent($audio,$id,$time,$px,$py,&$arrayJSON){
     query("update enemies set start=".prepVar($time)." and finish=".prepVar($time+6)." and lastAudio=".prepVar($audio)." where id=".prepVar($id));
     $arrayJSON[] = (array(
         "event" => true,
         "enemy" => true,
         "id" => $id,
+        "posx" => $px,
+        "posy" => $py,
         "audioType" => $audio
     ));
 }
@@ -223,7 +227,7 @@ switch($_POST['function']){
         //prepare array to send
         $arrayJSON = array();
         //if in a new zone
-        if($newZone){
+        if($newZone && $zone==0){//only 0 for now
             $arrayJSON[0] = array("newZone" => true);
             //send ambient sounds
             $ambientResult = queryMulti("select posx,posy,audioURL from ambient where zone=".prepVar($zone));
@@ -308,6 +312,17 @@ switch($_POST['function']){
         }
         mysqli_free_result($enemyResult);
         //check nearby players
+        //check player events
+        $eventsResult = queryMulti("select id,audiotype from playerevents where zone=".prepVar($zone)." and start>=".prepVar($_SESSION['lastupdateTime']));
+        while($row = mysqli_fetch_array($eventsResult)){
+            $arrayJSON[] =(array(
+                "event" => true,
+                "player" => true,
+                "id" => $row['id'],
+                "audioType" => $row['audiotype']
+            ));
+        }
+        mysqli_free_result($eventsResult);
         sendJSON($arrayJSON);
         //update last event time
         $_SESSION['lastupdateTime'] = $time;

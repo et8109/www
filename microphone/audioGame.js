@@ -118,6 +118,9 @@ function checkUpdateResponse(response) {
         for(j in response){
             var data = response[j];
             if (data.ambient) {//make sure ambient loops until stopped
+                data.posx = null;
+                data.posy = null;
+                data.posz = null;
                 ambient.push(data);
                 addUrlRequest(ambient[ambient.length-1], data.audioURL);
             } else if (data.movement) {//still needed?
@@ -129,9 +132,11 @@ function checkUpdateResponse(response) {
                 walkObject = data;
                 addUrlRequest(walkObject, walkObject.audioURL);
             } else if (data.enemy) {
+                data.posz = null;
                 enemies[data.id] = data;
                 addUrlRequest(enemies[data.id], data.audioURL);
             } else if (data.npc) {
+                data.posz = null;
                 npcs[data.id] = data;
                 addUrlRequest(npcs[data.id], data.audioURL);
             }
@@ -148,6 +153,7 @@ function checkUpdateResponse(response) {
                 } else if(data.enemy){
                     playObject(enemies[data.id], data.audioType);
                 } else if (data.player) {
+                    playObject(players[data.id], data.audioType);
                 }
             } else if (data.spriteEvent) {
                 playObject(spriteObject, data.audioType);
@@ -342,7 +348,6 @@ function logout() {
                     if (response.success) {
                         log("logged out");
                         showLogin();
-                        hideCompass();
                     }
                 });
 }
