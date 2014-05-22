@@ -109,21 +109,20 @@ function checkUpdateResponse(response) {
     //reset npcs 
     if (response[0].newZone) {
         log("new zone");
-        //stop all old npcs
+        //stop all loops
         npcs = [];
-        //stop all old ambient
         ambient = [];
-        //stop all old enemies
         enemies = [];
         for(j in response){
             var data = response[j];
-            if (data.ambient) {//make sure ambient loops until stopped
+            if (data.ambient) {
                 data.posx = null;
                 data.posy = null;
                 data.posz = null;
+                data.loop = true;//ambient sounds loop
                 ambient.push(data);
                 addUrlRequest(ambient[ambient.length-1], data.audioURL);
-            } else if (data.movement) {//still needed?
+            } else if (data.movement) {
                 data.loop = true;
                 data.posx = null;
                 data.posy = null;
@@ -162,7 +161,9 @@ function checkUpdateResponse(response) {
                 posX = data.posX;
                 posY = data.posY;
             } else if(data.question){
+                log("recieved question");
                 question = true;
+                answer = null;
             }
             //nearby players
             //add to players array players[id]
@@ -190,7 +191,7 @@ function tick(){
         question = false;
         return;
     }
-    if (pressedA || pressedD || pressedS || pressedW) {
+    else if (pressedA || pressedD || pressedS || pressedW) {
         //play walk audio
         if (!walkObject.playing) {
             playObject(walkObject,0);
@@ -310,8 +311,12 @@ function login(){
  */
 function update(){
     log("u: "+posX+" x "+posY);
+    var req = "function=update&posx="+Math.floor(posX)+"&posy="+Math.floor(posY);
+    if (answer != null) {
+        req += "&ans="+answer;
+    }
     sendRequest("audioGame.php",
-                "function=update&posx="+Math.floor(posX)+"&posy="+Math.floor(posY)+"&ans="+answer,
+                req,
                 function(response){
                     checkUpdateResponse(response);
                 }

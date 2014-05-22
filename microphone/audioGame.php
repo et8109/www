@@ -73,7 +73,7 @@ function sendError($msg){
         ));
 }
 
-function addNpcEvent($px,$py,$x,$y,$npcID,$time,$busy,&$arrayJSON){
+function addNpcEvent($px,$py,$x,$y,$npcID,$time,$busy,&$arrayJSON,$ans){
     $dist = findDist($px,$py,$x,$y);
     if($dist < distances::personTalk && !$busy){
         //if answered
@@ -86,7 +86,7 @@ function addNpcEvent($px,$py,$x,$y,$npcID,$time,$busy,&$arrayJSON){
         } else{
             //not answered
             _addNpcEvent(1,$npcID,$time,$px,$py,$arrayJSON);//ask q
-            //askQuestion();
+            askQuestion($arrayJSON);
         }
     }
     else if($dist < distances::personNotice && !$busy){
@@ -212,7 +212,10 @@ switch($_POST['function']){
     case('update'):
         $posx = $_POST['posx'];
         $posy = $_POST['posy'];
-        $ans = $_POST['ans'];
+        $ans = null;
+        if(isset($_POST['ans'])){
+            $ans = $_POST['ans'];
+        }
         //find current zone
         $zone = floor($posx/constants::zoneWidth);
         $zone += constants::numZonesSrt * floor($posy/constants::zoneWidth);
@@ -282,7 +285,7 @@ switch($_POST['function']){
         $npcResult = queryMulti("select id,posx,posy,finish,start,lastAudio from npcs where zone=".prepVar($zone));
         //loop though npcs
         while($npcRow = mysqli_fetch_array($npcResult)){
-            addNpcEvent($posx, $posy, $npcRow['posx'], $npcRow['posy'], $npcRow['id'],$time, $time < $npcRow['finish'],$arrayJSON);
+            addNpcEvent($posx, $posy, $npcRow['posx'], $npcRow['posy'], $npcRow['id'],$time, $time < $npcRow['finish'],$arrayJSON,$ans);
             if($_SESSION['lastupdateTime'] < $npcRow['start']){
                 //if new for this player
                 $arrayJSON[] = (array(
