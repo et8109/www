@@ -78,11 +78,12 @@ function addNpcEvent($px,$py,$x,$y,$npcID,$time,$busy,&$arrayJSON,$ans){
     if($dist < distances::personTalk && !$busy){
         //if answered
         if(isset($ans)){
-            if($ans){
+            if($ans == 1){
                 _addNpcEvent(2,$npcID,$time,$px,$py,$arrayJSON);//yes
-            } else if(!$ans){
+            } else if($ans == 0){
                 _addNpcEvent(3,$npcID,$time,$px,$py,$arrayJSON);//no
             }
+            doneQuestion($arrayJSON);
         } else{
             //not answered
             _addNpcEvent(1,$npcID,$time,$px,$py,$arrayJSON);//ask q
@@ -193,7 +194,17 @@ function _addSpriteEvent($audioType,&$arrayJSON){
  */
 function askQuestion(&$arrayJSON){
     $arrayJSON[] = (array(
-        "question" => true
+        "question" => true,
+        "start" => true
+    ));
+}
+/**
+ *tells js to remove the current answer
+ */
+function doneQuestion(&$arrayJSON){
+    $arrayJSON[] = (array(
+        "question" => true,
+        "done" => true
     ));
 }
 

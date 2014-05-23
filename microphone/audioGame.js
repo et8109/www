@@ -161,9 +161,12 @@ function checkUpdateResponse(response) {
                 posX = data.posX;
                 posY = data.posY;
             } else if(data.question){
-                log("recieved question");
-                question = true;
-                answer = null;
+                if (data.start){
+                    question = true;
+                }
+                else if (data.done){
+                    answer = null;
+                }
             }
             //nearby players
             //add to players array players[id]
@@ -184,11 +187,12 @@ function tick(){
     if (question) {
         if (pressedA && pressedD) {
             answer = false;
+            question = false;
         }
         else if (pressedW && pressedS) {
             answer = true;
+            question = false;
         }
-        question = false;
         return;
     }
     else if (pressedA || pressedD || pressedS || pressedW) {
@@ -313,7 +317,7 @@ function update(){
     log("u: "+posX+" x "+posY);
     var req = "function=update&posx="+Math.floor(posX)+"&posy="+Math.floor(posY);
     if (answer != null) {
-        req += "&ans="+answer;
+        req += "&ans="+(answer==true ? 1 : 0);
     }
     sendRequest("audioGame.php",
                 req,
