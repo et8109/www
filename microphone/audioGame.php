@@ -310,18 +310,24 @@ switch($_POST['function']){
         mysqli_free_result($npcResult);
         
         //get enemies in zone
-        $enemyResult = queryMulti("select id,posx,posy,finish,start,lastAudio from enemies where zone=".prepVar($zone));
+        $enemyResult = queryMulti("select id,posx,posy,finish,start,lastAudio,health from enemies where zone=".prepVar($zone));
         //loop though npcs
         while($enemyRow = mysqli_fetch_array($enemyResult)){
-            addEnemyEvent($posx, $posy, $enemyRow['posx'], $enemyRow['posy'], $enemyRow['id'],$time,$zone,$playerQuery['health'],$time < $enemyRow['finish'],$arrayJSON);
-            if($_SESSION['lastupdateTime'] < $enemyRow['start']){
-                //if new for this player
-                $arrayJSON[] = (array(
-                    "event" => true,
-                    "enemy" => true,
-                    "id" => $enemyRow['id'],
-                    "audioType" => $enemyRow['lastAudio']
-                ));
+            //if dead
+            if($enemyRow['health'] == 0){
+                
+            } else{
+                //if alive
+                addEnemyEvent($posx, $posy, $enemyRow['posx'], $enemyRow['posy'], $enemyRow['id'],$time,$zone,$playerQuery['health'],$time < $enemyRow['finish'],$arrayJSON);
+                if($_SESSION['lastupdateTime'] < $enemyRow['start']){
+                    //if new for this player
+                    $arrayJSON[] = (array(
+                        "event" => true,
+                        "enemy" => true,
+                        "id" => $enemyRow['id'],
+                        "audioType" => $enemyRow['lastAudio']
+                    ));
+                }
             }
         }
         mysqli_free_result($enemyResult);

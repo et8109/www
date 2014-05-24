@@ -109,7 +109,10 @@ function checkUpdateResponse(response) {
     //reset npcs 
     if (response[0].newZone) {
         log("new zone");
-        //stop all loops
+        //stop loops
+        for (a in ambient) {
+            stopObject(ambient[a]);
+        }
         npcs = [];
         ambient = [];
         enemies = [];
