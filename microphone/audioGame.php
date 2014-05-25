@@ -105,6 +105,8 @@ function addEnemyEvent($px,$py,$x,$y,$enemyID,$time,/*player:*/$zone,$health,$bu
                 //enemy is killed
                 _addEnemyEvent(2, $enemyID, $time,$px,$py,$arrayJSON);//death audio
                 query("update enemies set health=3 where id=".prepVar($enemyID)." and posx=".prepVar($x)." and posy=".prepVar($y));
+                //add to kill count
+                query("update playerinfo set kills = kills+1 where playerID=".prepVar($_SESSION['playerID'])." and kills<99");
             }
         }
         if(!$busy){//if enemy attacks
@@ -315,7 +317,7 @@ switch($_POST['function']){
         while($enemyRow = mysqli_fetch_array($enemyResult)){
             //if dead
             if($enemyRow['health'] == 0){
-                
+                //stay until revived, or revive elsewhere
             } else{
                 //if alive
                 addEnemyEvent($posx, $posy, $enemyRow['posx'], $enemyRow['posy'], $enemyRow['id'],$time,$zone,$playerQuery['health'],$time < $enemyRow['finish'],$arrayJSON);
