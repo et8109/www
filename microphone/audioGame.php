@@ -9,6 +9,7 @@ final class constants {
     const numZonesSrt = 2;//should be a square
     const secBetweenevents = 6;
     const maxHealth = 4;
+    const zoneBuffer = 5;
 }
 /**
  *the distances at which certain audio starts
@@ -317,7 +318,12 @@ switch($_POST['function']){
         while($enemyRow = mysqli_fetch_array($enemyResult)){
             //if dead
             if($enemyRow['health'] == 0){
-                //stay until revived, or revive elsewhere
+                //revive elsewhere in zone
+                $y = floor($zone/constants::numZonesSrt);
+                $x = $zone-($y*constants::numZonesSrt);
+                $y = constants::zoneWidth($y) + rand((-1*constants::zoneWidth)+constants::zoneBuffer,constants::zoneWidth-constants::zoneBuffer);
+                $x = constants::zoneWidth($x) + rand((-1*constants::zoneWidth)+constants::zoneBuffer,constants::zoneWidth-constants::zoneBuffer);
+                //check if overlapping with anything
             } else{
                 //if alive
                 addEnemyEvent($posx, $posy, $enemyRow['posx'], $enemyRow['posy'], $enemyRow['id'],$time,$zone,$playerQuery['health'],$time < $enemyRow['finish'],$arrayJSON);
