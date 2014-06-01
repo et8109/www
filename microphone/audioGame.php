@@ -237,6 +237,11 @@ switch($_POST['function']){
         $playerQuery = query("select zone, health from playerinfo where id=".prepVar($_SESSION['playerID']));
         $newZone = false;
         if($playerQuery['zone'] != $zone){
+            //check if out of map range
+            if($zone < 0 || $zone > (constants::numZonesSrt*constants::numZonesSrt)){
+                sendError("can't walk over there");
+                return;
+            }
             $newZone = true;
         }
         //update playerinfo
@@ -244,7 +249,7 @@ switch($_POST['function']){
         //prepare array to send
         $arrayJSON = array();
         //if in a new zone
-        if($newZone && $zone==0){//only 0 for now
+        if($newZone){//only 0 for now
             $arrayJSON[0] = array("newZone" => true);
             //send ambient sounds
             $ambientResult = queryMulti("select posx,posy,audioURL from ambient where zone=".prepVar($zone));
@@ -314,7 +319,7 @@ switch($_POST['function']){
         
         //get enemies in zone
         $enemyResult = queryMulti("select id,posx,posy,finish,start,lastAudio,health from enemies where zone=".prepVar($zone));
-        //loop though npcs
+        //loop though enemies
         while($enemyRow = mysqli_fetch_array($enemyResult)){
             //if dead
             if($enemyRow['health'] == 0){
