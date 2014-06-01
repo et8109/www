@@ -249,7 +249,7 @@ switch($_POST['function']){
         //prepare array to send
         $arrayJSON = array();
         //if in a new zone
-        if($newZone){//only 0 for now
+        if($newZone){
             $arrayJSON[0] = array("newZone" => true);
             //send ambient sounds
             $ambientResult = queryMulti("select posx,posy,audioURL from ambient where zone=".prepVar($zone));
@@ -329,6 +329,8 @@ switch($_POST['function']){
                 $y = constants::zoneWidth($y) + rand((-1*constants::zoneWidth)+constants::zoneBuffer,constants::zoneWidth-constants::zoneBuffer);
                 $x = constants::zoneWidth($x) + rand((-1*constants::zoneWidth)+constants::zoneBuffer,constants::zoneWidth-constants::zoneBuffer);
                 //check if overlapping with anything
+                //set new pos and max health
+                query("update enemies posx=".prepVar($x).",posy=".prepVar($y).",health=".prepVar(constants::maxHealth)." where id=".prepVar($enemyRow['id']));
             } else{
                 //if alive
                 addEnemyEvent($posx, $posy, $enemyRow['posx'], $enemyRow['posy'], $enemyRow['id'],$time,$zone,$playerQuery['health'],$time < $enemyRow['finish'],$arrayJSON);
