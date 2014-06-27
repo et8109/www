@@ -1,11 +1,30 @@
+/*
+ *Audiogame by et8109
+ */
+
+
+/**
+ *---------------------------------------
+ *Setup
+ *---------------------------------------
+ */
+
 window.onerror = function(msg, url, line) {
     alert("Error: "+msg+" url: "+url+" line: "+line);
 };
 
+/**
+ *Remembers is the game is loading or not.
+ *Only used for initial loading
+ */
 var loading = true;
 
+/**
+ *The peer2peer data for this player
+ */
 var peer;
 
+//cross-platform setup
 window.URL = window.URL || window.webkitURL;
 navigator.getMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
 var audioContext = window.AudioContext || window.webkitAudioContext;
@@ -14,19 +33,39 @@ var audioContext = window.AudioContext || window.webkitAudioContext;
  *The audiocontext for the entire page.
  */
 var context = new webkitAudioContext();
+
 /**
  *The audio source with the sound for walking.
  */
 var walkObject;
+/**
+ *The sudio source with the sounds for the sprite
+ */
 var spriteObject=function(){};
+/**
+ *True if an npc has just asked the player a question.
+ */
 var question = false;
+/**
+ *holds the answer the player has given until it is send to the server
+ *null means no current response
+ */
 var answer = null;
-
+/**
+ *An array which holds all the requests to the server, which are then sent all a *t once
+ *Loaded from addURLRequest
+ */
 var requestArray=[];
+
 var npcs=[];
 var enemies = [];
 var ambient =[];
 var players=[];
+
+var updater;
+var ticker;
+var posX=0;
+var posY=0;
 
 /**
  *repeated in db
@@ -37,6 +76,14 @@ var types = {
     walk_audio: 2,
     person: 3
 }
+
+/**
+ *-----------------------------------
+ *functions
+ *-----------------------------------
+ */
+
+
 /**
  *gives the object a buffer array and loads audio urls
  *URLarray should be comma separated
@@ -51,6 +98,9 @@ function addUrlRequest(object, URLstring){
 }
 
 //[id,url]
+/**
+ *sends requests 1 at a time.
+ */
 function loadRequestArray(requestArray){
     if (!requestArray.length >0) {
         return;
@@ -94,11 +144,6 @@ function stopObject(object){
     return true;
 }
 
-var updater;
-var ticker;
-var posX=0;
-var posY=0;
-
 /**
  *checks which sounds were recived and calls setAudioBuffer for them
  */
@@ -113,9 +158,11 @@ function checkUpdateResponse(response) {
         for (a in ambient) {
             stopObject(ambient[a]);
         }
+        //clear last zone
         npcs = [];
         ambient = [];
         enemies = [];
+        //load data
         for(j in response){
             var data = response[j];
             if (data.ambient) {
@@ -145,11 +192,11 @@ function checkUpdateResponse(response) {
         }
         loadRequestArray(requestArray);
     } else{
-        //play events
+        //not a new zone
         for(j in response){
             var data = response[j];
             if (data.event) {
-                //if npc event
+                //if audio event
                 if (data.npc) {
                     playObject(npcs[data.id], data.audioType);
                 } else if(data.enemy){

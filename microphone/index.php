@@ -1,3 +1,7 @@
+<!--
+Audiogame by et8109
+-->
+
 <html>
     <head>
         <script src="http://cdn.peerjs.com/0.3/peer.js"></script>

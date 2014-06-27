@@ -1,4 +1,6 @@
-
+/*
+ *Audiogame by et8109
+ */
 
 var angle=Math.PI/2;
 var compassConstant = (window.innerWidth/Math.PI);

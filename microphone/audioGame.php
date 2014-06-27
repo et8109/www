@@ -1,4 +1,7 @@
 <?php
+/*
+*Audiogame by et8109
+*/
 
 session_start();
 $con = _getConnection();
