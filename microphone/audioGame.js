@@ -333,6 +333,10 @@ function record(callback){
         var recorder = new MediaRecorder(mediaStreamSource);
         recorder.record(/*length in ms: */2000);
         recorder.ondataavailable = function(blob){
+            //var audio = document.createElement('audio');
+            //audio.setAttribute('controls', '');
+            //var audioURL = window.URL.createObjectURL(e.data);
+            //audio.src = audioURL;
             callback(blob);
             recorder.stop();
         }
