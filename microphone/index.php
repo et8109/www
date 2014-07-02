@@ -28,7 +28,7 @@ Audiogame by et8109
                 padding-bottom: 20px;
             }
             #logout{
-                /*display: none;*/
+                display: none;
             }
             #options{
                 display: none;
@@ -68,6 +68,10 @@ Audiogame by et8109
             </div>
             <div id="options">
                 <input type="button" value="record attack [2 seconds]" onclick="record(recordedAttack())">
+                <form action="audioUpload.php" method="post" enctype="multipart/form-data">
+                  <input type="file" name="file"> 
+                  <input type="submit" name="submit" value="Submit">
+                </form>
             </div>
         </div>
     </body>
