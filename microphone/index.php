@@ -2,6 +2,12 @@
 Audiogame by et8109
 -->
 
+<?php
+if(!isset($_SESSION['playerID'])){
+ header("Location: login.php");
+}
+?>
+
 <html>
     <head>
         <script src="http://cdn.peerjs.com/0.3/peer.js"></script>

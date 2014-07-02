@@ -13,6 +13,29 @@ window.onerror = function(msg, url, line) {
     alert("Error: "+msg+" url: "+url+" line: "+line);
 };
 
+window.onload = function(){
+ function login(){
+    sendRequest("setup.php",
+                function(response){
+                    showOptions();
+                    showCompass();
+                    load sprite and player audio
+                    addUrlRequest(spriteObject,response.spriteaudioURL);
+                    players[response.playerID] = new function(){};
+                    addUrlRequest(players[response.playerID],response.playeraudioURL);
+                    loadRequestArray(requestArray);
+                    //create peer
+                    createPeer(response.peerID);
+                    //set position
+                    posX = parseInt(response.posX);
+                    posY = parseInt(response.posY);
+                    //start updater
+                    updater = setInterval("update()", 3000);
+                    ticker = setInterval("tick()",1000);
+                    }
+               );                                                                }                    
+};
+
 /**
  *Remembers is the game is loading or not.
  *Only used for initial loading
@@ -324,48 +347,13 @@ function recordedAttack(blob){
 }
 
 /**
- *called when the login button is pressed
- *hides login stuff, shows logout
- *creates a peer
- *sets x and y position
- *starts updater and ticker
- *initializes sounds
- */
-function login(){
-    var uname = document.getElementById("uname").value;
-    var pass = document.getElementById("pass").value;
-    sendRequest("audioGame.php",
-                "function=login&uname="+uname+"&pass="+pass,
-                function(response){
-                    showLogout();
-                    showCompass();
-                    document.getElementById("uname").value="";
-                    document.getElementById("pass").value="";
-                    log("logged in as "+uname);
-                    //load sprite and player audio
-                    addUrlRequest(spriteObject,response.spriteaudioURL);
-                    players[response.playerID] = new function(){};
-                    addUrlRequest(players[response.playerID],response.playeraudioURL);
-                    loadRequestArray(requestArray);
-                    //create peer
-                    createPeer(response.peerID);
-                    //set position
-                    posX = parseInt(response.posX);
-                    posY = parseInt(response.posY);
-                    //start updater
-                    updater = setInterval("update()", 3000);
-                    ticker = setInterval("tick()",1000);
-                });
-}
-
-/**
  *started when login request is recived
  *sends current position to db
  *reacts to recieved data
  */
 function update(){
     log("u: "+posX+" x "+posY);
-    var req = "function=update&posx="+Math.floor(posX)+"&posy="+Math.floor(posY);
+    var req = "posx="+Math.floor(posX)+"&posy="+Math.floor(posY);
     if (answer != null) {
         req += "&ans="+(answer==true ? 1 : 0);
     }
@@ -401,12 +389,10 @@ function createAudioSource(audioBuffer,hasPanner,posx,posy,posz){
 function logout() {
     clearInterval(updater);
     clearInterval(ticker);
-    sendRequest("audioGame.php",
-                "function=logout",
+    sendRequest("logout.php",
                 function(response){
                     if (response.success) {
                         log("logged out");
-                        showLogin();
                     }
                 });
 }
@@ -419,15 +405,11 @@ function createPeer(peerID){
     peer.options.key = "kf8l60l4w3f03sor";
 }
 
-function showLogin(){
-    document.getElementById('login').style.display="block";
-    document.getElementById('logout').style.display="none";
+function hideOptions(){
     document.getElementById('options').style.display="none";
 }
 
-function showLogout(){
-    document.getElementById('login').style.display="none";
-    document.getElementById('logout').style.display="block";
+function showOptions(){
     document.getElementById('options').style.display="block";
 }
 

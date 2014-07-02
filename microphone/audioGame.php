@@ -224,9 +224,6 @@ function findDist($px,$py,$x,$y){
 }
 
 try{
-switch($_POST['function']){
-    
-    case('update'):
         $posx = $_POST['posx'];
         $posy = $_POST['posy'];
         $ans = null;
@@ -364,53 +361,7 @@ switch($_POST['function']){
         sendJSON($arrayJSON);
         //update last event time
         $_SESSION['lastupdateTime'] = $time;
-        break;
     
-    case('login'):
-        //make sure they are not logged in
-        if(isset($_SESSION['playerID'])){
-            throw new Exception("You already logged in. Try refreshing the page.");
-        }
-        //sanitize
-        $uname = $_POST['uname'];
-        $pass = $_POST['pass'];
-        if($uname == null || $uname == ""){
-            throw new Exception("Enter a valid username");
-        }
-        if($pass == null || $pass == ""){
-            throw new Exception("Enter a valid password");
-        }
-        //get username, password
-        $playerRow = query("select id,peerid,posx,posy,audioURL from playerinfo where uname=".prepVar($uname)." and pass=".prepVar($pass));
-        if($playerRow == false){
-            throw new Exception("Incorrect username or password");
-        }
-        //set session
-        $_SESSION['playerID'] = $playerRow['id'];
-        $_SESSION['lastupdateTime'] = 0;
-        sendJSON(array(
-            "login" => true,
-            "success" => true,
-            "peerID" => $playerRow['peerid'],
-            "posX" => $playerRow['posx'],
-            "posY" => $playerRow['posy'],
-            "spriteaudioURL" => "Lowlife.mp3,Dead.mp3",
-            "playeraudioURL" => $playerRow['audioURL'],
-            "playerID" => $playerRow['id']
-        ));
-        break;
-    
-    //called when the logout button is clicked
-    case("logout"):
-        if(isset($_SESSION['playerID'])){
-            query("UPDATE playerinfo SET zone=".prepVar((constants::numZonesSrt*constants::numZonesSrt)+1)." WHERE id=".prepVar($_SESSION['playerID']));
-        }
-        session_destroy();
-        sendJSON(array(
-            "success" => true
-        ));
-        break;
-}
 } catch(Exception $e){
     sendJson(array(
         "error" => ($e->getMessage())
