@@ -3,6 +3,9 @@ Audiogame by et8109
 -->
 
 <?php
+
+include sharedPhp.php
+
 if(!isset($_SESSION['playerID'])){
  header("Location: login.php");
 }

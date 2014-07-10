@@ -1,4 +1,7 @@
 <?php
+
+include sharedPhp.php
+
 if(isset($_SESSION['playerID'])){
   header("Location: index.php");
 }
