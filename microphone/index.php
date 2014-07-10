@@ -16,6 +16,7 @@ if(!isset($_SESSION['playerID'])){
         <script src="http://cdn.peerjs.com/0.3/peer.js"></script>
         <script src="audioGame.js"></script>
         <script src="controls.js"></script>
+        <script src="sharedJs.js"></script>
         <style>
             body{
                 background-color: black;

@@ -30,6 +30,7 @@ if(isset($_POST['uname'])){
 
 <html>
 <head>
+ <script src="sharedJs.js"></script>
 </head>
 <script>
 </script>
