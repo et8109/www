@@ -1,5 +1,15 @@
 <!--
 Audiogame by et8109
+
+todo:
+fix up outer pages: login, logout, main, ect.
+fix up shared: php and js
+fix up error sending and logging
+general progress
+
+research:
+why all audio requests cant be sent at once
+
 -->
 
 <?php
