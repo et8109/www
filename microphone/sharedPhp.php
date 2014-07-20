@@ -53,4 +53,13 @@ function prepVar($var){
   return $var;
 }
 
+function sendJSON($array){
+    echo json_encode($array);
+}
+function sendError($msg){
+    sendJSON(array(
+            "error" => $msg
+        ));
+}
+
 ?>

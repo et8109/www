@@ -26,15 +26,6 @@ final class distances {
     const personNotice = 10;
 }
 
-function sendJSON($array){
-    echo json_encode($array);
-}
-function sendError($msg){
-    sendJSON(array(
-            "error" => $msg
-        ));
-}
-
 function addNpcEvent($px,$py,$x,$y,$npcID,$time,$busy,&$arrayJSON,$ans){
     $dist = findDist($px,$py,$x,$y);
     if($dist < distances::personTalk && !$busy){

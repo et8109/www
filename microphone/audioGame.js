@@ -10,8 +10,12 @@
  */
 
 window.onload = function(){
+    log("sending request");
     sendRequest("setup.php",
+                "",
                 function(response){
+                    response=response[0];
+                    log("got response");
                     showOptions();
                     showCompass();
                     //load sprite and player audio
@@ -101,7 +105,6 @@ var types = {
  *-----------------------------------
  */
 
-
 /**
  *gives the object a buffer array and loads audio urls
  *URLarray should be comma separated
@@ -131,8 +134,9 @@ function loadRequestArray(requestArray){
         if (request.response == null) {
             log("error loading");
         }
-        //set play's buffer
-        info[0].buffer.push(context.createBuffer(request.response, true/*make mono*/));
+        //set object's buffer: http request -> buffer
+        //info[0].buffer.push(context.createBuffer(request.response, true/*make mono*/));
+        info[0].buffer.push(context.decodeAudioData(request.response,function(){}/*callback function*/));
         loadRequestArray(requestArray);
     }
     request.send()
