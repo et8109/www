@@ -3,7 +3,7 @@
  * used when player uploads an audio file to use as an attack sound
  */
 
-include sharedPhp.php
+require("sharedPhp.php");
 
 if ($_FILES["file"]["error"] > 0) {
   echo "Error: ".$_FILES["file"]["error"];

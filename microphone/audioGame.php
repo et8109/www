@@ -3,10 +3,9 @@
 *Audiogame by et8109
 */
 
-include sharedPhp.php
+require("sharedPhp.php");
 
 session_start();
-$con = _getConnection();
 
 
 final class constants {

@@ -9,13 +9,15 @@ general progress
 
 research:
 why all audio requests cant be sent at once
+a better was to store connection in php
 
 -->
 
 <?php
 
-include sharedPhp.php
+require("sharedPhp.php");
 
+session_start();
 if(!isset($_SESSION['playerID'])){
  header("Location: login.php");
 }
@@ -48,7 +50,6 @@ if(!isset($_SESSION['playerID'])){
                 padding-bottom: 20px;
             }
             #logout{
-                display: none;
             }
             #options{
                 display: none;
@@ -76,13 +77,6 @@ if(!isset($_SESSION['playerID'])){
             N
         </div>
         <div id="main">
-            <div id="login">
-                Username:
-                <input id="uname" type="text"/>
-                Password:
-                <input id="pass" type="password"/>
-                <input type="button" value="login" onclick="login()">
-            </div>
             <div id="logout">
                 <input type="button" value="logout" onclick="logout()">
             </div>

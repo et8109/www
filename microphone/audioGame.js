@@ -10,12 +10,11 @@
  */
 
 window.onload = function(){
- function login(){
     sendRequest("setup.php",
                 function(response){
                     showOptions();
                     showCompass();
-                    load sprite and player audio
+                    //load sprite and player audio
                     addUrlRequest(spriteObject,response.spriteaudioURL);
                     players[response.playerID] = new function(){};
                     addUrlRequest(players[response.playerID],response.playeraudioURL);
@@ -29,7 +28,7 @@ window.onload = function(){
                     updater = setInterval("update()", 3000);
                     ticker = setInterval("tick()",1000);
                     }
-               );                                                                }                    
+               );                  
 };
 
 /**

@@ -1,4 +1,15 @@
 <?php
+
+/**
+ *Stores the connection to the db
+ *connectToDb first before accessing
+ */
+$con;
+
+function connectToDb(){
+  $GLOBALS['con'] = _getConnection();
+}
+
 function _getConnection(){
   $con = mysqli_connect("localhost","root","","audio_game");
   //check connection

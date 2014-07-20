@@ -1,6 +1,6 @@
 <?php
 
-include sharedPhp.php
+require("sharedPhp.php");
 
 if(isset($_SESSION['playerID'])){
   header("Location: index.php");
@@ -16,12 +16,14 @@ if(isset($_POST['uname'])){
   if($pass == null || $pass == ""){
     throw new Exception("Enter a valid password");
   }
+  connectToDb();
   //check username, password
   $playerRow = query("select id from playerinfo where uname=".prepVar($uname)." and pass=".prepVar($pass));
   if($playerRow == false){
     throw new Exception("Incorrect username or password");
   }
   //set session
+  session_start();
   $_SESSION['playerID'] = $playerRow['id'];
   $_SESSION['lastupdateTime'] = 0;
   header("Location: index.php");
@@ -37,7 +39,7 @@ if(isset($_POST['uname'])){
 <style>
 </style>
 <body>
-<form action="login.php">
+<form action="login.php" method="post">
   Username: <input type=text name=uname maxlength=20></input>
   Password: <input type=password name=pass maxlength=20></input>
   <input type=submit></input>
