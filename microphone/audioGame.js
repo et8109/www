@@ -14,7 +14,6 @@ window.onload = function(){
     sendRequest("setup.php",
                 "",
                 function(response){
-                    response=response[0];
                     log("got response");
                     showOptions();
                     showCompass();
@@ -393,11 +392,8 @@ function logout() {
     clearInterval(updater);
     clearInterval(ticker);
     sendRequest("logout.php",
-                function(response){
-                    if (response.success) {
-                        log("logged out");
-                    }
-                });
+                 "",function(){}
+               );   
 }
 
 /**

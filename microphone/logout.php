@@ -1,6 +1,6 @@
 <?php   
 
-require sharedPhp.php
+require("sharedPhp.php")
 
 if(isset($_SESSION['playerID'])){
   query("UPDATE playerinfo SET zone=".prepVar((constants::numZonesSrt*constants::numZonesSrt)+1)." WHERE id=".prepVar($_SESSION['playerID']));
