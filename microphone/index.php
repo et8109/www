@@ -5,6 +5,10 @@ todo:
 fix up outer pages: login, logout, main, ect.
 fix up shared: php and js
 fix up error sending and logging
+
+respawning enemies does not check for overlaps with npcs/other enemies.
+answering questions might still be messed up
+
 general progress
 
 research:
