@@ -164,6 +164,14 @@ function doneQuestion(&$arrayJSON){
     ));
 }
 
+function randomLocInZone($zone){
+  $y = floor($zone/constants::numZonesSrt);
+  $x = $zone-($y*constants::numZonesSrt);
+  $y = constants::zoneWidth($y) + rand((-1*constants::zoneWidth)+constants::zoneBuffer,constants::zoneWidth-constants::zoneBuffer);
+  $x = constants::zoneWidth($x) + rand((-1*constants::zoneWidth)+constants::zoneBuffer,constants::zoneWidth-constants::zoneBuffer);
+  return {$x,$y};
+}
+
 function findDist($px,$py,$x,$y){
     $dist = abs($px-$x);
     $dist2 = abs($py-$y);
@@ -186,12 +194,13 @@ try{
         //find current zone
         $zone = floor($posx/constants::zoneWidth);
         $zone += constants::numZonesSrt * floor($posy/constants::zoneWidth);
+        $zone += 1;//zone 0 is for null
         //check if zone change
         $playerQuery = query("select zone, health from playerinfo where id=".prepVar($_SESSION['playerID']));
         $newZone = false;
         if($playerQuery['zone'] != $zone){
             //check if out of map range
-            if($zone < 0 || $zone > (constants::numZonesSrt*constants::numZonesSrt)){
+            if($zone < 1 || $zone > (constants::numZonesSrt*constants::numZonesSrt)){
                 sendError("can't walk over there");
                 return;
             }
@@ -277,13 +286,10 @@ try{
             //if dead
             if($enemyRow['health'] == 0){
                 //revive elsewhere in zone
-                $y = floor($zone/constants::numZonesSrt);
-                $x = $zone-($y*constants::numZonesSrt);
-                $y = constants::zoneWidth($y) + rand((-1*constants::zoneWidth)+constants::zoneBuffer,constants::zoneWidth-constants::zoneBuffer);
-                $x = constants::zoneWidth($x) + rand((-1*constants::zoneWidth)+constants::zoneBuffer,constants::zoneWidth-constants::zoneBuffer);
+                $loc = randomLocInZone($zone);
                 //check if overlapping with anything
                 //set new pos and max health
-                query("update enemies posx=".prepVar($x).",posy=".prepVar($y).",health=".prepVar(constants::maxHealth)." where id=".prepVar($enemyRow['id']));
+                query("update enemies posx=".prepVar($loc[0]).",posy=".prepVar($loc[1]).",health=".prepVar(constants::maxHealth)." where id=".prepVar($enemyRow['id']));
             } else{
                 //if alive
                 addEnemyEvent($posx, $posy, $enemyRow['posx'], $enemyRow['posy'], $enemyRow['id'],$time,$zone,$playerQuery['health'],$time < $enemyRow['finish'],$arrayJSON);

@@ -6,11 +6,6 @@
  */
 $con;
 
-//TODO remove
-final class constants {
-  const numZonesSrt = 2;//should be a square //repeated in aG.php
-}
-
 function connectToDb(){
   $GLOBALS['con'] = _getConnection();
 }
