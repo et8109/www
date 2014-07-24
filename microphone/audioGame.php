@@ -6,6 +6,7 @@
 require("sharedPhp.php");
 
 session_start();
+connectToDb();
 
 
 final class constants {
