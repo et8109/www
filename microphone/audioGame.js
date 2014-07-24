@@ -104,17 +104,21 @@ var types = {
  *-----------------------------------
  */
 
-/**
- *gives the object a buffer array and loads audio urls
- *URLarray should be comma separated
- */
-function addUrlRequest(object, URLstring){
-    object.buffer = [];
-    object.audioURL = URLstring.split(",");
-    var l = object.audioURL.length-1;//to flip it around
-    for(u in object.audioURL){
-        requestArray.push([object,object.audioURL[l-u]]);
+function audioNode(){
+  this.URLarray = [];
+  this.buffer = [];
+  
+  function requestBuffer(URLString){
+    this.URLarray = URLString.split(",");
+    var l = this.audioURL.length-1;//to flip it around
+    for(u in this.audioURL){
+        requestArray.push([this,this.audioURL[l-u]]);
     }
+  }
+  
+  function play(){
+    
+  }
 }
 
 //[id/obj,audio url]
