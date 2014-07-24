@@ -82,6 +82,7 @@ if(!isset($_SESSION['playerID'])){
         </div>
         <div id="main">
             <div id="logout">
+                <a href="logout.php">logout link</a>
                 <input type="button" value="logout" onclick="logout()">
             </div>
             <div id="options">
