@@ -10,6 +10,42 @@ respawning enemies does not check for overlaps with npcs/other enemies.
 answering questions might still be messed up
 
 general progress
+  asking your sprite about current location, time, events, ect.
+  daily things to do
+    temporary dungeons popping up
+    temporary bosses being summoned
+    seasonal activities
+      harverst
+      mining, transporting quest?
+  rewards, items, equipment, auras
+    weapons
+    armor
+    ornaments which clang, make sounds
+    visual cues which effect interactions
+      achievements
+  a changing environment, geographically and socially
+    towns, hubs of people
+    moving npcs
+    moving herds of enemies
+  rare encounters, things to find
+    treasure chests
+    rare species
+  more ways to interact with players
+    guilds to easily find your friends
+    public pvp arenas
+      spectating
+  educational exeriences, talks, ect.
+    long speeches given at certain times
+      entering a speech partway after joining a zone
+  calming experiences
+    guided meditation
+    small fun minigames
+      chasing
+      crafting
+      singing
+      drum circle
+  a system to help enw players into the game and re-engage older players
+    buddy system
 
 research:
 why all audio requests cant be sent at once
