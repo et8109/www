@@ -21,7 +21,7 @@ window.onload = function(){
                     spriteObject.requestBuffer(response.spriteaudioURL);
                     players[response.playerID] = new audioNode();
                     players[response.playerID].requestBuffer(response.playeraudioURL);
-                    loadRequestArray(requestArray);
+                    sendRequestArray();
                     //create peer
                     createPeer(response.peerID);
                     //set position
@@ -151,7 +151,7 @@ function audioNode(){
 /**
  *sends requests 1 at a time.
  */
-function loadRequestArray(requestArray){
+function sendRequestArray(){
     if (!requestArray.length >0) {
         return;
     }
@@ -166,7 +166,7 @@ function loadRequestArray(requestArray){
         //set object's buffer: http request -> buffer
         //info[0].buffer.push(context.createBuffer(request.response, true/*make mono*/));
         info[0].buffer.push(context.decodeAudioData(request.response,function(){}/*callback function*/));
-        loadRequestArray(requestArray);
+        sendRequestArray();
     }
     request.send()
 }
@@ -196,6 +196,8 @@ function checkUpdateResponse(response) {
             var node = new audioNode();
             node.requestBuffer(data.audioURL);
             if (data.ambient) {
+                node.posx=data.posx;
+                node.posy=data.poxy;
                 node.loop = true;//ambient sounds loop
                 ambient.push(node);
             } else if (data.movement) {
@@ -203,12 +205,16 @@ function checkUpdateResponse(response) {
                 node.playing = false;
                 walkObject = node;
             } else if (data.enemy) {
+                node.posx=data.posx;
+                node.posy=data.poxy; 
                 enemies[data.id] = node;
             } else if (data.npc) {
+                node.posx=data.posx;
+                node.posy=data.poxy;
                 npcs[data.id] = node;
             }
         }
-        loadRequestArray(requestArray);
+        sendRequestArray();
     } else{
         //not a new zone
         for(j in response){
