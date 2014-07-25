@@ -18,9 +18,9 @@ window.onload = function(){
                     showOptions();
                     showCompass();
                     //load sprite and player audio
-                    addUrlRequest(spriteObject,response.spriteaudioURL);
-                    players[response.playerID] = new function(){};
-                    addUrlRequest(players[response.playerID],response.playeraudioURL);
+                    spriteObject.requestBuffer(response.spriteaudioURL);
+                    players[response.playerID] = new audioNode();
+                    players[response.playerID].requestBuffer(response.playeraudioURL);
                     loadRequestArray(requestArray);
                     //create peer
                     createPeer(response.peerID);
@@ -62,7 +62,7 @@ var walkObject;
 /**
  *The sudio source with the sounds for the sprite
  */
-var spriteObject=function(){};
+var spriteObject= new audioNode();
 /**
  *True if an npc has just asked the player a question.
  */
@@ -107,17 +107,43 @@ var types = {
 function audioNode(){
   this.URLarray = [];
   this.buffer = [];
+  this.audioSource = null;
+  this.posx = null;
+  this.posy = null;
+  this.posz = null;
+  this.loop = false;
   
-  function requestBuffer(URLString){
+  this.requestBuffer=function(URLString){
     this.URLarray = URLString.split(",");
-    var l = this.audioURL.length-1;//to flip it around
-    for(u in this.audioURL){
-        requestArray.push([this,this.audioURL[l-u]]);
+    var l = this.URLarray.length-1;//to flip it around
+    for(u in this.URLarray){
+        requestArray.push([this,this.URLarray[l-u]]);
     }
   }
   
-  function play(){
+  this.play=function(audioNum){
+    log("starting: "+this.URLarray[audioNum]);
+    this.audioSource && this.audioSource.stop();
     
+    if (this.posx==null){
+        //no panner
+        this.audioSource = createAudioSource(this.buffer[audioNum],false/*no panner*/);
+    } else{
+        //with panner
+        this.audioSource = createAudioSource(this.buffer[audioNum],true/*panner*/,this.posx,this.posy,this.posz);
+    }
+    if (this.loop){
+        this.audioSource.loop = true;//for walking
+    }
+    this.audioSource.start();
+    return true;
+  }
+  
+  this.stop=function(){
+    if(this.audioSource){
+        this.audioSource.stop();
+    }
+    return true;
   }
 }
 
@@ -145,30 +171,6 @@ function loadRequestArray(requestArray){
     request.send()
 }
 
-function playObject(object, audioNum){
-    log("starting: "+object.audioURL[audioNum]);
-    object.audioSource && object.audioSource.stop();
-    if (object.posx==null) {
-        //no panner
-        object.audioSource = createAudioSource(object.buffer[audioNum],false/*no panner*/);
-    } else{
-        //with panner
-        object.audioSource = createAudioSource(object.buffer[audioNum],true/*panner*/,object.posx,object.posy,object.posz);
-    }
-    if (object.loop){
-        object.audioSource.loop = true;//for walking
-    }
-    object.audioSource.start();
-    return true;
-}
-
-function stopObject(object){
-    if(object && object.audioSource){
-        object.audioSource.stop();
-    }
-    return true;
-}
-
 /**
  *checks which sounds were recived and calls setAudioBuffer for them
  */
@@ -181,38 +183,29 @@ function checkUpdateResponse(response) {
         log("new zone");
         //stop loops
         for (a in ambient) {
-            stopObject(ambient[a]);
+            ambient[a].stop();
         }
         //clear last zone
         npcs = [];
         ambient = [];
         enemies = [];
         //load data
+        response.shift(); //remove first element from array
         for(j in response){
             var data = response[j];
+            var node = new audioNode();
+            node.requestBuffer(data.audioURL);
             if (data.ambient) {
-                data.posx = null;
-                data.posy = null;
-                data.posz = null;
-                data.loop = true;//ambient sounds loop
-                ambient.push(data);
-                addUrlRequest(ambient[ambient.length-1], data.audioURL);
+                node.loop = true;//ambient sounds loop
+                ambient.push(node);
             } else if (data.movement) {
-                data.loop = true;
-                data.posx = null;
-                data.posy = null;
-                data.posz = null;
-                data.playing = false;
-                walkObject = data;
-                addUrlRequest(walkObject, walkObject.audioURL);
+                node.loop = true;
+                node.playing = false;
+                walkObject = node;
             } else if (data.enemy) {
-                data.posz = null;
-                enemies[data.id] = data;
-                addUrlRequest(enemies[data.id], data.audioURL);
+                enemies[data.id] = node;
             } else if (data.npc) {
-                data.posz = null;
-                npcs[data.id] = data;
-                addUrlRequest(npcs[data.id], data.audioURL);
+                npcs[data.id] = node;
             }
         }
         loadRequestArray(requestArray);
@@ -223,14 +216,14 @@ function checkUpdateResponse(response) {
             if (data.event) {
                 //if audio event
                 if (data.npc) {
-                    playObject(npcs[data.id], data.audioType);
+                    npcs[data.id].play(data.audioType);
                 } else if(data.enemy){
-                    playObject(enemies[data.id], data.audioType);
+                    enemies[data.id].play(data.audioType);
                 } else if (data.player) {
-                    playObject(players[data.id], data.audioType);
+                    players[data.id].play(data.audioType);
                 }
             } else if (data.spriteEvent) {
-                playObject(spriteObject, data.audioType);
+                spriteObject.play(data.audioType);
             } else if (data.playerInfo) {
                 //update position
                 posX = data.posX;

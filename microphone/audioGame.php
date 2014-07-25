@@ -169,7 +169,7 @@ function randomLocInZone($zone){
   $x = $zone-($y*constants::numZonesSrt);
   $y = constants::zoneWidth($y) + rand((-1*constants::zoneWidth)+constants::zoneBuffer,constants::zoneWidth-constants::zoneBuffer);
   $x = constants::zoneWidth($x) + rand((-1*constants::zoneWidth)+constants::zoneBuffer,constants::zoneWidth-constants::zoneBuffer);
-  return {$x,$y};
+  return array($x,$y);
 }
 
 function findDist($px,$py,$x,$y){
