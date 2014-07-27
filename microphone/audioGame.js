@@ -106,7 +106,7 @@ var types = {
 
 function audioNode(){
   this.URLarray = [];
-  this.buffer = [];
+  this.bufferArray = [];
   this.audioSource = null;
   this.posx = null;
   this.posy = null;
@@ -124,13 +124,13 @@ function audioNode(){
   this.play=function(audioNum){
     log("starting: "+this.URLarray[audioNum]);
     this.audioSource && this.audioSource.stop();
-    
+    log("from buffer: "+this.bufferArray[0]);
     if (this.posx==null){
         //no panner
-        this.audioSource = createAudioSource(this.buffer[audioNum],false/*no panner*/);
+        this.audioSource = createAudioSource(this.bufferArray[audioNum],false/*no panner*/);
     } else{
         //with panner
-        this.audioSource = createAudioSource(this.buffer[audioNum],true/*panner*/,this.posx,this.posy,this.posz);
+        this.audioSource = createAudioSource(this.bufferArray[audioNum],true/*panner*/,this.posx,this.posy,this.posz);
     }
     if (this.loop){
         this.audioSource.loop = true;//for walking
@@ -165,7 +165,10 @@ function sendRequestArray(){
         }
         //set object's buffer: http request -> buffer
         //info[0].buffer.push(context.createBuffer(request.response, true/*make mono*/));
-        info[0].buffer.push(context.decodeAudioData(request.response,function(){}/*callback function*/));
+        context.decodeAudioData(request.response,
+                                function(buffer){
+                                  info[0].bufferArray.push(buffer);
+                                });
         sendRequestArray();
     }
     request.send()
