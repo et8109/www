@@ -124,7 +124,7 @@ function audioNode(){
   this.play=function(audioNum){
     log("starting: "+this.URLarray[audioNum]);
     this.audioSource && this.audioSource.stop();
-    log("from buffer: "+this.bufferArray[0]);
+    log("from buffer: "+this.bufferArray[audioNum]);
     if (this.posx==null){
         //no panner
         this.audioSource = createAudioSource(this.bufferArray[audioNum],false/*no panner*/);
@@ -135,11 +135,13 @@ function audioNode(){
     if (this.loop){
         this.audioSource.loop = true;//for walking
     }
-    this.audioSource.start();
+    log("as: "+this.audioSource);
+    this.audioSource.start(0);
     return true;
   }
   
   this.stop=function(){
+    log("stopping");
     if(this.audioSource){
         this.audioSource.stop();
     }
@@ -157,7 +159,8 @@ function sendRequestArray(){
     }
     var info = requestArray.pop();
     request = new XMLHttpRequest();
-    request.open("GET","audio/"+info[1],true/*asynchronous*/);
+    log(info[1]);
+    request.open("GET",info[1],true/*asynchronous*/);
     request.responseType = "arraybuffer";
     request.onload = function(){
         if (request.response == null) {
@@ -258,6 +261,7 @@ function checkUpdateResponse(response) {
  *updates audio
  */
 function tick(){
+    log("ticking");
     if (loading) {
         return;
     }
@@ -273,6 +277,7 @@ function tick(){
         return;
     }
     else if (pressedA || pressedD || pressedS || pressedW) {
+        log("button pressed");
         //play walk audio
         if (!walkObject.playing) {
             playObject(walkObject,0);
