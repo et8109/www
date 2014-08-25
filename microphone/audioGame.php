@@ -233,6 +233,7 @@ switch($_POST['function']){
         //find current zone
         $zone = floor($posx/constants::zoneWidth);
         $zone += constants::numZonesSrt * floor($posy/constants::zoneWidth);
+        $zone += 1; //zero is null zone
         //check if zone change
         $playerQuery = query("select zone, health from playerinfo where id=".prepVar($_SESSION['playerID']));
         $newZone = false;

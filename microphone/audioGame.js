@@ -65,7 +65,14 @@ function loadRequestArray(requestArray){
         }
         //set object's buffer: http request -> buffer
         //info[0].buffer.push(context.createBuffer(request.response, true/*make mono*/));
-        info[0].buffer.push(context.decodeAudioData(request.response,function(){}/*callback function*/));
+        log("recieved: "+request.response+info[1]);
+        log("current: "+info[0].buffer.length);
+        context.decodeAudioData(request.response,function(decoded){ //callback function
+                log("decoded: "+decoded);
+                info[0].buffer.push(decoded)
+                log("added, new length: "+info[0].buffer.length);
+            });
+        log("loaded: "+info[0].buffer[0]);
         loadRequestArray(requestArray);
     }
     request.send()
