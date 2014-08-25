@@ -75,7 +75,6 @@ function getWalkAngle() {
  */
 function keyPressed(e){
     if (loading) {
-        alert("key pressed but loading");
         return;
     }
     //more control options, using mouse moved above^

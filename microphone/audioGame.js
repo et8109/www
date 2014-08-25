@@ -65,14 +65,9 @@ function loadRequestArray(requestArray){
         }
         //set object's buffer: http request -> buffer
         //info[0].buffer.push(context.createBuffer(request.response, true/*make mono*/));
-        log("recieved: "+request.response+info[1]);
-        log("current: "+info[0].buffer.length);
         context.decodeAudioData(request.response,function(decoded){ //callback function
-                log("decoded: "+decoded);
                 info[0].buffer.push(decoded)
-                log("added, new length: "+info[0].buffer.length);
             });
-        log("loaded: "+info[0].buffer[0]);
         loadRequestArray(requestArray);
     }
     request.send()
@@ -196,6 +191,7 @@ function tick(){
         return;
     }
     if (question) {
+        log("question")
         if (pressedA && pressedD) {
             answer = false;
             question = false;
@@ -207,8 +203,10 @@ function tick(){
         return;
     }
     else if (pressedA || pressedD || pressedS || pressedW) {
+        log("walking")
         //play walk audio
         if (!walkObject.playing) {
+            log("start walk audio")
             playObject(walkObject,0);
             walkObject.playing = true;
         }
