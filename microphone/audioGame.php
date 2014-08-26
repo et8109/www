@@ -1,8 +1,6 @@
 <?php
 
-session_start();
-$con = _getConnection();
-
+require_once("shared.php");
 
 final class constants {
     const zoneWidth = 50;
@@ -20,58 +18,6 @@ final class distances {
     const enemyAttack = 4;
     const personTalk = 5;
     const personNotice = 10;
-}
-
-function _getConnection(){
-    $con = mysqli_connect("localhost","root","","audio_game");
-    //check connection
-    if (mysqli_connect_errno()){
-        throw new Exception("could not connect to database");
-    }
-    return $con;
-}
-
-function query($sql){
-    $result = mysqli_query($GLOBALS['con'], $sql);
-    if(is_bool($result)){
-        return false;
-    }
-    $numRows = mysqli_num_rows($result);
-    if($numRows > 1){
-        throw new Exception("q>1");
-    }
-    $row = mysqli_fetch_array($result);
-    mysqli_free_result($result);
-    return $row;
-}
-
-function queryMulti($sql){
-    $result = mysqli_query($GLOBALS['con'], $sql);
-    return $result;
-}
-
-function lastQueryNumRows(){
-    return mysqli_affected_rows($GLOBALS['con']);
-}
-
-function prepVar($var){
-    $var = mysqli_real_escape_string($GLOBALS['con'],$var);
-    //replace ' with ''
-    //$var = str_replace("'", "''", $var);
-    //if not a number, surround in quotes
-    if(!is_numeric($var)){
-        $var = "'".$var."'";
-    }
-    return $var;
-}
-
-function sendJSON($array){
-    echo json_encode($array);
-}
-function sendError($msg){
-    sendJSON(array(
-            "error" => $msg
-        ));
 }
 
 function addNpcEvent($px,$py,$x,$y,$npcID,$time,$busy,&$arrayJSON,$ans){
@@ -362,40 +308,6 @@ switch($_POST['function']){
         sendJSON($arrayJSON);
         //update last event time
         $_SESSION['lastupdateTime'] = $time;
-        break;
-    
-    case('login'):
-        //make sure they are not logged in
-        if(isset($_SESSION['playerID'])){
-            throw new Exception("You already logged in. Try refreshing the page.");
-        }
-        //sanitize
-        $uname = $_POST['uname'];
-        $pass = $_POST['pass'];
-        if($uname == null || $uname == ""){
-            throw new Exception("Enter a valid username");
-        }
-        if($pass == null || $pass == ""){
-            throw new Exception("Enter a valid password");
-        }
-        //get username, password
-        $playerRow = query("select id,peerid,posx,posy,audioURL from playerinfo where uname=".prepVar($uname)." and pass=".prepVar($pass));
-        if($playerRow == false){
-            throw new Exception("Incorrect username or password");
-        }
-        //set session
-        $_SESSION['playerID'] = $playerRow['id'];
-        $_SESSION['lastupdateTime'] = 0;
-        sendJSON(array(
-            "login" => true,
-            "success" => true,
-            "peerID" => $playerRow['peerid'],
-            "posX" => $playerRow['posx'],
-            "posY" => $playerRow['posy'],
-            "spriteaudioURL" => "Lowlife.mp3,Dead.mp3",
-            "playeraudioURL" => $playerRow['audioURL'],
-            "playerID" => $playerRow['id']
-        ));
         break;
     
     //called when the logout button is clicked

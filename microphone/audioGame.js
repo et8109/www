@@ -37,6 +37,33 @@ var types = {
     walk_audio: 2,
     person: 3
 }
+
+window.onload = function(){
+    sendRequest("setup.php",
+                "",
+                function(response){
+                    log("starting loading")
+                    response=response[0];
+                    //showOptions();
+                    //showCompass();
+                    //load sprite and player audio
+                    addUrlRequest(spriteObject,response.spriteaudioURL);
+                    players[response.playerID] = new function(){};
+                    addUrlRequest(players[response.playerID],response.playeraudioURL);
+                    loadRequestArray(requestArray);
+                    //create peer
+                    createPeer(response.peerID);
+                    //set position
+                    posX = parseInt(response.posX);
+                    posY = parseInt(response.posY);
+                    //start updater
+                    updater = setInterval("update()", 3000);
+                    ticker = setInterval("tick()",1000);
+                    log("done loading");
+                    }
+               );
+}
+                    
 /**
  *gives the object a buffer array and loads audio urls
  *URLarray should be comma separated
@@ -280,41 +307,6 @@ function record(callback){
 
 function recordedAttack(blob){
     log("recording not yet implemented");
-}
-
-/**
- *called when the login button is pressed
- *hides login stuff, shows logout
- *creates a peer
- *sets x and y position
- *starts updater and ticker
- *initializes sounds
- */
-function login(){
-    var uname = document.getElementById("uname").value;
-    var pass = document.getElementById("pass").value;
-    sendRequest("audioGame.php",
-                "function=login&uname="+uname+"&pass="+pass,
-                function(response){
-                    showLogout();
-                    showCompass();
-                    document.getElementById("uname").value="";
-                    document.getElementById("pass").value="";
-                    log("logged in as "+uname);
-                    //load sprite and player audio
-                    addUrlRequest(spriteObject,response.spriteaudioURL);
-                    players[response.playerID] = new function(){};
-                    addUrlRequest(players[response.playerID],response.playeraudioURL);
-                    loadRequestArray(requestArray);
-                    //create peer
-                    createPeer(response.peerID);
-                    //set position
-                    posX = parseInt(response.posX);
-                    posY = parseInt(response.posY);
-                    //start updater
-                    updater = setInterval("update()", 3000);
-                    ticker = setInterval("tick()",1000);
-                });
 }
 
 /**

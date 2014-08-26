@@ -52,13 +52,6 @@
             N
         </div>
         <div id="main">
-            <div id="login">
-                Username:
-                <input id="uname" type="text"/>
-                Password:
-                <input id="pass" type="password"/>
-                <input type="button" value="login" onclick="login()">
-            </div>
             <div id="logout">
                 <input type="button" value="logout" onclick="logout()">
             </div>
