@@ -57,7 +57,7 @@ function loadRequestArray(requestArray){
     }
     var info = requestArray.pop();
     request = new XMLHttpRequest();
-    request.open("GET",info[1],true/*asynchronous*/);
+    request.open("GET","audio/"+info[1],true/*asynchronous*/);
     request.responseType = "arraybuffer";
     request.onload = function(){
         if (request.response == null) {
