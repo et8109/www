@@ -310,16 +310,6 @@ switch($_POST['function']){
         $_SESSION['lastupdateTime'] = $time;
         break;
     
-    //called when the logout button is clicked
-    case("logout"):
-        if(isset($_SESSION['playerID'])){
-            query("UPDATE playerinfo SET zone=".prepVar((constants::numZonesSrt*constants::numZonesSrt)+1)." WHERE id=".prepVar($_SESSION['playerID']));
-        }
-        session_destroy();
-        sendJSON(array(
-            "success" => true
-        ));
-        break;
 }
 } catch(Exception $e){
     sendJson(array(

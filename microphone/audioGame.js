@@ -346,40 +346,11 @@ function createAudioSource(audioBuffer,hasPanner,posx,posy,posz){
 }
 
 /**
- *logs the player out.
- *shows login fields
- */
-function logout() {
-    clearInterval(updater);
-    clearInterval(ticker);
-    sendRequest("audioGame.php",
-                "function=logout",
-                function(response){
-                    if (response.success) {
-                        log("logged out");
-                        showLogin();
-                    }
-                });
-}
-
-/**
  *initialized the peer of the player
  */
 function createPeer(peerID){
     peer = new Peer(peerID);
     peer.options.key = "kf8l60l4w3f03sor";
-}
-
-function showLogin(){
-    document.getElementById('login').style.display="block";
-    document.getElementById('logout').style.display="none";
-    document.getElementById('options').style.display="none";
-}
-
-function showLogout(){
-    document.getElementById('login').style.display="none";
-    document.getElementById('logout').style.display="block";
-    document.getElementById('options').style.display="block";
 }
 
 function log(msg){

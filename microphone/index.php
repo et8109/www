@@ -52,9 +52,7 @@
             N
         </div>
         <div id="main">
-            <div id="logout">
-                <input type="button" value="logout" onclick="logout()">
-            </div>
+            <a href="logout.php">logout</a>
             <div id="options">
                 <input type="button" value="record attack [2 seconds]" onclick="record(recordedAttack())">
             </div>
