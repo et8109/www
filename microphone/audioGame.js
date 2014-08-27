@@ -44,8 +44,6 @@ window.onload = function(){
                 function(response){
                     log("starting loading")
                     response=response[0];
-                    //showOptions();
-                    //showCompass();
                     //load sprite and player audio
                     addUrlRequest(spriteObject,response.spriteaudioURL);
                     players[response.playerID] = new function(){};

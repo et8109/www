@@ -47,15 +47,12 @@
     </head>
     <body onkeypress="keyPressed(event)" onkeyup="keyUp(event)" <!--onmousemove="mouseMoved(event)"--> >
         <h1>Audio Game</h1>
-        <div id="log"></div>
-        <div id="compass">
-            N
-        </div>
         <div id="main">
             <a href="logout.php">logout</a>
             <div id="options">
                 <input type="button" value="record attack [2 seconds]" onclick="record(recordedAttack())">
             </div>
         </div>
+        <div id="log"></div>
     </body>
 </html>
