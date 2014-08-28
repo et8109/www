@@ -1,3 +1,9 @@
+<?php
+//make sure they are logged in
+if(! isset($_SESSION['playerID'])){
+    header("Location: login.php");
+}
+?>
 <html>
     <head>
         <script src="http://cdn.peerjs.com/0.3/peer.js"></script>

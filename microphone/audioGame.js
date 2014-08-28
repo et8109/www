@@ -314,7 +314,7 @@ function recordedAttack(blob){
  */
 function update(){
     log("u: "+posX+" x "+posY);
-    var req = "function=update&posx="+Math.floor(posX)+"&posy="+Math.floor(posY);
+    var req = "posx="+Math.floor(posX)+"&posy="+Math.floor(posY);
     if (answer != null) {
         req += "&ans="+(answer==true ? 1 : 0);
     }

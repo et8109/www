@@ -5,12 +5,10 @@ echo "page start";
 
 //make sure they are not logged in
 if(isset($_SESSION['playerID'])){
-    echo "redirecting";
     header("Location: index.php");
 }
 
 if(isset($_POST['uname'])){
-    echo "found uname";
 //sanitize
 $uname = $_POST['uname'];
 $pass = $_POST['pass'];
