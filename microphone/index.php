@@ -1,4 +1,6 @@
 <?php
+
+session_start();
 //make sure they are logged in
 if(! isset($_SESSION['playerID'])){
     header("Location: login.php");

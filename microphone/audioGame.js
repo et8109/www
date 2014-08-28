@@ -18,7 +18,7 @@ var context = new webkitAudioContext();
  *The audio source with the sound for walking.
  */
 var walkObject;
-var spriteObject=function(){};
+var spriteObject=new node();
 var question = false;
 var answer = null;
 
@@ -61,7 +61,12 @@ window.onload = function(){
                     }
                );
 }
-                    
+
+function node(){
+    this.posx = null;
+    this.posy = null;
+    this.posz = null;
+}
 /**
  *gives the object a buffer array and loads audio urls
  *URLarray should be comma separated
@@ -146,29 +151,29 @@ function checkUpdateResponse(response) {
         enemies = [];
         for(j in response){
             var data = response[j];
+            var n = new node();
+            n.audioURL = data.audioURL;
             if (data.ambient) {
-                data.posx = null;
-                data.posy = null;
-                data.posz = null;
-                data.loop = true;//ambient sounds loop
-                ambient.push(data);
-                addUrlRequest(ambient[ambient.length-1], data.audioURL);
+                n.loop = true;//ambient sounds loop
+                n.posx = data.posx;
+                n.posy = data.posy;
+                ambient.push(n);
+                addUrlRequest(ambient[ambient.length-1], n.audioURL);
             } else if (data.movement) {
-                data.loop = true;
-                data.posx = null;
-                data.posy = null;
-                data.posz = null;
-                data.playing = false;
-                walkObject = data;
+                n.loop = true;
+                n.playing = false;
+                walkObject = n;
                 addUrlRequest(walkObject, walkObject.audioURL);
             } else if (data.enemy) {
-                data.posz = null;
-                enemies[data.id] = data;
-                addUrlRequest(enemies[data.id], data.audioURL);
+                n.posx = data.posx;
+                n.posy = data.posy;
+                enemies[data.id] = n;
+                addUrlRequest(enemies[data.id], n.audioURL);
             } else if (data.npc) {
-                data.posz = null;
-                npcs[data.id] = data;
-                addUrlRequest(npcs[data.id], data.audioURL);
+                n.posx = data.posx;
+                n.posy = data.posy;
+                npcs[data.id] = n;
+                addUrlRequest(npcs[data.id], n.audioURL);
             }
         }
         loadRequestArray(requestArray);

@@ -1,8 +1,6 @@
 <?php
 require_once("shared.php");
 
-echo "page start";
-
 //make sure they are not logged in
 if(isset($_SESSION['playerID'])){
     header("Location: index.php");
