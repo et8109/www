@@ -45,9 +45,9 @@ window.onload = function(){
                     log("starting loading")
                     response=response[0];
                     //load sprite and player audio
-                    addUrlRequest(spriteObject,response.spriteaudioURL);
-                    players[response.playerID] = new function(){};
-                    addUrlRequest(players[response.playerID],response.playeraudioURL);
+                    spriteObject.requestBuffer(response.spriteaudioURL);
+                    players[response.playerID] = new node();
+                    players[response.playerID].requestBuffer(response.playeraudioURL);
                     loadRequestArray(requestArray);
                     //create peer
                     createPeer(response.peerID);
@@ -66,17 +66,19 @@ function node(){
     this.posx = null;
     this.posy = null;
     this.posz = null;
-}
-/**
- *gives the object a buffer array and loads audio urls
- *URLarray should be comma separated
- */
-function addUrlRequest(object, URLstring){
-    object.buffer = [];
-    object.audioURL = URLstring.split(",");
-    var l = object.audioURL.length-1;//to flip it around
-    for(u in object.audioURL){
-        requestArray.push([object,object.audioURL[l-u]]);
+    this.buffers=[];
+    this.audioURLs=[];
+    /**
+     *adds a request to requestArray to get buffers for audio urls
+     *takes comma separated urls
+     */
+    this.requestBuffer=function(URLString){
+        this.audioURLs=URLString.split(",");
+        //TODO look into this
+        var l = this.audioURLs.length-1;//to flip it around
+        for(u in this.audioURLs){
+           requestArray.push([this,this.audioURLs[l-u]]);
+        }
     }
 }
 
@@ -96,7 +98,7 @@ function loadRequestArray(requestArray){
         //set object's buffer: http request -> buffer
         //info[0].buffer.push(context.createBuffer(request.response, true/*make mono*/));
         context.decodeAudioData(request.response,function(decoded){ //callback function
-                info[0].buffer.push(decoded)
+                info[0].buffers.push(decoded)
             });
         loadRequestArray(requestArray);
     }
@@ -104,14 +106,14 @@ function loadRequestArray(requestArray){
 }
 
 function playObject(object, audioNum){
-    log("starting: "+object.audioURL[audioNum]);
+    log("starting: "+object.audioURLs[audioNum]);
     object.audioSource && object.audioSource.stop();
     if (object.posx==null) {
         //no panner
-        object.audioSource = createAudioSource(object.buffer[audioNum],false/*no panner*/);
+        object.audioSource = createAudioSource(object.buffers[audioNum],false/*no panner*/);
     } else{
         //with panner
-        object.audioSource = createAudioSource(object.buffer[audioNum],true/*panner*/,object.posx,object.posy,object.posz);
+        object.audioSource = createAudioSource(object.buffers[audioNum],true/*panner*/,object.posx,object.posy,object.posz);
     }
     if (object.loop){
         object.audioSource.loop = true;//for walking
@@ -152,28 +154,27 @@ function checkUpdateResponse(response) {
         for(j in response){
             var data = response[j];
             var n = new node();
-            n.audioURL = data.audioURL;
             if (data.ambient) {
                 n.loop = true;//ambient sounds loop
                 n.posx = data.posx;
                 n.posy = data.posy;
                 ambient.push(n);
-                addUrlRequest(ambient[ambient.length-1], n.audioURL);
+                ambient[ambient.length-1].requestBuffer(data.audioURL);
             } else if (data.movement) {
                 n.loop = true;
                 n.playing = false;
                 walkObject = n;
-                addUrlRequest(walkObject, walkObject.audioURL);
+                walkObject.requestBuffer(data.audioURL);
             } else if (data.enemy) {
                 n.posx = data.posx;
                 n.posy = data.posy;
                 enemies[data.id] = n;
-                addUrlRequest(enemies[data.id], n.audioURL);
+                enemies[data.id].requestBuffer(data.audioURL);
             } else if (data.npc) {
                 n.posx = data.posx;
                 n.posy = data.posy;
                 npcs[data.id] = n;
-                addUrlRequest(npcs[data.id], n.audioURL);
+                npcs[data.id].requestBuffer(data.audioURL);
             }
         }
         loadRequestArray(requestArray);
