@@ -80,6 +80,30 @@ function node(){
            requestArray.push([this,this.audioURLs[l-u]]);
         }
     }
+    
+    this.play = function(audioNum){
+        log("starting: "+this.audioURLs[audioNum]);
+        this.audioSource && this.audioSource.stop();
+        if (this.posx==null) {
+            //no panner
+            this.audioSource = createAudioSource(this.buffers[audioNum],false/*no panner*/);
+        } else{
+            //with panner
+            this.audioSource = createAudioSource(this.buffers[audioNum],true/*panner*/,this.posx,this.posy,this.posz);
+        }
+        if (this.loop){
+            this.audioSource.loop = true;//for walking
+        }
+        this.audioSource.start();
+        return true;
+    }
+    
+    this.stop = function(){
+        if(this.audioSource){
+            this.audioSource.stop();
+        }
+        return true;
+    }
 }
 
 //[id,url]
@@ -105,30 +129,6 @@ function loadRequestArray(requestArray){
     request.send()
 }
 
-function playObject(object, audioNum){
-    log("starting: "+object.audioURLs[audioNum]);
-    object.audioSource && object.audioSource.stop();
-    if (object.posx==null) {
-        //no panner
-        object.audioSource = createAudioSource(object.buffers[audioNum],false/*no panner*/);
-    } else{
-        //with panner
-        object.audioSource = createAudioSource(object.buffers[audioNum],true/*panner*/,object.posx,object.posy,object.posz);
-    }
-    if (object.loop){
-        object.audioSource.loop = true;//for walking
-    }
-    object.audioSource.start();
-    return true;
-}
-
-function stopObject(object){
-    if(object && object.audioSource){
-        object.audioSource.stop();
-    }
-    return true;
-}
-
 var updater;
 var ticker;
 var posX=0;
@@ -146,7 +146,7 @@ function checkUpdateResponse(response) {
         log("new zone");
         //stop loops
         for (a in ambient) {
-            stopObject(ambient[a]);
+            ambient[a].stop();
         }
         npcs = [];
         ambient = [];
@@ -185,14 +185,14 @@ function checkUpdateResponse(response) {
             if (data.event) {
                 //if npc event
                 if (data.npc) {
-                    playObject(npcs[data.id], data.audioType);
+                    npcs[data.id].play(data.audioType);
                 } else if(data.enemy){
-                    playObject(enemies[data.id], data.audioType);
+                    enemies[data.id].play(data.audioType);
                 } else if (data.player) {
-                    playObject(players[data.id], data.audioType);
+                    players[data.id].play(data.audioType);
                 }
             } else if (data.spriteEvent) {
-                playObject(spriteObject, data.audioType);
+                spriteObject.play(data.audioType);
             } else if (data.playerInfo) {
                 //update position
                 posX = data.posX;
@@ -238,7 +238,7 @@ function tick(){
         //play walk audio
         if (!walkObject.playing) {
             log("start walk audio")
-            playObject(walkObject,0);
+            walkObject.play(0);
             walkObject.playing = true;
         }
         //find walk angle
@@ -252,7 +252,7 @@ function tick(){
     } else{
         //stop walk audio
         if (walkObject.playing) {
-            stopObject(walkObject);
+            walkObject.stop();
             walkObject.playing = false;
         }
     }
