@@ -120,7 +120,6 @@ function loadRequestArray(requestArray){
             log("error loading");
         }
         //set object's buffer: http request -> buffer
-        //info[0].buffer.push(context.createBuffer(request.response, true/*make mono*/));
         context.decodeAudioData(request.response,function(decoded){ //callback function
                 info[0].buffers.push(decoded)
             });

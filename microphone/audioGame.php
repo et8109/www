@@ -21,6 +21,7 @@ final class distances {
 }
 
 function addNpcEvent($px,$py,$x,$y,$npcID,$time,$busy,&$arrayJSON,$ans){
+    //distance from player
     $dist = findDist($px,$py,$x,$y);
     if($dist < distances::personTalk && !$busy){
         //if answered
@@ -47,11 +48,11 @@ function addEnemyEvent($px,$py,$x,$y,$enemyID,$time,/*player:*/$zone,$health,$bu
     if($dist < distances::enemyAttack){
         if(_addPlayerEvent(0,$time, $zone,false)){//if player attacks
             //lower monster health
-            query("update enemies set health=health-1 where id=".prepVar($enemyID)." and posx=".prepVar($x)." and posy=".prepVar($y)." and health>1");
+            query("update enemies set health=health-1 where id=".prepVar($enemyID)." and posx=".prepVar($x)." and posy=".prepVar($y));
             if(lastQueryNumRows() != 1){
                 //enemy is killed
                 _addEnemyEvent(2, $enemyID, $time,$px,$py,$arrayJSON);//death audio
-                query("update enemies set health=3 where id=".prepVar($enemyID)." and posx=".prepVar($x)." and posy=".prepVar($y));
+                //query("update enemies set health=3 where id=".prepVar($enemyID)." and posx=".prepVar($x)." and posy=".prepVar($y));
                 //add to kill count
                 query("update playerinfo set kills = kills+1 where playerID=".prepVar($_SESSION['playerID'])." and kills<99");
             }
@@ -266,15 +267,15 @@ try{
     //loop though enemies
     while($enemyRow = mysqli_fetch_array($enemyResult)){
         //if dead
-        if($enemyRow['health'] == 0){
+        if($enemyRow['health'] <= 0){
             //revive elsewhere in zone
-            $y = floor($zone/constants::numZonesSrt);
-            $x = $zone-($y*constants::numZonesSrt);
-            $y = constants::zoneWidth($y) + rand((-1*constants::zoneWidth)+constants::zoneBuffer,constants::zoneWidth-constants::zoneBuffer);
-            $x = constants::zoneWidth($x) + rand((-1*constants::zoneWidth)+constants::zoneBuffer,constants::zoneWidth-constants::zoneBuffer);
+            $y = floor(($zone-1)/constants::numZonesSrt);//zone num
+            $x = ($zone-1)-($y*constants::numZonesSrt);//zone num
+            $y = constants::zoneWidth*$y + rand(constants::zoneBuffer,constants::zoneWidth-constants::zoneBuffer);
+            $x = constants::zoneWidth*$x + rand(constants::zoneBuffer,constants::zoneWidth-constants::zoneBuffer);
             //check if overlapping with anything
             //set new pos and max health
-            query("update enemies posx=".prepVar($x).",posy=".prepVar($y).",health=".prepVar(constants::maxHealth)." where id=".prepVar($enemyRow['id']));
+            query("update enemies set posx=".prepVar($x).",posy=".prepVar($y).",health=".prepVar(constants::maxHealth)." where id=".prepVar($enemyRow['id']));
         } else{
             //if alive
             addEnemyEvent($posx, $posy, $enemyRow['posx'], $enemyRow['posy'], $enemyRow['id'],$time,$zone,$playerQuery['health'],$time < $enemyRow['finish'],$arrayJSON);
