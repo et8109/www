@@ -152,28 +152,36 @@ function checkUpdateResponse(response) {
         enemies = [];
         for(j in response){
             var data = response[j];
-            var n = new node();
             if (data.ambient) {
+                var n = new node();
                 n.loop = true;//ambient sounds loop
                 n.posx = data.posx;
                 n.posy = data.posy;
                 ambient.push(n);
                 ambient[ambient.length-1].requestBuffer(data.audioURL);
             } else if (data.movement) {
+                var n = new node();
                 n.loop = true;
                 n.playing = false;
                 walkObject = n;
                 walkObject.requestBuffer(data.audioURL);
             } else if (data.enemy) {
+                var n = new node();
                 n.posx = data.posx;
                 n.posy = data.posy;
                 enemies[data.id] = n;
                 enemies[data.id].requestBuffer(data.audioURL);
             } else if (data.npc) {
+                var n = new node();
                 n.posx = data.posx;
                 n.posy = data.posy;
                 npcs[data.id] = n;
                 npcs[data.id].requestBuffer(data.audioURL);
+            } else if (data.player) {
+                //check if already connected
+                //start new connection
+                  //send location
+                //data.peerid
             }
         }
         loadRequestArray(requestArray);
