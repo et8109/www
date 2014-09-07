@@ -5,6 +5,13 @@ window.onerror = function(msg, url, line) {
 var loading = true;
 
 var peer;
+var connections=[];
+peer.on('connection', function(conn) {
+  conn.on('data', function(data){
+    // Will print 'hi!'
+    console.log(data);
+  });
+});
 
 window.URL = window.URL || window.webkitURL;
 navigator.getMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
@@ -179,9 +186,14 @@ function checkUpdateResponse(response) {
                 npcs[data.id].requestBuffer(data.audioURL);
             } else if (data.player) {
                 //check if already connected
-                //start new connection
-                  //send location
-                //data.peerid
+                if (!connections.contains(data.peerid)){
+                    //start new connection
+                    connections[connections.length] = data.peerid;
+                    var conn = peer.connect(peerid);
+                    conn.on('open', function(){
+                        conn.send('hi!');
+                    });
+                }
             }
         }
         loadRequestArray(requestArray);
