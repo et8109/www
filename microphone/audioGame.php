@@ -241,7 +241,7 @@ try{
         sendJSON($arrayJSON);
         return;
         //send players nearby
-        $playersResult = queryMulti("select peerid from playerinfo where zone>0 and (zone=".$zone-1-constants::numZonesSrt." or zone=".$zone-1." or zone=".$zone-1+constants::numZonesSrt." or zone=".$zone-constants::numZonesSrt." or zone=".$zone." or zone=".$zone+constants::numZonesSrt." or zone=".$zone+1+constants::numZonesSrt." or zone=".$zone+1." or zone=".$zone+1-constants::numZonesSrt.")");
+        $playersResult = queryMulti("select peerid from playerinfo where zone in (".($zone-1-constants::numZonesSrt).",".($zone-1).",".($zone-1+constants::numZonesSrt).",".($zone-constants::numZonesSrt).",".$zone.",".($zone+constants::numZonesSrt).",".($zone+1+constants::numZonesSrt).",".($zone+1).",".($zone+1-constants::numZonesSrt).")");
         while($row = mysqli_fetch_array($playersResult)){
             $arrayJSON[] = (array(
                 "player" => true,

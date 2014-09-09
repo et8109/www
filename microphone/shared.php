@@ -3,6 +3,14 @@
 session_start();
 $con = _getConnection();
 
+final class dbconstants {
+    const dbhostName = "localhost";
+    const dbusername = "ignatymc_admin";
+    const dbpassword = "1Gn4tym";
+    const dbname = "ignatymc_audiogame";
+}
+
+
 function query($sql){
     $result = mysqli_query($GLOBALS['con'], $sql);
     if(is_bool($result)){
@@ -48,7 +56,7 @@ function sendError($msg){
 }
 
 function _getConnection(){
-    $con = mysqli_connect("localhost","root","","audio_game");
+    $con = mysqli_connect(dbconstants::dbhostName,dbconstants::dbusername,dbconstants::dbpassword,dbconstants::dbname);
     //check connection
     if (mysqli_connect_errno()){
         throw new Exception("could not connect to database");

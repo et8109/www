@@ -6,12 +6,6 @@ var loading = true;
 
 var peer;
 var connections=[];
-peer.on('connection', function(conn) {
-  conn.on('data', function(data){
-    // Will print 'hi!'
-    console.log(data);
-  });
-});
 
 window.URL = window.URL || window.webkitURL;
 navigator.getMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
@@ -65,6 +59,8 @@ window.onload = function(){
                     updater = setInterval("update()", 3000);
                     ticker = setInterval("tick()",1000);
                     log("done loading");
+                    log("client version 2");
+                    log("server version "+response.version);
                     }
                );
 }
@@ -374,6 +370,12 @@ function createAudioSource(audioBuffer,hasPanner,posx,posy,posz){
 function createPeer(peerID){
     peer = new Peer(peerID);
     peer.options.key = "kf8l60l4w3f03sor";
+    peer.on('connection', function(conn) {
+                        conn.on('data', function(data){
+                        // Will print 'hi!'
+                        console.log(data);
+                      });
+                    });
 }
 
 function log(msg){
