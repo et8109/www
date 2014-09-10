@@ -7,7 +7,7 @@ final class dbconstants {
     const dbhostName = "localhost";
     const dbusername = "ignatymc_admin";
     const dbpassword = "1Gn4tym";
-    const dbname = "ignatymc_audiogame";
+    const dbname = "ignatymc_audioGame";
 }
 
 

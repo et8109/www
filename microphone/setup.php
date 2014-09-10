@@ -9,7 +9,8 @@ $arrayJSON[] = (array(
                     "playeraudioURL" => $infoRow['audioURL'],
                     "peerID" => $infoRow['peerid'],
                     "posX" => $infoRow['posx'],
-                    "posY" => $infoRow['posy']
+                    "posY" => $infoRow['posy'],
+                    "version" => 2
                 ));
 sendJSON($arrayJSON);
 ?>
