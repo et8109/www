@@ -87,6 +87,7 @@ function node(){
     this.play = function(audioNum){
         log("starting: "+this.audioURLs[audioNum]);
         this.audioSource && this.audioSource.stop();
+        log(this.buffers[audioNum]);
         if (this.posx==null) {
             //no panner
             this.audioSource = createAudioSource(this.buffers[audioNum],false/*no panner*/);
@@ -124,7 +125,7 @@ function loadRequestArray(requestArray){
         }
         //set object's buffer: http request -> buffer
         context.decodeAudioData(request.response,function(decoded){ //callback function
-                info[0].buffers.push(decoded)
+                info[0].buffers.push(decoded);
             });
         loadRequestArray(requestArray);
     }
@@ -181,13 +182,17 @@ function checkUpdateResponse(response) {
                 npcs[data.id] = n;
                 npcs[data.id].requestBuffer(data.audioURL);
             } else if (data.player) {
+                log("player found");
                 //check if already connected
-                if (!connections.contains(data.peerid)){
+                if (connections[data.peerid] != true){
                     //start new connection
-                    connections[connections.length] = data.peerid;
-                    var conn = peer.connect(peerid);
-                    conn.on('open', function(){
-                        conn.send('hi!');
+                    connections[data.peerid] = true;
+                    var conn = peer.connect(data.peerid);
+                    peer.on('connection', function(conn){
+                        conn.on('open', function(){
+                            conn.send('hi!');
+                            log("msg sent");
+                        });
                     });
                 }
             }

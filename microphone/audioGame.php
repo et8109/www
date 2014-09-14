@@ -238,8 +238,6 @@ try{
             ));
         }
         mysqli_free_result($npcResult);
-        sendJSON($arrayJSON);
-        return;
         //send players nearby
         $playersResult = queryMulti("select peerid from playerinfo where zone in (".($zone-1-constants::numZonesSrt).",".($zone-1).",".($zone-1+constants::numZonesSrt).",".($zone-constants::numZonesSrt).",".$zone.",".($zone+constants::numZonesSrt).",".($zone+1+constants::numZonesSrt).",".($zone+1).",".($zone+1-constants::numZonesSrt).")");
         while($row = mysqli_fetch_array($playersResult)){
@@ -248,6 +246,9 @@ try{
                 "peerid" => $row['peerid']
             ));
         }
+        mysqli_free_result($playersResult);
+        sendJSON($arrayJSON);
+        return;
     }
     //set current time
     $time = time();
