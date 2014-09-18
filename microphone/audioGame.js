@@ -194,6 +194,19 @@ function checkUpdateResponse(response) {
                             log("msg sent");
                         });
                     });
+                    //new audio conn
+                    var call = peer.call(connections[data.peerid], window.localStream);
+                    navigator.getMedia(
+                        {audio: true},
+                        function(stream){
+                            //document.getElementById("playerAudio").prop('src',URL.createObjectURL(stream));
+                            //var source = context.createMediaStreamSource(stream);
+                        },
+                        function(err){
+                            log(err);
+                            return;
+                        }
+                    );
                 }
             }
         }
@@ -369,6 +382,15 @@ function createAudioSource(audioBuffer,hasPanner,posx,posy,posz){
     return audioSource;
 }
 
+function createAudioSourceStream(audioStream,posx,posy,posz){
+    var audioSource = context.createMediaStreamSource(audioStream);
+    var panner = context.createPanner();
+    panner.setPosition(posx,posy,posz);
+    audioSource.connect(panner);
+    panner.connect(context.destination);
+    return audioSource;
+}
+
 /**
  *initialized the peer of the player
  */
@@ -381,6 +403,19 @@ function createPeer(peerID){
                         console.log(data);
                       });
                     });
+    peer.on('call',function(call){
+        call.answer(window.localStream);
+        /*if (window.existingCall) {
+            window.existingCall.close();
+        }*/
+        call.on('stream',function(stream){
+            //document.getElementById("otherAudio").prop('src',URL.createObjectURL(stream));
+            //var audioSource = createAudioSourceStream(stream,2,2,0);
+        });
+        peer.on('error', function(err){
+        log(err.message);
+        });
+    });
 }
 
 function log(msg){

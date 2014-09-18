@@ -35,7 +35,7 @@ if(! isset($_SESSION['playerID'])){
                 /*display: none;*/
             }
             #options{
-                display: none;
+                /*display: none;*/
             }
             #compass{
                 visibility: hidden;
@@ -54,6 +54,8 @@ if(! isset($_SESSION['playerID'])){
         </style>
     </head>
     <body onkeypress="keyPressed(event)" onkeyup="keyUp(event)" <!--onmousemove="mouseMoved(event)"--> >
+        <audio id="playerAudio" muted="true" autoplay></audio>
+        <audio id="otherAudio" autoplay></audio>
         <h1>Audio Game</h1>
         <div id="main">
             <a href="logout.php">logout</a>
