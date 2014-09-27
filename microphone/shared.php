@@ -49,12 +49,6 @@ function sendJSON($array){
     echo json_encode($array);
 }
 
-function sendError($msg){
-    sendJSON(array(
-            "error" => $msg
-        ));
-}
-
 function _getConnection(){
     $con = mysqli_connect(dbconstants::dbhostName,dbconstants::dbusername,dbconstants::dbpassword,dbconstants::dbname);
     //check connection

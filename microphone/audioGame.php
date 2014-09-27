@@ -182,17 +182,51 @@ try{
     $playerQuery = query("select zone, health from playerinfo where id=".prepVar($_SESSION['playerID']));
     $newZone = false;
     if($playerQuery['zone'] != $zone){
-        //check if out of map range
-        if($zone < 1 || $zone > (constants::numZonesSrt*constants::numZonesSrt)){
-            sendError("can't walk over there");
-            return;
-        }
         $newZone = true;
+    }
+    //prepare array to send
+    $arrayJSON = array();
+    //check if out of map range
+    $bump = 10;
+    if ($posx < 0){
+        //throw new Exception("oob posx: ".$posx);
+        $posx = $posx + $bump;
+        $arrayJSON[] = (array(
+            "playerInfo" => true,
+            "posX" => $posx,
+            "posY" => $posy
+        ));
+        $newZone = false;
+    }
+    if ($posy < 0){
+        $posy = $posy + $bump;
+        $arrayJSON[] = (array(
+            "playerInfo" => true,
+            "posX" => $posx,
+            "posY" => $posy
+        ));
+        $newZone = false;
+    }
+    if ($posx > constants::numZonesSrt*constants::zoneWidth){
+        $posx = $posx - $bump;
+        $arrayJSON[] = (array(
+            "playerInfo" => true,
+            "posX" => $posx,
+            "posY" => $posy
+        ));
+        $newZone = false;
+    }
+    if ($posy > constants::numZonesSrt*constants::zoneWidth){
+        $posy = $posy - $bump;
+        $arrayJSON[] = (array(
+            "playerInfo" => true,
+            "posX" => $posx,
+            "posY" => $posy
+        ));
+        $newZone = false;
     }
     //update playerinfo
     query("UPDATE playerinfo SET posx=".prepVar($posx).",posy=".prepVar($posy).",zone=".prepVar($zone)." WHERE id=".prepVar($_SESSION['playerID']));
-    //prepare array to send
-    $arrayJSON = array();
     //if in a new zone
     if($newZone){
         $arrayJSON[0] = array("newZone" => true);

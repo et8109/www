@@ -58,7 +58,6 @@ window.onload = function(){
                     //start updater
                     updater = setInterval("update()", 3000);
                     ticker = setInterval("tick()",1000);
-                    log("done loading");
                     log("client version 2");
                     log("server version "+response.version);
                     }
