@@ -31,7 +31,8 @@ Password: </br>
         <div id="info">
             <a href="guide.php" target="_newtab">Guide</a></br></br>
             <a href="http://ignatym.freeforums.net/" target="_newtab">Forums</a></br></br>
-            Welcome to the alpha!
+            Welcome to the alpha!</br>
+            [Audio game in progress :)]
         </div>
     </body>
 </html>

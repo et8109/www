@@ -1,5 +1,5 @@
 window.onerror = function(msg, url, line) {
-    alert("Error: "+msg+" url: "+url+" line: "+line);
+    log("Error: "+msg+" url: "+url+" line: "+line);
 };
 
 var loading = true;
@@ -195,7 +195,7 @@ function checkUpdateResponse(response) {
                         });
                     });
                     //new audio conn
-                    var call = peer.call(connections[data.peerid], window.localStream);
+                    /*var call = peer.call(connections[data.peerid], window.localStream);
                     navigator.getMedia(
                         {audio: true},
                         function(stream){
@@ -206,7 +206,7 @@ function checkUpdateResponse(response) {
                             log(err);
                             return;
                         }
-                    );
+                    );*/
                 }
             }
         }
