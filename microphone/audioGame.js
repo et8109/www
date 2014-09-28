@@ -197,6 +197,10 @@ function checkUpdateResponse(response) {
                 if (connections[data.peerid] != true){
                     connections[data.peerid] = true;
                     var conn = peer.connect(data.peerid);
+                    conn.on('error', function(err){
+                        log("connection error: ");
+                        log(err);
+                    });
                     conn.on('open', function(){
                         conn.send('hi!');
                         log("msg sent");
@@ -389,7 +393,11 @@ function createAudioSourceStream(audioStream,posx,posy,posz){
  *initialized the peer of the player
  */
 function createPeer(peerID){
-    peer = new Peer(peerID);
+    peer = new Peer(peerID,{key: 'kf8l60l4w3f03sor'});
+    peer.on('error', function(err){
+        log("peer error: ");
+        log(err);
+    });
     peer.on('connection', function(conn) {
         conn.on('data', function(data){
           // Will print 'hi!'
