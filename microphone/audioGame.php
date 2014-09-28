@@ -273,7 +273,7 @@ try{
         }
         mysqli_free_result($npcResult);
         //send players nearby
-        $playersResult = queryMulti("select peerid from playerinfo where id!=".prepVar($_SESSION['playerID'])." and zone in (".($zone-1-constants::numZonesSrt).",".($zone-1).",".($zone-1+constants::numZonesSrt).",".($zone-constants::numZonesSrt).",".$zone.",".($zone+constants::numZonesSrt).",".($zone+1+constants::numZonesSrt).",".($zone+1).",".($zone+1-constants::numZonesSrt).")");
+        $playersResult = queryMulti("select peerid from playerinfo where id!=".prepVar($_SESSION['playerID'])." and zone in (".($zone-1-constants::numZonesSrt).",".($zone-1).",".($zone-1+constants::numZonesSrt).",".($zone-constants::numZonesSrt).",".$zone.",".($zone+constants::numZonesSrt).",".($zone+1+constants::numZonesSrt).",".($zone+1).",".($zone+1-constants::numZonesSrt).") and zone != 0");
         while($row = mysqli_fetch_array($playersResult)){
             $arrayJSON[] = (array(
                 "player" => true,

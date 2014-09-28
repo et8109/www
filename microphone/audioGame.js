@@ -181,12 +181,14 @@ function checkUpdateResponse(response) {
                 npcs[data.id] = n;
                 npcs[data.id].requestBuffer(data.audioURL);
             } else if (data.player) {
-                log("player found");
+                log("player found: "+data.peerid);
                 //check if already connected
                 if (connections[data.peerid] != true){
+                    log("conn array not true");
                     //start new connection
                     connections[data.peerid] = true;
                     var conn = peer.connect(data.peerid);
+                    log("conn initialized");
                     peer.on('connection', function(conn){
                         conn.on('open', function(){
                             conn.send('hi!');
