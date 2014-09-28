@@ -5,9 +5,8 @@ window.onerror = function(msg, url, line) {
 var loading = true;
 
 var peer;
-var localStream;
-var local, peer;
-getUserMedia({
+var connections=[];
+/*getUserMedia({
       audio: true,
       video: false
     },
@@ -19,13 +18,7 @@ getUserMedia({
     },
     function(e){
       log('getUserMedia() error: ' + e.name);
-    });
-var sdpConstraints = {
-  'mandatory': {
-    'OfferToReceiveAudio': true,
-    'OfferToReceiveVideo': false
-  }
-};
+    });*/
 
 window.URL = window.URL || window.webkitURL;
 navigator.getMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
@@ -201,28 +194,14 @@ function checkUpdateResponse(response) {
                 npcs[data.id] = n;
                 npcs[data.id].requestBuffer(data.audioURL);
             } else if (data.player) {
-                var servers = null;
-                var pcConstraints = {
-                    'optional': []
-                };
-                local = new RTCPeerConnection(servers, pcConstraints);
-                local.onicecandidate = iceCallbackPeer;
-                peer = new RTCPeerConnection(servers, pcConstraints);
-                peer.onicecandidate = iceCallbackLocal;
-                peer.onaddstream = function(e){
-                    attachMediaStream(audio2, e.stream);
-                };
-                local.addStream(localstream);
-                local.createOffer(
-                    function(desc){
-                        local.setLocalDescription(desc);
-                        peer.setRemoteDescription(desc);
-                        peer.createAnswer(
-                            function(desc){
-                                peer.setLocalDescription(desc);
-                                local.setRemoteDescription(desc);
-                            }, function(error){log("createAnswer: "+error.toString());},sdpConstraints);
-                    }, onCreateSessionDescriptionError);
+                if (connections[data.peerid] != true){
+                    connections[data.peerid] = true;
+                    var conn = peer.connect(data.peerid);
+                    conn.on('open', function(){
+                        conn.send('hi!');
+                        log("msg sent");
+                    });
+                }
             }
         }
         loadRequestArray(requestArray);
@@ -328,19 +307,6 @@ request.onload = function () {
 }
 request.send();*/
 
-function iceCallbackLocal(event){
-    _iceCallback(event,local);
-}
-function iceCallbackPeer(event){
-    _iceCallback(event,peer);
-}
-function _iceCallback(event, node) {
-    if (event.candidate) {
-        node.addIceCandidate(new RTCIceCandidate(event.candidate),
-        onAddIceCandidateSuccess, onAddIceCandidateError);
-    }
-}
-
 /**
  *starts recording, opens the button to stop, calls the param function afterwards
  */
@@ -423,8 +389,13 @@ function createAudioSourceStream(audioStream,posx,posy,posz){
  *initialized the peer of the player
  */
 function createPeer(peerID){
-    //peer = ???
-    //set recieve functions
+    peer = new Peer(peerID);
+    peer.on('connection', function(conn) {
+        conn.on('data', function(data){
+          // Will print 'hi!'
+          log(data);
+        });
+      });
 }
 
 function log(msg){
