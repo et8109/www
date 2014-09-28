@@ -58,7 +58,7 @@ if(! isset($_SESSION['playerID'])){
         <audio id="otherAudio" autoplay></audio>
         <h1>Audio Game</h1>
         <div id="main">
-            <a href="logout.php">logout</a>
+            <a onclick='stop()' href="logout.php">logout</a>
             <div id="options">
                 <input type="button" value="record attack [2 seconds]" onclick="record(recordedAttack())">
             </div>

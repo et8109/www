@@ -42,6 +42,11 @@ var enemies = [];
 var ambient =[];
 var players=[];
 
+var updater;
+var ticker;
+var posX=0;
+var posY=0;
+
 /**
  *repeated in db
  */
@@ -143,11 +148,6 @@ function loadRequestArray(requestArray){
     }
     request.send()
 }
-
-var updater;
-var ticker;
-var posX=0;
-var posY=0;
 
 /**
  *checks which sounds were recived and calls setAudioBuffer for them
@@ -404,6 +404,11 @@ function createPeer(peerID){
           log(data);
         });
       });
+}
+
+function stop(){
+    clearInterval(updater);
+    clearInterval(ticker);
 }
 
 function log(msg){
