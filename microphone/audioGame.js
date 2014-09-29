@@ -5,8 +5,14 @@ window.onerror = function(msg, url, line) {
 var loading = true;
 
 var peer;
+var localStream;
 var connections=[];
-/*getUserMedia({
+
+window.URL = window.URL || window.webkitURL;
+navigator.getMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
+var audioContext = window.AudioContext || window.webkitAudioContext;
+
+navigator.getMedia({
       audio: true,
       video: false
     },
@@ -18,11 +24,7 @@ var connections=[];
     },
     function(e){
       log('getUserMedia() error: ' + e.name);
-    });*/
-
-window.URL = window.URL || window.webkitURL;
-navigator.getMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
-var audioContext = window.AudioContext || window.webkitAudioContext;
+    });
 
 /**
  *The audiocontext for the entire page.
@@ -194,9 +196,11 @@ function checkUpdateResponse(response) {
                 npcs[data.id] = n;
                 npcs[data.id].requestBuffer(data.audioURL);
             } else if (data.player) {
-                if (connections[data.peerid] != true){
+                log("player found: "+data.peerid);
+                if (connections[data.peerid] == null){
+                    log("conn not usable. creating.");
                     connections[data.peerid] = true;
-                    var conn = peer.connect(data.peerid);
+                    /*var conn = peer.connect(data.peerid);
                     conn.on('error', function(err){
                         log("connection error: ");
                         log(err);
@@ -204,7 +208,11 @@ function checkUpdateResponse(response) {
                     conn.on('open', function(){
                         conn.send('hi!');
                         log("msg sent");
-                    });
+                    });*/
+                    //new audio conn
+                    var call = peer.call(connections[data.peerid], localStream);
+                    //document.getElementById("playerAudio").prop('src',URL.createObjectURL(stream));
+                    //var source = context.createMediaStreamSource(stream);
                 }
             }
         }
@@ -315,6 +323,7 @@ request.send();*/
  *starts recording, opens the button to stop, calls the param function afterwards
  */
 function record(callback){
+    //TODO change to use localStream!!!!!!!!!!!!!!!!!!!!!!
     var mediaStreamSource;
     navigator.getMedia(
         {audio: true},
@@ -398,17 +407,34 @@ function createPeer(peerID){
         log("peer error: ");
         log(err);
     });
-    peer.on('connection', function(conn) {
+    /*peer.on('connection', function(conn) {
         conn.on('data', function(data){
           // Will print 'hi!'
           log(data);
         });
-      });
+      });*/
+    peer.on('call',function(call){
+        if (window.existingCall) {
+            window.existingCall.close();
+        }
+        call.answer(localStream);
+        call.on('stream',function(stream){
+            //var audioSource =
+            connections[call.peer] = createAudioSourceStream(stream,2,2,0);
+            
+        });
+        peer.on('error', function(err){
+        log(err.message);
+        });
+    });
 }
 
 function stop(){
     clearInterval(updater);
     clearInterval(ticker);
+    for (conn in connections){
+        conn.close();
+    }
 }
 
 function log(msg){

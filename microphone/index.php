@@ -14,7 +14,7 @@ if(! isset($_SESSION['playerID'])){
         <style>
             body{
                 background-color: black;
-                overflow: hidden;
+                overflow: scroll;
             }
             h1{
                 color:#7f7f7f;
