@@ -32,7 +32,7 @@ Password: </br>
             <a href="guide.php" target="_newtab">Guide</a></br></br>
             <a href="http://ignatym.freeforums.net/" target="_newtab">Forums</a></br></br>
             Welcome to the alpha!</br></br></br>
-            [ <a href="audiogame.ignatym.com">Audio Game</a> in progress. p2p chat not quite working yet! ]
+            [ <a href="http://audiogame.ignatym.com">Audio Game</a> in progress. p2p chat not quite working yet! ]
         </div>
     </body>
 </html>
