@@ -34,5 +34,9 @@ header("Location: index.php");
   Password: <input type=password name=pass maxlength=20></input>
   <input type=submit></input>
   </form>
+Guest account available,</br>
+username and password are "guest".</br></br>
+*The site only works on browsers that have implemented the most recent web-related APIs and whatnot</br>
+**This is still a work in progress. All text on screen is for debugging.</br>
  </body>
 </html>

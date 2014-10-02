@@ -198,7 +198,7 @@ function checkUpdateResponse(response) {
             } else if (data.player) {
                 log("player found: "+data.peerid);
                 if (connections[data.peerid] == null){
-                    log("conn not usable. creating.");
+                    log("conn not usable. calling.");
                     connections[data.peerid] = true;
                     /*var conn = peer.connect(data.peerid);
                     conn.on('error', function(err){
@@ -210,7 +210,11 @@ function checkUpdateResponse(response) {
                         log("msg sent");
                     });*/
                     //new audio conn
-                    var call = peer.call(connections[data.peerid], localStream);
+                    var call = peer.call(data.peerid, localStream);
+                    call.on('error', function(err){
+                        log("call error: ");
+                        log(err);
+                    });
                     //document.getElementById("playerAudio").prop('src',URL.createObjectURL(stream));
                     //var source = context.createMediaStreamSource(stream);
                 }
@@ -395,6 +399,7 @@ function createAudioSourceStream(audioStream,posx,posy,posz){
     panner.setPosition(posx,posy,posz);
     audioSource.connect(panner);
     panner.connect(context.destination);
+    log("audio source created");
     return audioSource;
 }
 
@@ -414,17 +419,20 @@ function createPeer(peerID){
         });
       });*/
     peer.on('call',function(call){
-        if (window.existingCall) {
+        log("called!");
+        /*if (window.existingCall) {
             window.existingCall.close();
-        }
+        }*/
+        call.on('error', function(err){
+        log(err.message);
+        });
         call.answer(localStream);
+        log("-answered");
         call.on('stream',function(stream){
+            log("-recieving stream: "+stream);
             //var audioSource =
             connections[call.peer] = createAudioSourceStream(stream,2,2,0);
             
-        });
-        peer.on('error', function(err){
-        log(err.message);
         });
     });
 }
