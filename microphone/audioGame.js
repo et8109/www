@@ -431,8 +431,8 @@ function createPeer(peerID){
         call.on('stream',function(stream){
             log("-recieving stream: "+stream);
             //var audioSource =
-            connections[call.peer] = createAudioSourceStream(stream,2,2,0);
-            
+            //connections[call.peer] = createAudioSourceStream(stream,2,2,0);
+            document.getElementById("otherAudio").setAttribute('src', URL.createObjectURL(stream));
         });
     });
 }
