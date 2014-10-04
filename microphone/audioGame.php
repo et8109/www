@@ -58,7 +58,7 @@ function addEnemyEvent($px,$py,$x,$y,$enemyID,$time,/*player:*/$zone,$health,$bu
             }
         }
         if(!$busy){//if enemy attacks
-            _addEnemyEvent(1, $enemyID, $time,$px,$py,$arrayJSON);//attacking
+            _addEnemyEvent(1, $enemyID, $time,$x,$y,$arrayJSON);//attacking
             //lower player health
             query("update playerinfo set health=health-1 where id=".prepVar($_SESSION['playerID']));
             //if dead
@@ -83,7 +83,7 @@ function addEnemyEvent($px,$py,$x,$y,$enemyID,$time,/*player:*/$zone,$health,$bu
         } 
     }
     else if($dist < distances::enemyNotice && !$busy){
-        _addEnemyEvent(0, $enemyID, $time,$px,$py,$arrayJSON);//notice audio
+        _addEnemyEvent(0, $enemyID, $time,$x,$y,$arrayJSON);//notice audio
     }
 }
 
