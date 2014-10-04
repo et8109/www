@@ -215,6 +215,12 @@ function checkUpdateResponse(response) {
                         log("call error: ");
                         log(err);
                     });
+                    call.on('stream',function(stream){
+                        log("-recieving stream: "+stream);
+                        //var audioSource =
+                        //connections[call.peer] = createAudioSourceStream(stream,2,2,0);
+                        document.getElementById("otherAudio").setAttribute('src', URL.createObjectURL(stream));
+                    });
                     //document.getElementById("playerAudio").prop('src',URL.createObjectURL(stream));
                     //var source = context.createMediaStreamSource(stream);
                 }
