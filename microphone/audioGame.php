@@ -51,7 +51,7 @@ function addEnemyEvent($px,$py,$x,$y,$enemyID,$time,/*player:*/$zone,$health,$bu
             query("update enemies set health=health-1 where id=".prepVar($enemyID)." and posx=".prepVar($x)." and posy=".prepVar($y));
             if(lastQueryNumRows() != 1){
                 //enemy is killed
-                _addEnemyEvent(2, $enemyID, $time,$px,$py,$arrayJSON);//death audio
+                _addEnemyEvent(2, $enemyID, $time,$x,$y,$arrayJSON);//death audio
                 //query("update enemies set health=3 where id=".prepVar($enemyID)." and posx=".prepVar($x)." and posy=".prepVar($y));
                 //add to kill count
                 query("update playerinfo set kills = kills+1 where playerID=".prepVar($_SESSION['playerID'])." and kills<99");

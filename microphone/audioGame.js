@@ -218,8 +218,9 @@ function checkUpdateResponse(response) {
                     call.on('stream',function(stream){
                         log("-recieving stream: "+stream);
                         //var audioSource =
-                        //connections[call.peer] = createAudioSourceStream(stream,2,2,0);
-                        document.getElementById("otherAudio").setAttribute('src', URL.createObjectURL(stream));
+                        //connections[call.peer] =
+                        createAudioSourceStream(stream,2,2,0);
+                        //document.getElementById("otherAudio").setAttribute('src', URL.createObjectURL(stream));
                     });
                     //document.getElementById("playerAudio").prop('src',URL.createObjectURL(stream));
                     //var source = context.createMediaStreamSource(stream);
@@ -401,12 +402,15 @@ function createAudioSource(audioBuffer,hasPanner,posx,posy,posz){
 
 function createAudioSourceStream(audioStream,posx,posy,posz){
     var audioSource = context.createMediaStreamSource(audioStream);
-    var panner = context.createPanner();
-    panner.setPosition(posx,posy,posz);
-    audioSource.connect(panner);
-    panner.connect(context.destination);
+    //var panner = context.createPanner();
+    //panner.setPosition(posx,posy,posz);
+    //audioSource.connect(panner);
+    //panner.connect(context.destination);
+    if(!audioSource.connect(context.destination)){
+        log("could not connect remote stream to context destination");
+        document.getElementById("otherAudio").setAttribute('src', URL.createObjectURL(audioStream));
+    }
     log("audio source created");
-    return audioSource;
 }
 
 /**
@@ -437,8 +441,9 @@ function createPeer(peerID){
         call.on('stream',function(stream){
             log("-recieving stream: "+stream);
             //var audioSource =
-            //connections[call.peer] = createAudioSourceStream(stream,2,2,0);
-            document.getElementById("otherAudio").setAttribute('src', URL.createObjectURL(stream));
+            //connections[call.peer] =
+            createAudioSourceStream(stream,2,2,0);
+            //document.getElementById("otherAudio").setAttribute('src', URL.createObjectURL(stream));
         });
     });
 }
