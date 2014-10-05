@@ -245,8 +245,8 @@ function checkUpdateResponse(response) {
                 spriteObject.play(data.audioType);
             } else if (data.playerInfo) {
                 //update position
-                posX = data.posX;
-                posY = data.posY;
+                posX = parseInt(data.posX);
+                posY = parseInt(data.posY);
             } else if(data.question){
                 if (data.start){
                     question = true;
