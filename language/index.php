@@ -20,7 +20,7 @@
         var res = document.getElementById("response");
         var inp = document.getElementById("input");
         function p(){
-            res.innerHTML +=parse("</br>"+inp.value);
+            res.innerHTML +="</br>"+parse(inp.value);
         }
     </script>
 </html>

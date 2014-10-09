@@ -7,7 +7,7 @@ var maxpos=0;
 
 function parse(string) {
     error="";
-    maxpos=0;
+    maxpos=-1;
     pos=0;
     words = string.split(" ");
     if(Paragraph()){
@@ -17,12 +17,12 @@ function parse(string) {
 }
 
 function Paragraph(){
-    return check(this.name,[Word,
-                      Action]);
+    return check([Word]) ||
+           check([Action]);
 }
 
 function Action() {
-    return eat("say") && check(this.name,[Speech]);
+    return eat("say") && check([Speech]);
 }
 
 function Speech() {
@@ -35,23 +35,16 @@ function Word() {
 
 /////////////////////////////////////////////////////////
 
-function check(name, funcs) {
+function check(funcs) {
     var p = pos;
     for (i in funcs){
-        if (funcs[i]()) {
-            return true;
-        } else{
+        if (!funcs[i]()) {
+            addError("["+funcs[i].name+"]");
             pos = p;
+            return false;
         }
     }
-    if (pos >= maxpos) {
-        error = "At: "+name+". Could not find: ";
-        for (i in funcs) {
-            error +=" ["+funcs[i].name+"] ";
-        }
-        maxpos = pos;
-    }
-    return false;
+    return true;
 }
 
 function eat(str) {
@@ -59,6 +52,16 @@ function eat(str) {
         pos++;
         return true;
     } else{
+        addError(str);
         return false;
     }
+}
+
+function addError(funcName){
+    if (pos > maxpos) {
+        error = "At: "+words[pos]+". Could not find: "+funcName;
+        maxpos = pos;
+    } /*else if (pos == maxpos) {
+        error += ", or "+funcName;
+    }*/
 }
