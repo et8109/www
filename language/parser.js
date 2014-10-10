@@ -52,16 +52,14 @@ function eat(str) {
         pos++;
         return true;
     } else{
-        addError(str);
+        //addError(str);
         return false;
     }
 }
 
 function addError(funcName){
     if (pos > maxpos) {
-        error = "At: "+words[pos]+". Could not find: "+funcName;
+        error = "Parsing: "+words[pos]+". Does not match: "+funcName;
         maxpos = pos;
-    } /*else if (pos == maxpos) {
-        error += ", or "+funcName;
-    }*/
+    } 
 }
