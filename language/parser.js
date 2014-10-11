@@ -17,20 +17,31 @@ function parse(string) {
 }
 
 function Paragraph(){
-    return check([Word]) ||
-           check([Action]);
+    return ( check([Word]) ||
+             check([Verb]) ) && check([EOF]);
 }
 
-function Action() {
-    return eat("say") && check([Speech]);
+function Verb() {
+    return eat("say",1) && check([Speech]) ||
+           eat("tell",1) && check([Speech]) ||
+           eat("look",1) && eat("at",0) && check([VisibleObject]);
+}
+
+function VisibleObject() {
+    return eat("the",0) &&
+        ( eat("ground",1) || eat("sky",1) );
 }
 
 function Speech() {
-    return eat("word");
+    return eat("word",0);
 }
 
 function Word() {
-    return eat("word");
+    return eat("word",0);
+}
+
+function EOF() {
+    return pos == words.length || addError("EOF");
 }
 
 /////////////////////////////////////////////////////////
@@ -47,7 +58,7 @@ function check(funcs) {
     return true;
 }
 
-function eat(str) {
+function eat(str,type) {
     if (words[pos] == str) {
         pos++;
         return true;
@@ -57,9 +68,14 @@ function eat(str) {
     }
 }
 
+/*function append(str,type) {
+    out[pos]="<span class=t"+type+" >"+str+"</span>";
+}*/
+
 function addError(funcName){
     if (pos > maxpos) {
         error = "Parsing: "+words[pos]+". Does not match: "+funcName;
         maxpos = pos;
-    } 
+    }
+    return false;
 }
