@@ -17,27 +17,35 @@ function parse(string) {
 }
 
 function Paragraph(){
-    return ( check([Word]) ||
-             check([Verb]) ) && check([EOF]);
+    return check([Verb]) && check([EOF]);
 }
 
 function Verb() {
-    return eat("say",1) && check([Speech]) ||
-           eat("tell",1) && check([Speech]) ||
-           eat("look",1) && eat("at",0) && check([VisibleObject]);
+    return check(["say",Speech]) ||
+           check(["tell", Person, Speech]) ||
+           check(["look","at",VisibleObject]);
 }
 
 function VisibleObject() {
-    return eat("the",0) &&
-        ( eat("ground",1) || eat("sky",1) );
+    return check(["the"]) &&
+        ( check(["ground"]) || check(["sky"]) );
 }
 
 function Speech() {
-    return eat("word",0);
+    return check(["word"]);
 }
 
-function Word() {
-    return eat("word",0);
+function Person() {
+    return check([Npc]) ||
+           check([PlayerName]);
+}
+
+function Npc() {
+    return check(["npc"]);
+}
+
+function PlayerName(){
+    return false;
 }
 
 function EOF() {
@@ -49,16 +57,25 @@ function EOF() {
 function check(funcs) {
     var p = pos;
     for (i in funcs){
-        if (!funcs[i]()) {
-            addError("["+funcs[i].name+"]");
-            pos = p;
-            return false;
+        var type = typeof funcs[i];
+        var name = funcs[i].name;
+        if (type == "string"){
+            if(!eat(funcs[i])){
+                pos = p;
+                return false;
+            }
+        } else if(type == "function"){
+            if(!funcs[i]()) {
+                addError("["+name+"]");
+                pos = p;
+                return false;
+            }
         }
     }
     return true;
 }
 
-function eat(str,type) {
+function eat(str) {
     if (words[pos] == str) {
         pos++;
         return true;
