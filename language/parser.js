@@ -17,8 +17,41 @@ function parse(string) {
 }
 
 function Paragraph(){
-    return check([Verb]) && check([EOF]);
+    return check([Scentence,Paragraph]) ||
+           check([Scentence, EOF]);
 }
+
+function Scentence() {
+    return check([Verb]) ||
+           check([Trigger]);
+}
+
+function Trigger() {
+    return check(["when",TriggerTime]);
+}
+
+function TriggerTime() {
+    return check(["time","is",TIME]);
+}
+
+function TIME(){
+    var time = words[pos];
+    return time.length == 5 &&
+            isNumber(time.charAt(0)) &&
+            isNumber(time.charAt(1)) &&
+            time.charAt(2) == ':' &&
+            isNumber(time.charAt(3)) &&
+            isNumber(time.charAt(4)) && pos++;
+}
+
+/*function Noun() {
+    return check(["the",Noun1]) ||
+           check([Noun1]);
+}
+function Noun1(){
+    return check([VisableObject]) ||
+           check(["time"]);
+}*/
 
 function Verb() {
     return check(["say",Speech]) ||
@@ -53,6 +86,10 @@ function EOF() {
 }
 
 /////////////////////////////////////////////////////////
+
+function isNumber(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+}
 
 function check(funcs) {
     var p = pos;
