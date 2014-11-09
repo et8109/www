@@ -27,7 +27,7 @@ function Scentence() {
 }
 
 function Trigger() {
-    return check(["when",TriggerTime]);
+    return check(["when",TriggerTime,Result]);
 }
 
 function TriggerTime() {
@@ -42,6 +42,10 @@ function TIME(){
             time.charAt(2) == ':' &&
             isNumber(time.charAt(3)) &&
             isNumber(time.charAt(4)) && pos++;
+}
+
+function Result(){
+    return check(["print"]);
 }
 
 /*function Noun() {
@@ -132,4 +136,8 @@ function addError(funcName){
         maxpos = pos;
     }
     return false;
+}
+
+function Node(){
+    
 }
