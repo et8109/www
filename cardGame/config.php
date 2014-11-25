@@ -12,8 +12,13 @@ class Config {
   const HASH_ALGO = "sha256";
 
   // Application Admin User account.
-  const ADMIN_USER = "root";
+  const ADMIN_USER = "admin";
   const ADMIN_PASS = "";
+}
+
+class cards {
+    const darkness = 0;
+    const light = 1;
 }
 
 ?>

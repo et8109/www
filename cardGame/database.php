@@ -164,6 +164,27 @@ class Database {
   private function teardownPlayer($name){
     $this->query( "DELETE from Deck WHERE user='$name'");
   }
+  /**
+   *removes a list of cards from the player's hand
+   */
+  public function removeFromHand($list, $name){
+    $user = $this->connection->escape_string($user);
+    //check the cards are there
+    foreach($list as $tuple){
+      $cid=$tuple[0];
+      $num = $tuple[1];
+      $result = $this->query("select count(*) from Hand where user='$uname' and cid=$cid");
+      if(($result->fetch_row())[0] < $num){
+        throw new Exception("Not enough resources.");
+      }
+    }
+    //delete the cards
+    foreach($list as $tuple){
+      $cid=$tuple[0];
+      $num = $tuple[1];
+      $result = $this->query("delete from Hand where user='$uname' and cid=$cid limit $num");
+    }
+  }
 
   /**
    * Drops the old database and creates the table schemas from scratch.
@@ -200,18 +221,18 @@ class Database {
                  . ")");
     
     // Create owned table. All cards a player owns
-    $this->query("CREATE TABLE Owned ("
+    /*$this->query("CREATE TABLE Owned ("
                  . "user VARCHAR(25), "
                  . "cid INT NOT NULL, "
                  . "PRIMARY KEY(user) "
-                 . ")");
+                 . ")");*/
     
     // Create cards table. Data for each card
-    $this->query("CREATE TABLE Cards ("
+    /*$this->query("CREATE TABLE Cards ("
                  . "cid INT, "
                  . "data VARCHAR(25) NOT NULL, "
                  . "PRIMARY KEY(cid) "
-                 . ")");
+                 . ")");*/
     
     //Create deck table. The starting card list in a match
     $this->query("CREATE TABLE Deck ("
@@ -220,16 +241,22 @@ class Database {
                  . ")");
     $this->query("CREATE INDEX UDeck ON Deck (user)");
     
+    //Create hand table. The cards in the player's hand
+    $this->query("CREATE TABLE Hand ("
+                 . "user VARCHAR(25),"
+                 . "cid INT "
+                 . ")");
+    $this->query("CREATE INDEX UHand ON Hand (user)");
+    
     //Create board table. The cards already played
-    $this->query("CREATE TABLE Board ("
+    /*$this->query("CREATE TABLE Board ("
                  . "cid INT, "
                  . "user VARCHAR(25), "
                  . "PRIMARY KEY(user) "
-                 . ")");
+                 . ")");*/
 
     // Create admin user account.
     $this->insertUser(Config::ADMIN_USER, Config::ADMIN_PASS);
-
   }
 
   private function query($query) {
