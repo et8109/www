@@ -119,6 +119,7 @@ class Database {
   /**
    *Returns the name of a user in matchmaking and removes the from the queue.
    *Returns false on fail.
+   *Sets up the match for the user if opp found
    */
   public function findMatch($user){
     $user = $this->connection->escape_string($user);
@@ -126,19 +127,42 @@ class Database {
     $opp = $this->query("select opp from Matching where user='$user'");
     $opp = $opp->fetch_row();
     if($opp[0]!=''){
+      $opp=$opp[0];
       $this->query("delete from Matching where user='$user'");
-      return $opp[0];
+      $this->setupPlayer($user);
+      $_SESSION['opp']=$opp;
+      return $opp;
     }
     //find a new opponent
-    
     $this->query("update Matching set opp='$user' where user!='$user' limit 1");
     if ($this->connection->affected_rows > 0){
       $opp = $this->query("select user from Matching where opp='$user'");
       $opp = $opp->fetch_row();
       $this->query("delete from Matching where user='$user'");
+      $this->setupPlayer($user);
+      $_SESSION['opp']=$opp[0];
       return $opp[0];
     }
     return false;
+  }
+  
+  /**
+   *Sets up a match for one player
+   */
+  private function setupPlayer($name){
+    $this->query( "insert into deck (user, cid) values ".
+                  "('$name',1),".
+                  "('$name',2),".
+                  "('$name',2),".
+                  "('$name',4),".
+                  "('$name',5);");
+  }
+  
+  /**
+   *removes the player from all the temporary databases
+   */
+  private function teardownPlayer($name){
+    $this->query( "DELETE from Deck WHERE user='$name'");
   }
 
   /**
@@ -175,18 +199,32 @@ class Database {
                  . "PRIMARY KEY(user) "
                  . ")");
     
-    // Create owned table.
+    // Create owned table. All cards a player owns
     $this->query("CREATE TABLE Owned ("
                  . "user VARCHAR(25), "
                  . "cid INT NOT NULL, "
                  . "PRIMARY KEY(user) "
                  . ")");
     
-    // Create cards table.
+    // Create cards table. Data for each card
     $this->query("CREATE TABLE Cards ("
                  . "cid INT, "
                  . "data VARCHAR(25) NOT NULL, "
                  . "PRIMARY KEY(cid) "
+                 . ")");
+    
+    //Create deck table. The starting card list in a match
+    $this->query("CREATE TABLE Deck ("
+                 . "user VARCHAR(25),"
+                 . "cid INT "
+                 . ")");
+    $this->query("CREATE INDEX UDeck ON Deck (user)");
+    
+    //Create board table. The cards already played
+    $this->query("CREATE TABLE Board ("
+                 . "cid INT, "
+                 . "user VARCHAR(25), "
+                 . "PRIMARY KEY(user) "
                  . ")");
 
     // Create admin user account.

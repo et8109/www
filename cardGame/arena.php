@@ -36,7 +36,22 @@ redirectIfLoggedOut();
             
         </div>
     </body>
+    <script src="util.js"></script>
     <script>
+        function sendInfo(cardID) {
+            sendRequest("updater.php",
+                        "req=mine&cid="+cardID,
+                        function(){
+                            
+                        });
+        }
+        function getInfo() {
+            sendRequest("updater.php",
+                        "req=thiers",
+                        function(){
+                            
+                        });
+        }
         function player(){
             this.handDiv = document.getElementById("hand");
             this.cards=[1,1,2,4,5,8,4,9,6,5];

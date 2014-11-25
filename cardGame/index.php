@@ -26,12 +26,14 @@ redirectIfLoggedOut();
                 sendRequest("matchmaker.php",
                             "",
                             function(response){
+                                alert(response);
                                 var found = false;
                                 var json = JSON.parse(response);
                                 for(i in json){
-                                    if(typeof json[i].opp != 'undefined'){
+                                    if(typeof json[i].found != 'undefined'){
+                                        alert("found");
                                         //if opponent found
-                                        msgBox.innerHTML+="<a href='arena.php?o="+json[i].opp+"'>Battle</a>";
+                                        msgBox.innerHTML+="<a href='arena.php'>Battle</a>";
                                         stopMatchButton.style.display='none';
                                         matchButton.style.display='none';
                                         found = true;
@@ -41,7 +43,7 @@ redirectIfLoggedOut();
                                     tries++;
                                     msgBox.innerHTML = "matchmaking attempts: "+tries;
                                     if (search) {
-                                        setTimeout(match(), 5000);
+                                        setTimeout(match(), 10000);
                                     }
                                 }
                             });

@@ -7,21 +7,20 @@ $db = new Database();
 $arr = [];
 $opp = false;
 
-if($db->isInMatching($uname)){
-    //try to find a match
-    try{
-        $opp = $db->findMatch($uname);
-        //if match found
-        if($opp != false){
-            $arr[] = array(
-            "opp" => $opp,
-            );
-        }
-    } catch(Exception $e){
-        addError($arr,$e->getMessage());
-    }
-} else{
+if(!$db->isInMatching($uname)){
     $db->addToMatching($uname);
+}
+//try to find a match
+try{
+    $opp = $db->findMatch($uname);
+    //if match found
+    if($opp != false){
+        $arr[] = array(
+        "found" => true,
+        );
+    }
+} catch(Exception $e){
+    addError($arr,$e->getMessage());
 }
 sendJSON($arr);
 ?>
